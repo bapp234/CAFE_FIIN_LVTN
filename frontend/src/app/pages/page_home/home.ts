@@ -126,12 +126,24 @@ export class PageHome {
 
   readonly heroSlides: HeroSlideItem[] = [
     { title: 'MỘT CHẤT PHIN TỪ 1999', subtitle: 'PHIN SỮA ĐÁ', desc: 'Hương vị cà phê đậm đà kết hợp cùng sữa đặc béo ngậy truyền thống.', image: '/assets/images/hero/slide-01-desktop.webp' },
-    { title: 'HƯƠNG VỊ VỢT XƯA', subtitle: 'BẠC XỈU BA TẦNG', desc: 'Nét tinh tế giao thoa giữa văn hoá cà phê Sài Gòn và phong cách hiện đại.', image: '/assets/images/hero/slide-02-desktop.webp' },
+    { title: 'HƯƠNG VỊ VỢT XƯA', subtitle: 'BẠC XỈU BA TẦNG', desc: 'Nét tinh tế giao thoa giữa văn hoá cà phê Sài Gòn và phong cách hiện đại.', image: '/assets/images/hero/slide-02-desktop.webp', link: '/uu-dai' },
+    { title: 'ĐẬM ĐÀ NGUYÊN BẢN', subtitle: 'PHIN ĐEN ĐÁ', desc: 'Nguyên chất vị đắng mộc mạc của hạt Robusta & Arabica chọn lọc.', image: '/assets/images/hero/slide-03-desktop.webp' },
   ];
 
   toggleSidebar(): void { this.isSidebarOpen.update((v) => !v); }
   nextSlide(): void { this.currentSlide.update((i) => (i + 1) % this.heroSlides.length); }
   prevSlide(): void { this.currentSlide.update((i) => (i - 1 + this.heroSlides.length) % this.heroSlides.length); }
+  goToSlide(index: number): void { this.currentSlide.set(index); }
+
+  onHeroSlideClick(index: number): void {
+    const heroProductMap: Record<number, Product> = {
+      0: this.phinProducts[0], // Phin Sữa Đá
+      1: this.phinProducts[2], // Bạc Xỉu Đá
+      2: this.phinProducts[1], // Phin Đen Đá
+    };
+    const product = heroProductMap[index] ?? this.phinProducts[0];
+    this.openProductModal(product);
+  }
 
   copyVoucher(code: string): void {
     navigator.clipboard?.writeText(code);

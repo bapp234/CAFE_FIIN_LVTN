@@ -1,0 +1,28 @@
+@reference "../../../styles.css";
+
+:host {
+  display: block;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1rem;
+  background-color: var(--color-be-card);
+  border-bottom: 1px solid var(--color-vien-co);
+}
+
+.head-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  color: var(--color-do);
+}
+
+.head-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-do);
+}

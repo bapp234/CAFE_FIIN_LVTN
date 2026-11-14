@@ -1,12 +1,17 @@
-<aside class="sidebar-category-menu" [class.is-hidden]="!isOpen()">
+<aside class="sidebar" [class.is-hidden]="!isOpen()" aria-label="Danh mục sản phẩm">
+  <app-sidebar-header [title]="title()" />
 
-    <ul class="category-nav-list">
-        @for (cat of categories(); track cat.id) {
-        <li class="category-nav-item">
-            <a [href]="'#' + cat.id" class="category-nav-link">
-                <span class="cat-item-name">{{ cat.name }}</span>
-            </a>
+  <nav>
+    <ul class="category-list">
+      @for (cat of categories(); track cat.id) {
+        <li class="category-row">
+          <app-category-item
+            [category]="cat"
+            [active]="cat.id === activeId()"
+            (selected)="onSelected($event)"
+          />
         </li>
-        }
+      }
     </ul>
+  </nav>
 </aside>

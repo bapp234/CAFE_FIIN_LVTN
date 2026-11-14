@@ -44,40 +44,16 @@
   </div>
 
   <!-- 2. SUB-HEADER THANH ĐỎ HIGHLANDS SIGNATURE -->
-  <div class="header-sub-bar">
-    <div class="sub-bar-container">
-      <!-- Nút bật/tắt Danh mục sản phẩm -->
-      <button type="button" class="cat-toggle-btn" (click)="onToggleSidebar()" [class.is-active]="isSidebarOpen()"
-        aria-label="Đóng mở danh mục sản phẩm">
-        <svg lucideMenu class="cat-menu-icon"></svg>
-        <span>Danh mục sản phẩm</span>
-      </button>
-
-      <!-- Các liên kết nhanh trên thanh đỏ -->
-      <nav class="sub-nav-links" aria-label="Liên kết nhanh">
-        <a routerLink="/san-pham" class="sub-nav-link">
-          <span>Thực đơn</span>
-        </a>
-        <a routerLink="/tin-tuc" class="sub-nav-link">
-          <span>Chuyện phiếm & Tin tức</span>
-        </a>
-        <a routerLink="/uu-dai" class="sub-nav-link">
-          <span>Ưu đãi thành viên</span>
-        </a>
-        <a routerLink="/chinh-sach-doi-tra" class="sub-nav-link">
-          <span>Chính sách đổi trả</span>
-        </a>
-        <a routerLink="/lien-he" class="sub-nav-link">
-          <span>Liên hệ</span>
-        </a>
-      </nav>
-    </div>
-  </div>
+  <app-widget-header-subbar
+    [isSidebarOpen]="isSidebarOpen()"
+    (toggleSidebar)="onToggleSidebar()"
+  ></app-widget-header-subbar>
 
   <!-- Mobile Dropdown Menu -->
-  @if (isMobileMenuOpen()) {
-  <nav class="mobile-nav-panel" aria-label="Menu trên thiết bị di động">
-    <app-search-box (searched)="onSearch($event)"></app-search-box>
+  <nav class="mobile-nav-panel" [attr.aria-hidden]="!isMobileMenuOpen()" aria-label="Menu trên thiết bị di động">
+    <div class="mobile-search-wrap">
+      <app-search-box (searched)="onSearch($event)"></app-search-box>
+    </div>
 
     <ul class="mobile-nav-list">
       <li class="mobile-nav-item">
@@ -101,12 +77,6 @@
           <span>Chuyện phiếm & Tin tức</span>
         </a>
       </li>
-      <li class="mobile-nav-item">
-        <a routerLink="/" class="mobile-nav-link" (click)="closeMobileMenu()">
-          <span>&larr; Quay về trang giới thiệu (Landing Page)</span>
-        </a>
-      </li>
     </ul>
   </nav>
-  }
 </header>

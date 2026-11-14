@@ -1,0 +1,110 @@
+@reference "../../../styles.css";
+
+:host {
+  display: block;
+}
+
+.cat-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 1rem;
+  text-decoration: none;
+  color: var(--color-den);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+/* Thanh nhấn đỏ bên trái: lớn dần từ giữa khi hover hoặc đang chọn */
+.cat-link::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35rem;
+  bottom: 0.35rem;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background-color: var(--color-do);
+  transform: scaleY(0);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cat-link:hover,
+.cat-link:focus-visible {
+  background-color: rgba(155, 45, 32, 0.06);
+  color: var(--color-do);
+}
+
+.cat-link:focus-visible {
+  outline: 2px solid var(--color-do);
+  outline-offset: -2px;
+}
+
+.cat-link:hover::before,
+.cat-link:focus-visible::before,
+.cat-link.is-active::before {
+  transform: scaleY(1);
+}
+
+.cat-link.is-active {
+  background-color: rgba(155, 45, 32, 0.09);
+  color: var(--color-do);
+  font-weight: 700;
+}
+
+/* Chip tròn chứa icon, đổi sang đỏ đặc khi hover hoặc đang chọn */
+.cat-chip {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1.5px solid var(--color-do);
+  border-radius: 50%;
+  color: var(--color-do);
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.cat-link:hover .cat-chip,
+.cat-link:focus-visible .cat-chip,
+.cat-link.is-active .cat-chip {
+  background-color: var(--color-do);
+  color: var(--color-trang);
+}
+
+.cat-link:hover .cat-chip {
+  transform: scale(1.06);
+}
+
+.cat-name {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Mũi tên ẩn mặc định, hiện và trượt sang phải khi hover */
+.cat-arrow {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.cat-link:hover .cat-arrow,
+.cat-link:focus-visible .cat-arrow,
+.cat-link.is-active .cat-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}

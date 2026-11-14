@@ -1,0 +1,86 @@
+@reference "../../../styles.css";
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+/* Ngăn nháy khung hình đầu tiên trước khi GSAP khởi chạy */
+:host(:not(.subbar-rendered)) {
+  @media (prefers-reduced-motion: no-preference) {
+    .header-sub-bar {
+      visibility: hidden;
+    }
+  }
+}
+
+/* Thanh đỏ sub-bar */
+.header-sub-bar {
+  background-color: var(--color-do);
+  color: var(--color-trang);
+}
+
+.sub-bar-container {
+  max-width: 80rem;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 1rem;
+}
+
+.cat-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--color-trang);
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.cat-toggle-btn:hover,
+.cat-toggle-btn.is-active {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.cat-menu-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.sub-nav-links {
+  display: none;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.sub-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-trang);
+  text-decoration: none;
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 500;
+  opacity: 0.95;
+  transition: opacity 0.2s;
+}
+
+.sub-nav-link:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+@media (min-width: 768px) {
+  .sub-nav-links {
+    display: flex;
+  }
+}

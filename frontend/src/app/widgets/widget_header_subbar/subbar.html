@@ -1,0 +1,25 @@
+<div class="header-sub-bar">
+  <div class="sub-bar-container">
+    <!-- Nút bật/tắt Danh mục sản phẩm -->
+    <button
+      type="button"
+      class="cat-toggle-btn"
+      [class.is-active]="isSidebarOpen()"
+      [attr.aria-expanded]="isSidebarOpen()"
+      aria-label="Đóng mở danh mục sản phẩm"
+      (click)="onToggleSidebar()"
+    >
+      <svg lucideMenu class="cat-menu-icon"></svg>
+      <span>Danh mục sản phẩm</span>
+    </button>
+
+    <!-- Các liên kết nhanh -->
+    <nav class="sub-nav-links" aria-label="Liên kết nhanh">
+      @for (link of links(); track link.path) {
+        <a [routerLink]="link.path" class="sub-nav-link">
+          <span>{{ link.label }}</span>
+        </a>
+      }
+    </nav>
+  </div>
+</div>

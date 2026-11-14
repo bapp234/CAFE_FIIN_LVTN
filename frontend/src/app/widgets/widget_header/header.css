@@ -8,6 +8,18 @@
   width: 100%;
 }
 
+/* Ngăn nháy khung hình đầu tiên (FOUC) trước khi GSAP khởi chạy */
+:host(:not(.header-rendered)) {
+  @media (prefers-reduced-motion: no-preference) {
+    .header-main-row,
+    .brand-link,
+    .header-search,
+    .header-actions > * {
+      visibility: hidden;
+    }
+  }
+}
+
 .order-header {
   background-color: var(--color-trang);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
@@ -100,78 +112,7 @@
   height: 1.5rem;
 }
 
-/* Thanh đỏ Highlands sub-bar */
-.header-sub-bar {
-  background-color: var(--color-do);
-  color: var(--color-trang);
-}
-
-.sub-bar-container {
-  max-width: 80rem;
-  margin-inline: auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.45rem 1rem;
-}
-
-.cat-toggle-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: transparent;
-  border: none;
-  color: var(--color-trang);
-  font-family: var(--font-ui);
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 0.35rem 0.75rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.cat-toggle-btn:hover,
-.cat-toggle-btn.is-active {
-  background-color: rgba(255, 255, 255, 0.15);
-}
-
-.cat-menu-icon {
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-.sub-nav-links {
-  display: none;
-  align-items: center;
-  gap: 1.75rem;
-}
-
-.sub-nav-link {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  color: var(--color-trang);
-  text-decoration: none;
-  font-family: var(--font-ui);
-  font-size: 0.88rem;
-  font-weight: 500;
-  opacity: 0.95;
-  transition: opacity 0.2s;
-}
-
-.sub-nav-link:hover {
-  opacity: 1;
-  text-decoration: underline;
-}
-
-.back-landing-link {
-  background-color: rgba(0, 0, 0, 0.2);
-  padding: 0.25rem 0.65rem;
-  border-radius: 3px;
-}
-
-/* Mobile Dropdown */
+/* Mobile Dropdown Panel */
 .mobile-nav-panel {
   position: absolute;
   top: 100%;
@@ -179,12 +120,22 @@
   width: 100%;
   background-color: var(--color-trang);
   border-bottom: 2px solid var(--color-do);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
   padding: 1.2rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   z-index: 60;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+  transform: translateY(-8px);
+  will-change: clip-path, transform, opacity;
+}
+
+.mobile-search-wrap {
+  width: 100%;
 }
 
 
@@ -229,8 +180,7 @@
 /* Breakpoints */
 @media (min-width: 768px) {
   .header-search { display: block; }
-  .delivery-item,
-  .sub-nav-links { display: flex; }
+  .delivery-item { display: flex; }
 }
 
 @media (min-width: 1024px) {

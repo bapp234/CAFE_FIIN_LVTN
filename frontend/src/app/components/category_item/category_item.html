@@ -1,0 +1,13 @@
+<a
+  class="cat-link"
+  [class.is-active]="active()"
+  [href]="'#' + category().id"
+  [attr.aria-current]="active() ? 'true' : null"
+  (click)="onClick()"
+>
+  <span class="cat-chip">
+    <app-category-icon [name]="category().icon" />
+  </span>
+  <span class="cat-name">{{ category().name }}</span>
+  <svg lucideChevronRight class="cat-arrow" aria-hidden="true"></svg>
+</a>

@@ -14,7 +14,8 @@
       <main class="order-content-area">
         <!-- Widget Hero Banner -->
         <app-widget-home-hero [slides]="heroSlides" [currentSlide]="currentSlide()"
-          (orderClick)="openProductModal(phinProducts[0])" (prevClick)="prevSlide()" (nextClick)="nextSlide()" />
+          (slideClick)="onHeroSlideClick($event)" (prevClick)="prevSlide()" (nextClick)="nextSlide()"
+          (selectSlide)="goToSlide($event)" />
 
         <!-- Widget Dải Voucher -->
         <app-widget-home-vouchers [vouchers]="vouchers()" (copyVoucher)="copyVoucher($event)" />
