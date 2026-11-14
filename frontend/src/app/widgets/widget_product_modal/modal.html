@@ -1,0 +1,66 @@
+<div class="product-modal-backdrop" (click)="closeModal.emit()">
+    <div class="product-modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-card-header">
+            <div class="modal-prod-summary">
+                <h3 class="modal-prod-name">{{ product().name }}</h3>
+                <span class="modal-prod-price">{{ formatPrice(product().price) }}</span>
+            </div>
+            <button type="button" class="btn-close-modal" (click)="closeModal.emit()" aria-label="Đóng">
+                <svg lucideX class="close-icon"></svg>
+            </button>
+        </div>
+
+        <div class="modal-card-body">
+            <!-- Chọn Size -->
+            <div class="modal-option-group">
+                <label class="option-group-title">Chọn Size (Kích cỡ ly):</label>
+                <div class="options-pill-list">
+                    <button type="button" class="option-pill" [class.is-selected]="modalSize() === 'S'"
+                        (click)="changeSize('S')">Size S (-5.000đ)</button>
+                    <button type="button" class="option-pill" [class.is-selected]="modalSize() === 'M'"
+                        (click)="changeSize('M')">Size M (Chuẩn)</button>
+                    <button type="button" class="option-pill" [class.is-selected]="modalSize() === 'L'"
+                        (click)="changeSize('L')">Size L (+10.000đ)</button>
+                </div>
+            </div>
+
+            <!-- Lượng đường -->
+            <div class="modal-option-group">
+                <label class="option-group-title">Lượng đường:</label>
+                <div class="options-pill-list">
+                    @for (sugar of ['100%', '70%', '50%', '0%']; track sugar) {
+                    <button type="button" class="option-pill" [class.is-selected]="modalSugar() === sugar"
+                        (click)="changeSugar(sugar)">{{ sugar }}</button>
+                    }
+                </div>
+            </div>
+
+            <!-- Lượng đá -->
+            <div class="modal-option-group">
+                <label class="option-group-title">Lượng đá:</label>
+                <div class="options-pill-list">
+                    @for (ice of ['100%', '70%', '50%', '0%']; track ice) {
+                    <button type="button" class="option-pill" [class.is-selected]="modalIce() === ice"
+                        (click)="changeIce(ice)">{{ ice }}</button>
+                    }
+                </div>
+            </div>
+
+            <!-- Số lượng -->
+            <div class="modal-quantity-row">
+                <span class="quantity-lbl">Số lượng:</span>
+                <div class="qty-control-box">
+                    <button type="button" class="btn-qty" (click)="decrement()">-</button>
+                    <span class="qty-number">{{ modalQuantity() }}</span>
+                    <button type="button" class="btn-qty" (click)="increment()">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-card-footer">
+            <button type="button" class="btn-submit-cart" (click)="submit()">
+                <span>Thêm vào giỏ hàng • {{ formatPrice(getTotalPrice()) }}</span>
+            </button>
+        </div>
+    </div>
+</div>

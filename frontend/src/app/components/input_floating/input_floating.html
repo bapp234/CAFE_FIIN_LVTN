@@ -1,0 +1,33 @@
+<div class="form-control" [class.is-floating]="isFloating()" [class.has-error]="!!errorMessage()">
+  <input
+    [id]="inputId()"
+    [type]="effectiveType()"
+    [value]="innerValue()"
+    [disabled]="isDisabled()"
+    [autocomplete]="autocomplete()"
+    [required]="required()"
+    placeholder=" "
+    (input)="onInput($event)"
+    (focus)="onFocus()"
+    (blur)="onBlur()"
+  />
+  <label [for]="inputId()">
+    @for (char of labelLetters(); track $index) {
+      <span [style.transition-delay]="$index * 35 + 'ms'">{{ char === ' ' ? '&#160;' : char }}</span>
+    }
+  </label>
+  @if (type() === 'password') {
+    <button
+      type="button"
+      class="toggle-pass-btn"
+      (mousedown)="$event.preventDefault()"
+      (click)="togglePassword()"
+      [attr.aria-label]="showPassword() ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
+    >
+      {{ showPassword() ? 'Ẩn' : 'Hiện' }}
+    </button>
+  }
+</div>
+@if (errorMessage()) {
+  <small class="floating-error">{{ errorMessage() }}</small>
+}

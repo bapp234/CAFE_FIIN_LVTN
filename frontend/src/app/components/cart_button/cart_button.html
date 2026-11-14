@@ -1,0 +1,15 @@
+<button type="button" class="cart-btn" [attr.aria-label]="ariaLabel()" (click)="onClick()">
+  <span class="cart-icon-box">
+    <svg lucideShoppingCart class="cart-icon"></svg>
+    @if (showBadge() && count() > 0) {
+      <span class="cart-badge">{{ badgeText() }}</span>
+    }
+  </span>
+
+  <span class="cube-wrap" aria-hidden="true">
+    <span class="cube">
+      <span class="side front">Giỏ hàng</span>
+      <span class="side bottom">{{ hoverText() }}</span>
+    </span>
+  </span>
+</button>

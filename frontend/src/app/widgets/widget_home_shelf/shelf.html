@@ -1,0 +1,69 @@
+<section [id]="sectionId()" class="products-section">
+    <div class="section-title-wrap">
+        <h2 class="section-main-heading" [class.flex-heading]="!!icon()">
+            @if (icon(); as ico) {
+            <span class="heading-emoji">{{ ico }}</span>
+            }
+            <span>{{ title() }}</span>
+        </h2>
+    </div>
+
+    @if (bannerLead(); as b) {
+    <!-- Kiểu hiển thị kèm Banner dẫn đường -->
+    <div class="memory-showcase-grid">
+        <div class="memory-big-banner-card">
+            <div class="memory-banner-content">
+                <span class="banner-badge-new">{{ b.badge }}</span>
+                <span class="sub-text">{{ b.sub }}</span>
+                <h3 class="banner-lead-title">{{ b.title }}</h3>
+                <p class="banner-lead-desc">{{ b.desc }}</p>
+            </div>
+            <img [src]="b.image" [alt]="b.title" class="memory-banner-img" loading="lazy" />
+        </div>
+
+        @for (product of products(); track product.id) {
+        <ng-container *ngTemplateOutlet="productCardTpl; context: { $implicit: product }"></ng-container>
+        }
+    </div>
+    } @else {
+    <!-- Kiểu hiển thị Lưới 5 sản phẩm chuẩn -->
+    <div class="products-grid-5">
+        @for (product of products(); track product.id) {
+        <ng-container *ngTemplateOutlet="productCardTpl; context: { $implicit: product }"></ng-container>
+        }
+    </div>
+
+    <div class="see-all-wrapper">
+        <a routerLink="/san-pham" class="btn-see-all">
+            <span>Xem tất cả</span>
+            <svg lucideChevronRight class="btn-arrow-icon"></svg>
+        </a>
+    </div>
+    }
+</section>
+
+<!-- Template Card sản phẩm dùng chung -->
+<ng-template #productCardTpl let-product>
+    <article class="product-order-card">
+        <div class="product-thumb-box">
+            <img [src]="product.image" [alt]="product.name" class="product-thumb-img" loading="lazy" />
+            @if (product.badge) {
+            <span class="badge-tag" [class.badge-banchay]="product.badge === 'BÁN CHẠY!'">
+                {{ product.badge }}
+            </span>
+            }
+        </div>
+
+        <div class="product-card-body">
+            <span class="product-brand-tag">{{ product.brand }}</span>
+            <h3 class="product-card-name">{{ product.name }}</h3>
+            <div class="product-price-action-row">
+                <span class="product-price-tag">{{ formatPrice(product.price) }}</span>
+                <button type="button" class="btn-add-circle" (click)="selectProduct.emit(product)"
+                    [attr.aria-label]="'Chọn tuỳ chọn món ' + product.name">
+                    <svg lucidePlus class="add-icon"></svg>
+                </button>
+            </div>
+        </div>
+    </article>
+</ng-template>

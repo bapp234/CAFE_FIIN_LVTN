@@ -1,0 +1,306 @@
+<div class="news-page-wrapper">
+  <!-- 1. HEADER CHÍNH DÙNG CHUNG -->
+  <app-widget-header
+    [cartCount]="0"
+    [isSidebarOpen]="false"
+    (toggleSidebar)="navigateToHome()"
+    (toggleCart)="navigateToHome()"
+  ></app-widget-header>
+
+  <!-- 2. MASTHEAD BÁO XƯA & BREADCRUMB -->
+  <header class="journal-masthead-banner">
+    <div class="news-container">
+      <nav class="news-breadcrumb" aria-label="Đường dẫn trang">
+        <ol class="breadcrumb-list">
+          <li class="breadcrumb-item">
+            <a routerLink="/" class="breadcrumb-link">Trang chủ</a>
+          </li>
+          <li class="breadcrumb-separator" aria-hidden="true">/</li>
+          <li class="breadcrumb-item">
+            <a routerLink="/home" class="breadcrumb-link">Cửa hàng</a>
+          </li>
+          <li class="breadcrumb-separator" aria-hidden="true">/</li>
+          <li class="breadcrumb-item breadcrumb-current" aria-current="page">
+            Chuyện phiếm cùng Fiin
+          </li>
+        </ol>
+      </nav>
+
+      <!-- Khung Tiêu Đề Báo In Cổ Điển -->
+      <div class="newspaper-header-box">
+        <div class="newspaper-meta-top">
+          <span class="meta-side">BẢN TIN SỐ 19 • THÁNG 11/2026</span>
+          <span class="meta-center">FIIN JOURNAL • SÀI GÒN KÝ SỰ</span>
+          <span class="meta-side">PHÁT HÀNH ĐỊNH KỲ</span>
+        </div>
+
+        <h1 class="newspaper-main-title">CHUYỆN PHIẾM CÙNG FIIN</h1>
+        <p class="newspaper-tagline">
+          Ghi lại những nốt hương cà phê rang mộc, câu chuyện góc phố và những điều đáng nhớ bên tách phin mỗi ngày.
+        </p>
+      </div>
+
+      <!-- Thanh chọn chuyên mục bài viết -->
+      <nav class="categories-filter-bar" aria-label="Lọc theo chuyên mục bài viết">
+        @for (cat of categories; track cat.id) {
+          <button
+            type="button"
+            class="cat-filter-pill"
+            [class.is-active]="selectedCategory() === cat.id"
+            (click)="selectCategory(cat.id)"
+          >
+            <span class="pill-icon">{{ cat.icon }}</span>
+            <span class="pill-name">{{ cat.name }}</span>
+          </button>
+        }
+      </nav>
+    </div>
+  </header>
+
+  <!-- 3. KHU VỰC NỘI DUNG BÀI VIẾT -->
+  <main class="news-main-content">
+    <div class="news-container">
+
+      <!-- BÀI VIẾT TIÊU ĐIỂM (CHỈ HIỂN THỊ KHI CHỌN "TẤT CẢ" HOẶC CHUYÊN MỤC CỦA NÓ) -->
+      @if (selectedCategory() === 'all' || selectedCategory() === featuredArticle().category) {
+        <section class="featured-story-section" aria-label="Bài viết tiêu điểm">
+          <article class="featured-card">
+            <div class="featured-image-col">
+              <div class="image-frame-retro">
+                <img
+                  [src]="featuredArticle().image"
+                  [alt]="featuredArticle().title"
+                  class="featured-photo"
+                  loading="lazy"
+                />
+                <span class="frame-tag">TIÊU ĐIỂM KỲ NÀY</span>
+                <span class="frame-stamp" aria-hidden="true">✳</span>
+              </div>
+            </div>
+
+            <div class="featured-body-col">
+              <div class="story-meta-row">
+                <span class="meta-category-badge">{{ featuredArticle().categoryLabel }}</span>
+                <span class="meta-dot" aria-hidden="true">•</span>
+                <div class="meta-clock">
+                  <svg lucideClock class="meta-svg"></svg>
+                  <span>{{ featuredArticle().readTime }}</span>
+                </div>
+              </div>
+
+              <h2 class="featured-story-title">
+                <button type="button" class="title-link-btn" (click)="openArticleModal(featuredArticle())">
+                  {{ featuredArticle().title }}
+                </button>
+              </h2>
+
+              <p class="featured-story-excerpt">
+                {{ featuredArticle().excerpt }}
+              </p>
+
+              <div class="featured-card-footer">
+                <div class="author-info">
+                  <span class="author-name">Bút ký: {{ featuredArticle().author }}</span>
+                  <span class="publish-date">{{ featuredArticle().date }}</span>
+                </div>
+
+                <button
+                  type="button"
+                  class="btn-read-story"
+                  (click)="openArticleModal(featuredArticle())"
+                  [attr.aria-label]="'Đọc bài viết: ' + featuredArticle().title"
+                >
+                  <span>Đọc Toàn Bộ Câu Chuyện</span>
+                  <svg lucideArrowRight class="btn-arrow-icon"></svg>
+                </button>
+              </div>
+            </div>
+          </article>
+        </section>
+      }
+
+      <!-- LƯỚI CÁC BÀI VIẾT TIẾP THEO -->
+      <section class="stories-grid-section" aria-label="Danh sách bài viết">
+        <div class="stories-grid-layout">
+          @for (article of regularArticles(); track article.id) {
+            <article class="story-grid-card">
+              <!-- Thumbnail ảnh -->
+              <div class="story-thumb-wrap">
+                <img
+                  [src]="article.image"
+                  [alt]="article.title"
+                  class="story-thumb-img"
+                  loading="lazy"
+                />
+                <span class="story-cat-badge">{{ article.categoryLabel }}</span>
+              </div>
+
+              <!-- Thân thẻ bài viết -->
+              <div class="story-card-body">
+                <div class="story-card-meta">
+                  <div class="meta-item">
+                    <svg lucideCalendar class="meta-icon-mini"></svg>
+                    <span>{{ article.date }}</span>
+                  </div>
+                  <span class="meta-dot-mini" aria-hidden="true">•</span>
+                  <div class="meta-item">
+                    <svg lucideClock class="meta-icon-mini"></svg>
+                    <span>{{ article.readTime }}</span>
+                  </div>
+                </div>
+
+                <h3 class="story-card-heading">
+                  <button type="button" class="heading-link-btn" (click)="openArticleModal(article)">
+                    {{ article.title }}
+                  </button>
+                </h3>
+
+                <p class="story-card-excerpt">
+                  {{ article.excerpt }}
+                </p>
+
+                <div class="story-card-action">
+                  <button
+                    type="button"
+                    class="btn-read-more"
+                    (click)="openArticleModal(article)"
+                    [attr.aria-label]="'Đọc bài viết: ' + article.title"
+                  >
+                    <span>Đọc Tiếp</span>
+                    <svg lucideArrowRight class="arrow-svg"></svg>
+                  </button>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      <!-- 4. KHỐI ĐĂNG KÝ BẢN TIN CHUYỆN PHIN XƯA (NEWSLETTER) -->
+      <section class="journal-newsletter-section">
+        <div class="newsletter-card-retro">
+          <span class="letter-badge">LÁ THƯ TÂM GIAO</span>
+          <h2 class="letter-title">Nhận Thư Chuyện Phin Mỗi Sáng Chủ Nhật</h2>
+          <p class="letter-desc">
+            Không quảng cáo làm phiền. Chúng tôi chỉ gửi đến bạn một mẩu chuyện bình yên bên tách cà phê và những ưu đãi độc quyền dành riêng cho bạn hữu thân thiết.
+          </p>
+
+          <form class="letter-form" (submit)="$event.preventDefault(); subscribeNewsletter(emailInput.value); emailInput.value = ''">
+            <input
+              #emailInput
+              type="email"
+              class="letter-input"
+              placeholder="Nhập địa chỉ thư điện tử (email) của bạn..."
+              required
+              aria-label="Địa chỉ email nhận bản tin"
+            />
+            <button type="submit" class="btn-letter-submit">
+              <span>Gửi Lá Thư</span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- 5. MODAL ĐỌC CHI TIẾT BÀI VIẾT (ARTICLE READER MODAL) -->
+  @if (selectedArticle(); as article) {
+    <div class="article-modal-backdrop" (click)="closeArticleModal()">
+      <div class="article-reader-panel" (click)="$event.stopPropagation()">
+        <!-- Header modal -->
+        <div class="reader-header-bar">
+          <span class="reader-cat-tag">{{ article.categoryLabel }}</span>
+          <div class="reader-header-actions">
+            <button
+              type="button"
+              class="btn-share-article"
+              (click)="shareArticle(article)"
+              aria-label="Chia sẻ bài viết"
+            >
+              <svg lucideShare2 class="share-icon"></svg>
+              <span>Chia sẻ</span>
+            </button>
+            <button
+              type="button"
+              class="btn-close-reader"
+              (click)="closeArticleModal()"
+              aria-label="Đóng bài viết"
+            >
+              <svg lucideX class="close-reader-icon"></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Thân bài viết cuộn -->
+        <div class="reader-scrollable-content">
+          <h2 class="reader-article-title">{{ article.title }}</h2>
+
+          <div class="reader-byline">
+            <span>Tác giả: <strong>{{ article.author }}</strong></span>
+            <span class="byline-dot">•</span>
+            <span>{{ article.date }}</span>
+            <span class="byline-dot">•</span>
+            <span>{{ article.readTime }}</span>
+          </div>
+
+          <div class="reader-image-wrap">
+            <img [src]="article.image" [alt]="article.title" class="reader-hero-image" />
+          </div>
+
+          <div class="reader-prose-body">
+            @for (paragraph of article.content; track $index; let isFirst = $first) {
+              <p class="reader-paragraph" [class.drop-cap-paragraph]="isFirst">
+                {{ paragraph }}
+              </p>
+            }
+          </div>
+
+          <div class="reader-end-signature">
+            <span class="signature-line" aria-hidden="true">✦ ✦ ✦</span>
+            <p class="signature-text">
+              Thưởng thức một ly cà phê phin Cà Phê Fiin ngay bây giờ để cảm nhận trọn vẹn câu chuyện này bạn nhé!
+            </p>
+            <div class="signature-actions">
+              <a routerLink="/san-pham" class="btn-order-from-story" (click)="closeArticleModal()">
+                <span>Xem Thực Đơn Đặt Món</span>
+                <svg lucideArrowRight class="btn-arrow-icon"></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- 6. NÚT NỔI TÁC VỤ (FAB) -->
+  <div class="news-floating-group">
+    <button
+      type="button"
+      class="fab-btn fab-top"
+      (click)="scrollToTop()"
+      aria-label="Cuộn lên đầu trang"
+    >
+      <svg lucideChevronUp class="fab-icon"></svg>
+    </button>
+    <a
+      href="tel:19001755"
+      class="fab-btn fab-call"
+      aria-label="Gọi hotline hỗ trợ 1900 1755"
+    >
+      <svg lucidePhone class="fab-icon"></svg>
+    </a>
+  </div>
+
+  <!-- 7. THÔNG BÁO TOAST -->
+  @if (toastMessage(); as msg) {
+    <div class="news-toast-box" role="status" aria-live="polite">
+      <svg lucideCheck class="toast-check-icon"></svg>
+      <span>{{ msg }}</span>
+    </div>
+  }
+
+  <!-- 8. FOOTER CHÍNH -->
+  <app-widget-landing-footer></app-widget-landing-footer>
+</div>
+

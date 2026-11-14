@@ -1,0 +1,119 @@
+@reference "../../../styles.css";
+
+:host {
+  display: block;
+  --header-h: 100px;
+  /* thay bằng số đo được */
+  --marquee-h: 58px;
+}
+
+.hero-section {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  /* đúng một màn hình */
+  min-height: 560px;
+  background-color: var(--color-nau-dam);
+}
+
+.hero-stage {
+  position: relative;
+  width: 100%;
+  flex: 1 1 auto;
+  /* chiếm hết phần còn lại */
+  min-height: 0;
+  overflow: hidden;
+}
+
+
+
+.hero-static-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* luôn phủ kín, không méo */
+  object-position: 60% center;
+  /* giữ phần chữ "Cà Phê Fiin" + ly phin trong khung */
+  display: block;
+  user-select: none;
+}
+
+.hero-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+      rgba(28, 21, 18, 0.52) 0%,
+      rgba(28, 21, 18, 0.08) 45%,
+      rgba(28, 21, 18, 0.35) 100%);
+  pointer-events: none;
+}
+
+/* Marquee Bar */
+.hero-marquee-bar {
+  width: 100%;
+  overflow: hidden;
+  flex: 0 0 auto;
+  /* giữ chiều cao tự nhiên */
+
+  background-color: var(--color-nau-dam);
+  border-top: 1px solid rgba(242, 232, 208, 0.18);
+  border-bottom: 1px solid rgba(242, 232, 208, 0.18);
+  padding: 0.7rem 0;
+}
+
+.marquee-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: heroMarquee 24s linear infinite;
+}
+
+.marquee-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  min-width: 100vw;
+  gap: 2.5rem;
+  padding-right: 2.5rem;
+  box-sizing: border-box;
+}
+
+.marquee-item {
+  font-family: var(--font-heading);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--color-be);
+  white-space: nowrap;
+}
+
+.marquee-sep {
+  color: var(--color-nau-dat);
+  font-size: 0.85rem;
+}
+
+@keyframes heroMarquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-stage {
+    height: calc(100dvh - var(--header-h) - var(--marquee-h));
+    min-height: 360px;
+    max-height: 640px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}

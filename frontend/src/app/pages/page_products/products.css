@@ -1,0 +1,1145 @@
+@reference "../../../styles.css";
+
+:host {
+  display: block;
+  background-color: var(--color-be);
+  color: var(--color-den);
+  font-family: var(--font-body);
+}
+
+.products-page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-be);
+}
+
+.products-container {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  box-sizing: border-box;
+}
+
+/* =========================================
+   2. HERO BANNER & TÌM KIẾM
+   ========================================= */
+.products-hero-banner {
+  background-color: var(--color-be-card);
+  border-bottom: 2px solid var(--color-vien-co);
+  padding: 2rem 0 2.5rem;
+}
+
+.products-breadcrumb {
+  margin-bottom: 1.25rem;
+}
+
+.breadcrumb-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+}
+
+.breadcrumb-link {
+  color: var(--color-nau-xam);
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+
+.breadcrumb-link:hover {
+  color: var(--color-do);
+  text-decoration: underline;
+}
+
+.breadcrumb-separator {
+  color: var(--color-nau-xam);
+  user-select: none;
+}
+
+.breadcrumb-current {
+  color: var(--color-do);
+  font-weight: 600;
+}
+
+.hero-content-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.vintage-stamp {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  font-family: var(--font-ui);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.65rem;
+}
+
+.hero-page-title {
+  margin: 0 0 0.65rem;
+  font-family: var(--font-heading);
+  font-size: 2.15rem;
+  font-weight: 700;
+  color: var(--color-den);
+  line-height: 1.2;
+}
+
+.hero-page-desc {
+  margin: 0;
+  max-width: 720px;
+  font-size: 1.02rem;
+  line-height: 1.6;
+  color: var(--color-nau-xam);
+}
+
+.hero-search-area {
+  max-width: 640px;
+}
+
+.search-input-wrap {
+  display: flex;
+  align-items: center;
+  background-color: var(--color-trang);
+  border: 1.5px solid var(--color-do);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.85rem;
+  box-shadow: 0 2px 6px rgba(35, 31, 28, 0.06);
+}
+
+.search-input-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  color: var(--color-do);
+  flex-shrink: 0;
+  margin-right: 0.65rem;
+}
+
+.products-search-field {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+  color: var(--color-den);
+}
+
+.btn-clear-search {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-nau-xam);
+  padding: 0.2rem;
+  display: flex;
+  align-items: center;
+}
+
+.btn-clear-search:hover {
+  color: var(--color-do);
+}
+
+.clear-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.quick-keywords-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+}
+
+.kw-label {
+  color: var(--color-nau-xam);
+  font-weight: 600;
+}
+
+.kw-tag {
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.55rem;
+  color: var(--color-den);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
+  transition: all 150ms ease;
+}
+
+.kw-tag:hover {
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  border-color: var(--color-do);
+}
+
+/* =========================================
+   3. BỐ CỤC CHÍNH (SIDEBAR + PRODUCT GRID)
+   ========================================= */
+.products-main-layout {
+  flex: 1;
+  padding: 2.5rem 0 4.5rem;
+}
+
+.layout-grid-wrap {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2.25rem;
+  align-items: start;
+}
+
+/* SIDEBAR BỘ LỌC */
+.products-filter-sidebar {
+  position: sticky;
+  top: 1.5rem;
+}
+
+.filter-panel-card {
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-md);
+  padding: 1.35rem;
+  box-shadow: 0 1px 3px rgba(35, 31, 28, 0.05);
+}
+
+.filter-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.85rem;
+  border-bottom: 2px solid var(--color-do);
+  margin-bottom: 1.25rem;
+}
+
+.filter-heading-group {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.filter-header-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  color: var(--color-do);
+}
+
+.filter-heading-text {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: var(--color-den);
+}
+
+.btn-reset-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: transparent;
+  border: none;
+  color: var(--color-do);
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.btn-reset-filter:hover {
+  text-decoration: underline;
+}
+
+.reset-icon {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.mobile-filter-close-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-den);
+}
+
+.filter-group {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px dashed var(--color-vien-co);
+}
+
+.filter-group-title {
+  margin: 0 0 0.85rem;
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-den);
+}
+
+/* Danh sách danh mục */
+.category-filter-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.category-filter-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.65rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--color-nau-xam);
+  font-family: var(--font-ui);
+  font-size: 0.84rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.cat-icon-badge {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.cat-name-text {
+  flex: 1;
+}
+
+.category-filter-btn:hover {
+  background-color: var(--color-be-card);
+  color: var(--color-den);
+}
+
+.category-filter-btn.is-active {
+  background-color: var(--color-be-card);
+  border-color: var(--color-vien-co);
+  color: var(--color-do);
+  font-weight: 700;
+}
+
+/* Khoảng giá Radio */
+.filter-options-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.filter-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-ui);
+  font-size: 0.84rem;
+  color: var(--color-den);
+  cursor: pointer;
+}
+
+.filter-radio-label input[type="radio"] {
+  accent-color: var(--color-do);
+  cursor: pointer;
+}
+
+/* Chips hình thức phục vụ */
+.serving-chips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.serving-chip {
+  padding: 0.35rem 0.65rem;
+  background-color: var(--color-be);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  color: var(--color-nau-xam);
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.serving-chip:hover {
+  border-color: var(--color-do);
+  color: var(--color-den);
+}
+
+.serving-chip.is-active {
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  border-color: var(--color-do);
+}
+
+/* Thẻ tips hoài cổ */
+.vintage-tips-card {
+  padding: 1rem;
+  background-color: var(--color-be-card);
+  border: 1px dashed var(--color-vien-co);
+  border-radius: var(--radius-sm);
+}
+
+.tips-badge {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--color-do);
+  margin-bottom: 0.35rem;
+}
+
+.tips-title {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-heading);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--color-den);
+}
+
+.tips-body {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--color-nau-xam);
+}
+
+/* =========================================
+   KHU VỰC SẢN PHẨM (DISPLAY AREA)
+   ========================================= */
+.products-display-area {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top toolbar */
+.display-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  margin-bottom: 1.25rem;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.mobile-filter-trigger-btn {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  background-color: var(--color-be);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  color: var(--color-den);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  position: relative;
+}
+
+.btn-filter-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--color-do);
+}
+
+.active-dot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-do);
+  border-radius: 50%;
+}
+
+.results-count-text {
+  font-family: var(--font-ui);
+  font-size: 0.86rem;
+  color: var(--color-nau-xam);
+}
+
+.results-count-text strong {
+  color: var(--color-do);
+  font-weight: 700;
+}
+
+.sort-selector-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sort-label {
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  color: var(--color-nau-xam);
+}
+
+.select-box-wrap {
+  position: relative;
+}
+
+.sort-dropdown {
+  appearance: none;
+  padding: 0.4rem 1.8rem 0.4rem 0.75rem;
+  background-color: var(--color-be);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--color-den);
+  cursor: pointer;
+  outline: none;
+}
+
+.sort-dropdown:focus {
+  border-color: var(--color-do);
+}
+
+.select-arrow-icon {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--color-nau-xam);
+  pointer-events: none;
+}
+
+/* Active filters bar */
+.active-filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-be-card);
+  border: 1px dashed var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  margin-bottom: 1.5rem;
+}
+
+.active-filters-label {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-nau-xam);
+}
+
+.active-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.55rem;
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--color-den);
+}
+
+.btn-remove-chip {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-nau-xam);
+  display: flex;
+  align-items: center;
+}
+
+.btn-remove-chip:hover {
+  color: var(--color-do);
+}
+
+.chip-x {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.btn-clear-all-chips {
+  background: transparent;
+  border: none;
+  color: var(--color-do);
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0 0.4rem;
+}
+
+/* Lưới sản phẩm (Catalog Grid) */
+.products-grid-catalog {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.catalog-product-card {
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.catalog-product-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 14px rgba(35, 31, 28, 0.08);
+}
+
+.product-thumb-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-color: #f7f1e1;
+  overflow: hidden;
+}
+
+.product-thumb-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 220ms ease;
+}
+
+.catalog-product-card:hover .product-thumb-image {
+  transform: scale(1.04);
+}
+
+.product-badge-flag {
+  position: absolute;
+  top: 0.65rem;
+  left: 0.65rem;
+  padding: 0.2rem 0.55rem;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-radius: var(--radius-sm);
+  color: var(--color-trang);
+  background-color: var(--color-do);
+}
+
+.badge-banchay {
+  background-color: var(--color-do);
+}
+
+.badge-moi {
+  background-color: var(--color-xanh-dam);
+}
+
+.serving-type-tag {
+  position: absolute;
+  bottom: 0.65rem;
+  right: 0.65rem;
+  padding: 0.15rem 0.45rem;
+  background-color: rgba(35, 31, 28, 0.75);
+  color: var(--color-trang);
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  border-radius: var(--radius-sm);
+}
+
+.product-info-container {
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.product-brand-line {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--color-nau-xam);
+  margin-bottom: 0.25rem;
+}
+
+.product-title-heading {
+  margin: 0 0 0.45rem;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-den);
+  line-height: 1.35;
+}
+
+.product-desc-snippet {
+  margin: 0 0 1rem;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--color-nau-xam);
+  flex: 1;
+}
+
+.product-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--color-vien-co);
+}
+
+.product-price-highlight {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-do);
+}
+
+.btn-add-product {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.85rem;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.btn-add-product:hover {
+  background-color: var(--color-do-hover);
+  transform: translateY(-1px);
+}
+
+.add-plus-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+/* Empty State */
+.products-empty-state {
+  text-align: center;
+  padding: 3.5rem 1.5rem;
+  background-color: var(--color-trang);
+  border: 1px dashed var(--color-vien-co);
+  border-radius: var(--radius-sm);
+}
+
+.empty-icon-symbol {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 0.85rem;
+}
+
+.empty-title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-den);
+}
+
+.empty-suggestion {
+  margin: 0 auto 1.5rem;
+  max-width: 460px;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--color-nau-xam);
+}
+
+.btn-empty-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.65rem 1.25rem;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* =========================================
+   5. GIỎ HÀNG DRAWER NHANH
+   ========================================= */
+.cart-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(35, 31, 28, 0.6);
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cart-drawer-panel {
+  width: 100%;
+  max-width: 420px;
+  height: 100%;
+  background-color: var(--color-trang);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 2px solid var(--color-do);
+  background-color: var(--color-be-card);
+}
+
+.drawer-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.drawer-header-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  color: var(--color-do);
+}
+
+.drawer-title-text {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-den);
+}
+
+.btn-close-drawer {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-nau-xam);
+  padding: 0.2rem;
+}
+
+.btn-close-drawer:hover {
+  color: var(--color-do);
+}
+
+.drawer-items-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.empty-cart-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-nau-xam);
+}
+
+.empty-cup {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.btn-start-select {
+  margin-top: 1rem;
+  padding: 0.55rem 1.15rem;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cart-item-card {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: var(--color-be);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+}
+
+.cart-item-info {
+  flex: 1;
+}
+
+.cart-item-name {
+  margin: 0 0 0.25rem;
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-den);
+}
+
+.cart-item-specs {
+  margin: 0 0 0.25rem;
+  font-size: 0.78rem;
+  color: var(--color-nau-xam);
+}
+
+.cart-item-quantity {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-do);
+}
+
+.cart-item-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.cart-item-price {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-do);
+}
+
+.btn-remove-item {
+  background: transparent;
+  border: none;
+  color: var(--color-nau-xam);
+  font-family: var(--font-ui);
+  font-size: 0.74rem;
+  cursor: pointer;
+}
+
+.btn-remove-item:hover {
+  color: var(--color-do);
+  text-decoration: underline;
+}
+
+.drawer-footer-row {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--color-vien-co);
+  background-color: var(--color-be-card);
+}
+
+.drawer-total-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.total-label {
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+  color: var(--color-nau-xam);
+}
+
+.total-number {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-do);
+}
+
+.btn-checkout-order {
+  width: 100%;
+  padding: 0.85rem;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 180ms ease;
+}
+
+.btn-checkout-order:hover {
+  background-color: var(--color-do-hover);
+}
+
+/* =========================================
+   6. FAB & TOAST
+   ========================================= */
+.products-floating-group {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  z-index: 50;
+}
+
+.fab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(35, 31, 28, 0.2);
+  transition: transform 180ms ease;
+  text-decoration: none;
+}
+
+.fab-btn:hover {
+  transform: translateY(-2px);
+}
+
+.fab-top {
+  background-color: var(--color-xanh-duong);
+  color: var(--color-trang);
+}
+
+.fab-call {
+  background-color: var(--color-do);
+  color: var(--color-trang);
+}
+
+.fab-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.catalog-toast-box {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background-color: var(--color-den);
+  color: var(--color-trang);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  z-index: 999;
+}
+
+.toast-check-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  color: #86efac;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN (360px, 768px, 1024px)
+   ========================================= */
+@media (max-width: 1024px) {
+  .layout-grid-wrap {
+    grid-template-columns: 240px 1fr;
+    gap: 1.5rem;
+  }
+
+  .products-grid-catalog {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .layout-grid-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .mobile-filter-trigger-btn {
+    display: inline-flex;
+  }
+
+  /* Drawer lọc trên Mobile */
+  .products-filter-sidebar {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background-color: rgba(35, 31, 28, 0.6);
+    display: none;
+  }
+
+  .products-filter-sidebar.is-mobile-open {
+    display: block;
+  }
+
+  .filter-panel-card {
+    width: 85%;
+    max-width: 340px;
+    height: 100%;
+    overflow-y: auto;
+    border-radius: 0;
+    box-sizing: border-box;
+  }
+
+  .mobile-filter-close-btn {
+    display: block;
+  }
+
+  .hero-page-title {
+    font-size: 1.65rem;
+  }
+
+  .hero-page-desc {
+    font-size: 0.92rem;
+  }
+
+  .products-grid-catalog {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .breadcrumb-link,
+  .category-filter-btn,
+  .serving-chip,
+  .catalog-product-card,
+  .btn-add-product,
+  .fab-btn {
+    transition: none;
+  }
+}
+

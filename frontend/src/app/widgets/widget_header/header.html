@@ -1,0 +1,112 @@
+<header class="order-header">
+  <div class="header-main-row">
+    <div class="header-container">
+      <!-- Logo -->
+      <div class="brand-block">
+        <a href="" class="brand-link" (click)="onReloadPage($event)" aria-label="Tải lại trang Cà phê Fiin">
+          <app-brand-logo></app-brand-logo>
+          <span class="brand-name">Cà Phê Fiin</span>
+        </a>
+      </div>
+
+      <!-- Search Bar Dạng Viên Thuốc -->
+      <!-- Search Bar -->
+      <app-search-box class="header-search" (searched)="onSearch($event)"></app-search-box>
+
+      <!-- Actions (Đã xóa chữ GB) -->
+      <div class="header-actions">
+        <!-- Hotline Giao tận nơi -->
+        <app-circle-button class="header-action-item delivery-item" href="tel:19001755" subLabel="Giao tận nơi"
+          label="19001755" ariaLabel="Giao tận nơi qua hotline 1900 1755">
+          <ng-template #icon><svg lucidePhone></svg></ng-template>
+        </app-circle-button>
+
+        <!-- Tài khoản / Đăng nhập -->
+        <app-circle-button class="header-action-item account-item" link="/login" subLabel="Tài khoản" label="Đăng nhập"
+          [boldLabel]="false">
+          <ng-template #icon><svg lucideUser></svg></ng-template>
+        </app-circle-button>
+
+        <!-- Nút Giỏ Hàng Lập Phương 3D -->
+        <app-cart-button [count]="cartCount()" (clicked)="onToggleCart()"></app-cart-button>
+
+        <!-- Toggle Menu Mobile -->
+        <button type="button" class="mobile-menu-toggle" [attr.aria-expanded]="isMobileMenuOpen()"
+          (click)="toggleMobileMenu()" aria-label="Mở menu">
+          @if (isMobileMenuOpen()) {
+          <svg lucideX class="toggle-icon"></svg>
+          } @else {
+          <svg lucideMenu class="toggle-icon"></svg>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. SUB-HEADER THANH ĐỎ HIGHLANDS SIGNATURE -->
+  <div class="header-sub-bar">
+    <div class="sub-bar-container">
+      <!-- Nút bật/tắt Danh mục sản phẩm -->
+      <button type="button" class="cat-toggle-btn" (click)="onToggleSidebar()" [class.is-active]="isSidebarOpen()"
+        aria-label="Đóng mở danh mục sản phẩm">
+        <svg lucideMenu class="cat-menu-icon"></svg>
+        <span>Danh mục sản phẩm</span>
+      </button>
+
+      <!-- Các liên kết nhanh trên thanh đỏ -->
+      <nav class="sub-nav-links" aria-label="Liên kết nhanh">
+        <a routerLink="/san-pham" class="sub-nav-link">
+          <span>Thực đơn</span>
+        </a>
+        <a routerLink="/tin-tuc" class="sub-nav-link">
+          <span>Chuyện phiếm & Tin tức</span>
+        </a>
+        <a routerLink="/uu-dai" class="sub-nav-link">
+          <span>Ưu đãi thành viên</span>
+        </a>
+        <a routerLink="/chinh-sach-doi-tra" class="sub-nav-link">
+          <span>Chính sách đổi trả</span>
+        </a>
+        <a routerLink="/lien-he" class="sub-nav-link">
+          <span>Liên hệ</span>
+        </a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Mobile Dropdown Menu -->
+  @if (isMobileMenuOpen()) {
+  <nav class="mobile-nav-panel" aria-label="Menu trên thiết bị di động">
+    <app-search-box (searched)="onSearch($event)"></app-search-box>
+
+    <ul class="mobile-nav-list">
+      <li class="mobile-nav-item">
+        <a href="tel:19001755" class="mobile-nav-link" (click)="closeMobileMenu()">
+          <span class="mobile-item-icon-wrap">
+            <svg lucidePhone class="mobile-item-icon"></svg>
+          </span>
+          <span>Giao tận nơi: <strong>19001755</strong></span>
+        </a>
+      </li>
+      <li class="mobile-nav-item">
+        <a routerLink="/login" class="mobile-nav-link" (click)="closeMobileMenu()">
+          <span class="mobile-item-icon-wrap">
+            <svg lucideUser class="mobile-item-icon"></svg>
+          </span>
+          <span>Tài khoản / Đăng nhập</span>
+        </a>
+      </li>
+      <li class="mobile-nav-item">
+        <a routerLink="/tin-tuc" class="mobile-nav-link" (click)="closeMobileMenu()">
+          <span>Chuyện phiếm & Tin tức</span>
+        </a>
+      </li>
+      <li class="mobile-nav-item">
+        <a routerLink="/" class="mobile-nav-link" (click)="closeMobileMenu()">
+          <span>&larr; Quay về trang giới thiệu (Landing Page)</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  }
+</header>

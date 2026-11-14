@@ -1,0 +1,12 @@
+<aside class="sidebar-category-menu" [class.is-hidden]="!isOpen()">
+
+    <ul class="category-nav-list">
+        @for (cat of categories(); track cat.id) {
+        <li class="category-nav-item">
+            <a [href]="'#' + cat.id" class="category-nav-link">
+                <span class="cat-item-name">{{ cat.name }}</span>
+            </a>
+        </li>
+        }
+    </ul>
+</aside>

@@ -1,0 +1,71 @@
+@reference "../../../styles.css";
+
+:host {
+  display: inline-block;
+}
+
+:host(.is-full-width) {
+  display: block;
+  width: 100%;
+}
+
+:host(.is-full-width) .airmail-btn {
+  width: 100%;
+}
+
+.airmail-btn {
+  align-items: center;
+  appearance: none;
+  background-color: var(--color-do);
+  border-radius: var(--radius-sm, 2px);
+  border-width: 0;
+  box-shadow:
+    var(--color-do-hover) 0 2px 4px,
+    var(--color-do-hover) 0 7px 13px -3px,
+    var(--color-do-hover) 0 -3px 0 inset;
+  box-sizing: border-box;
+  color: var(--color-trang);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  height: 48px;
+  justify-content: center;
+  line-height: 1;
+  list-style: none;
+  overflow: hidden;
+  padding-left: 16px;
+  padding-right: 16px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  transition: box-shadow 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+  will-change: box-shadow, transform;
+}
+
+.airmail-btn:hover:not(:disabled),
+.airmail-btn:focus-visible:not(:disabled) {
+  box-shadow:
+    var(--color-do-hover) 0 0 0 1.5px inset,
+    rgba(28, 21, 18, 0.4) 0 4px 8px,
+    rgba(28, 21, 18, 0.3) 0 7px 13px -3px,
+    var(--color-do-hover) 0 -3px 0 inset;
+  transform: translateY(-2px);
+}
+
+.airmail-btn:active:not(:disabled) {
+  box-shadow: var(--color-do-hover) 0 3px 7px inset;
+  transform: translateY(2px);
+}
+
+.airmail-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}

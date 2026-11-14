@@ -1,0 +1,485 @@
+<div class="policy-page-wrapper">
+  <!-- 1. HEADER CHÍNH DÙNG CHUNG -->
+  <app-widget-header
+    [cartCount]="0"
+    [isSidebarOpen]="false"
+    (toggleSidebar)="navigateToHome()"
+    (toggleCart)="navigateToHome()"
+  ></app-widget-header>
+
+  <!-- 2. BREADCRUMB & HERO BANNER CHÍNH SÁCH -->
+  <header class="policy-hero-banner">
+    <div class="policy-container">
+      <nav class="policy-breadcrumb" aria-label="Đường dẫn trang">
+        <ol class="breadcrumb-list">
+          <li class="breadcrumb-item">
+            <a routerLink="/" class="breadcrumb-link">Trang chủ</a>
+          </li>
+          <li class="breadcrumb-separator" aria-hidden="true">/</li>
+          <li class="breadcrumb-item">
+            <a routerLink="/home" class="breadcrumb-link">Thực đơn đặt món</a>
+          </li>
+          <li class="breadcrumb-separator" aria-hidden="true">/</li>
+          <li class="breadcrumb-item breadcrumb-current" aria-current="page">
+            Chính sách đặt hàng & đổi trả
+          </li>
+        </ol>
+      </nav>
+
+      <div class="hero-badge-wrap">
+        <span class="vintage-stamp">QUY CHẾ DỊCH VỤ • CÀ PHÊ FIIN</span>
+      </div>
+
+      <h1 class="hero-title">CHÍNH SÁCH ĐẶT HÀNG & ĐỔI TRẢ</h1>
+      <p class="hero-desc">
+        Quy định minh bạch nhằm bảo vệ tối đa quyền lợi của Quý Khách Hàng khi trải nghiệm đặt hàng trực tuyến và sử dụng sản phẩm tại Cà Phê Fiin.
+      </p>
+
+      <div class="hero-meta-bar">
+        <div class="meta-item">
+          <svg lucideClock class="meta-icon"></svg>
+          <span>Áp dụng từ: Tháng 10/2023 (Cập nhật mới nhất)</span>
+        </div>
+        <div class="meta-divider" aria-hidden="true">•</div>
+        <div class="meta-item">
+          <svg lucideMapPin class="meta-icon"></svg>
+          <span>Khu vực: Thành phố Hồ Chí Minh</span>
+        </div>
+        <div class="meta-divider" aria-hidden="true">•</div>
+        <div class="meta-item">
+          <svg lucidePhone class="meta-icon"></svg>
+          <span>Hotline hỗ trợ: <strong>1900 1755</strong></span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 3. KHU VỰC NỘI DUNG CHÍNH (SIDEBAR MỤC LỤC + NỘI DUNG VĂN BẢN) -->
+  <main class="policy-main-content">
+    <div class="policy-container policy-layout-grid">
+
+      <!-- CỘT TRÁI: MỤC LỤC ĐIỀU HƯỚNG NHANH (STICKY TOC) -->
+      <aside class="policy-toc-sidebar" aria-label="Mục lục bài viết">
+        <div class="toc-card">
+          <div class="toc-header">
+            <svg lucideFileText class="toc-header-icon"></svg>
+            <h2 class="toc-title">Mục Lục Điều Khoản</h2>
+          </div>
+
+          <nav class="toc-nav">
+            <ul class="toc-list">
+              @for (item of tocItems; track item.id) {
+                <li class="toc-item">
+                  <button
+                    type="button"
+                    class="toc-btn"
+                    [class.is-active]="activeSection() === item.id"
+                    (click)="scrollToSection(item.id)"
+                  >
+                    <span class="toc-bullet" aria-hidden="true"></span>
+                    <span class="toc-text">{{ item.title }}</span>
+                  </button>
+                </li>
+              }
+            </ul>
+          </nav>
+
+          <!-- Thẻ hỗ trợ nhanh -->
+          <div class="toc-support-card">
+            <h3 class="support-title">Cần Trợ Giúp Nhanh?</h3>
+            <p class="support-desc">
+              Đội ngũ chăm sóc khách hàng Cà Phê Fiin luôn sẵn sàng tiếp nhận khiếu nại và phản ánh của Quý Khách.
+            </p>
+            <a href="tel:19001755" class="support-phone-btn">
+              <svg lucidePhone class="support-phone-icon"></svg>
+              <span>Gọi 1900 1755</span>
+            </a>
+            <span class="support-hours">06:30 — 22:30 hàng ngày</span>
+          </div>
+
+          <div class="toc-back-wrap">
+            <a routerLink="/home" class="btn-back-home">
+              <svg lucideArrowLeft class="back-icon"></svg>
+              <span>Về thực đơn chọn món</span>
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CỘT PHẢI: CHI TIẾT NỘI DUNG 8 ĐIỀU CHÍNH SÁCH -->
+      <article class="policy-article">
+
+        <!-- LỜI NÓI ĐẦU -->
+        <section class="policy-intro-box">
+          <p class="intro-paragraph">
+            <strong>Cà Phê Fiin</strong> trân trọng cảm ơn Quý Khách Hàng đã đồng hành và lựa chọn những giọt cà phê phin đậm đà cùng thức uống tươi mới của chúng tôi. Để tạo nên một môi trường phục vụ văn minh, an tâm và chuyên nghiệp, toàn bộ các quy định đặt hàng, giao nhận, hoàn trả và bảo vệ quyền lợi thành viên được công khai chi tiết theo các điều khoản sau:
+          </p>
+        </section>
+
+        <!-- ĐIỀU 1: PHẠM VI GIAO HÀNG VÀ VẬN CHUYỂN -->
+        <section id="pham-vi" class="policy-section">
+          <div class="section-title-wrap">
+            <span class="section-badge">ĐIỀU 1</span>
+            <h2 class="section-heading">Phạm vi giao hàng và vận chuyển</h2>
+          </div>
+
+          <div class="section-body">
+            <p class="text-block">
+              Trong tháng 10/2023, <strong>Cà Phê Fiin</strong> hỗ trợ đặt hàng trực tuyến trên hệ thống website và ứng dụng, cung cấp dịch vụ giao hàng tận nơi trên toàn địa bàn <strong>Thành phố Hồ Chí Minh</strong>.
+            </p>
+            <p class="text-block">
+              Tùy theo tình hình thực tế (như điều kiện thời tiết, giao thông hoặc các đợt cao điểm lễ hội), các chính sách đặt hàng và tuyến giao hàng sẽ có sự thay đổi linh hoạt. Quý Khách Hàng sẽ nhận được thông tin cập nhật chính xác nhất ngay trên cổng thông tin website của Cà Phê Fiin.
+            </p>
+
+            <div class="info-card">
+              <div class="info-card-header">
+                <svg lucideMapPin class="info-card-icon"></svg>
+                <h3 class="info-card-title">Khu Vực Phục Vụ Trọng Điểm</h3>
+              </div>
+              <p class="info-card-content">
+                Hệ thống cửa hàng Cà Phê Fiin tại các quận trung tâm và phụ cận TP.HCM sẵn sàng nhận đơn và đóng gói đảm bảo giữ nguyên nhiệt độ và hương vị cho thức uống nóng và đá.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ĐIỀU 2: CHÍNH SÁCH HOÀN TRẢ HÀNG VÀ HOÀN TIỀN -->
+        <section id="hoan-tra" class="policy-section">
+          <div class="section-title-wrap">
+            <span class="section-badge">ĐIỀU 2</span>
+            <h2 class="section-heading">Chính sách hoàn trả hàng và hoàn tiền</h2>
+          </div>
+
+          <div class="section-body">
+            <p class="text-block">
+              Quý Khách Hàng có quyền hoàn trả sản phẩm (áp dụng đối với các nhóm: <em>Thức uống, Bánh ngọt, Sản phẩm Trà, Cà Phê đóng gói và Sản phẩm Ly/Bình giữ nhiệt lưu niệm</em>) nếu đơn hàng hoặc sản phẩm gặp vấn đề trong 2 trường hợp cụ thể sau:
+            </p>
+
+            <div class="cases-grid">
+              <div class="case-card">
+                <div class="case-number">(1)</div>
+                <div class="case-content">
+                  <h3 class="case-title">Hư hỏng trong quá trình vận chuyển</h3>
+                  <p class="case-desc">
+                    Sản phẩm bị đổ vỡ, tràn đổ, móp méo, rách bao bì niêm phong hoặc không còn nguyên vẹn trong quá trình giao nhận từ nhà cung cấp / nhân viên giao hàng.
+                  </p>
+                </div>
+              </div>
+
+              <div class="case-card">
+                <div class="case-number">(2)</div>
+                <div class="case-content">
+                  <h3 class="case-title">Sự cố về chất lượng sản phẩm</h3>
+                  <p class="case-desc">
+                    Sản phẩm có vấn đề bất thường về chất lượng (mùi vị lạ, sai kết cấu, nguyên liệu không đạt chuẩn) sau khi được bộ phận phụ trách tiếp nhận, kiểm tra và xác thực thông tin phản ánh là chính xác.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Khối Lưu Ý Nổi Bật -->
+            <div class="alert-box alert-warning">
+              <div class="alert-header">
+                <svg lucideAlertTriangle class="alert-icon"></svg>
+                <h3 class="alert-title">Lưu Ý Quan Trọng Về Phạm Vi Hỗ Trợ</h3>
+              </div>
+              <div class="alert-content">
+                <ul class="styled-list">
+                  <li>
+                    <strong>Cà Phê Fiin</strong> chưa thể hỗ trợ các yêu cầu trả hàng / hoàn tiền với các lý do liên quan đến cảm quan cá nhân, không hài lòng chủ quan, thay đổi quyết định mua hàng đột xuất hoặc thông tin phản ánh không có bằng chứng xác thực.
+                  </li>
+                  <li>
+                    <strong>Thời hạn gửi yêu cầu đổi trả:</strong> Trong vòng <strong>24 giờ</strong> kể từ ngày nhận hàng đối với Trà, Cà Phê gói và Bình giữ nhiệt. Đối với ngành hàng <strong>Thức uống / Bánh ngọt</strong>, thời hạn gửi yêu cầu là <strong>trong ngày kể từ thời điểm nhận hàng cho đến khi kết thúc ca làm việc cuối ngày của cửa hàng</strong>.
+                  </li>
+                  <li>
+                    <strong>Chứng từ bắt buộc:</strong> Quý Khách Hàng phải <strong>lưu giữ hóa đơn mua hàng (bill) và sản phẩm thực tế</strong> cần yêu cầu đổi trả để phục vụ công tác kiểm định đối soát.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ĐIỀU 3: CHÍNH SÁCH ĐỔI TRẢ, ĐỀN BÙ -->
+        <section id="doi-tra" class="policy-section">
+          <div class="section-title-wrap">
+            <span class="section-badge">ĐIỀU 3</span>
+            <h2 class="section-heading">Chính sách đổi trả, đền bù</h2>
+          </div>
+
+          <div class="section-body">
+            <p class="text-block">
+              Trường hợp những sản phẩm được xác định có vấn đề về chất lượng hoặc hư hại do lỗi từ phía cửa hàng / vận chuyển, <strong>Cà Phê Fiin</strong> sẽ tiến hành thu hồi và thực hiện <strong>1 đổi 1 sản phẩm cùng loại</strong> cho Quý Khách Hàng ngay tại cửa hàng mà Quý Khách đã đặt mua món đó.
+            </p>
+
+            <div class="sub-policy-card">
+              <h3 class="sub-policy-title">Phương án thay thế khi sản phẩm hết hàng</h3>
+              <p class="text-block">
+                Nếu sản phẩm cùng loại để đổi cho Quý Khách Hàng không có sẵn tại chi nhánh ở thời điểm đó, chúng tôi có thể linh hoạt:
+              </p>
+              <ul class="styled-list">
+                <li>Đổi sang sản phẩm khác có <strong>giá trị tương đương</strong> tại thời điểm phát sinh đổi hàng; hoặc</li>
+                <li>Hoàn trả lại <strong>tiền mặt</strong> trực tiếp cho Quý Khách Hàng sau khi thực hiện trừ các chi phí khấu hao thực tế (nếu có).</li>
+              </ul>
+            </div>
+
+            <div class="sub-policy-card">
+              <h3 class="sub-policy-title">Yêu cầu đối với hiện trạng sản phẩm hoàn trả</h3>
+              <p class="text-block">
+                Về phía Quý Khách Hàng, hiện trạng sản phẩm hoàn trả lại phải <strong>tương tự như thời điểm nhận hàng</strong>. Khách hàng phải cung cấp được mã đặt hàng trực tuyến hoặc hóa đơn mua hàng của sản phẩm cần đổi trả. Chúng tôi sẽ tiến hành trừ phí khấu hao tại thời điểm đổi hàng nếu sản phẩm không còn giữ đúng hiện trạng ban đầu.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ĐIỀU 4: QUY TRÌNH ĐỔI TRẢ HÀNG VÀ HOÀN TIỀN -->
+        <section id="quy-trinh" class="policy-section">
+          <div class="section-title-wrap">
+            <span class="section-badge">ĐIỀU 4</span>
+            <h2 class="section-heading">Quy trình đổi trả hàng và hoàn tiền</h2>
+          </div>
+
+          <div class="section-body">
+            <p class="text-block">
+              Quý Khách Hàng vui lòng thực hiện theo đúng 3 bước tiêu chuẩn dưới đây để gửi thông tin phản ánh về đơn hàng và sản phẩm:
+            </p>
+
+            <div class="stepper-timeline">
+              <!-- BƯỚC 1 -->
+              <div class="step-card">
+                <div class="step-indicator">
+                  <span class="step-num">01</span>
+                  <span class="step-line" aria-hidden="true"></span>
+                </div>
+                <div class="step-info">
+                  <h3 class="step-title">Bước 1: Cung cấp thông tin phản ánh</h3>
+                  <p class="step-desc">
+                    Quý Khách vui lòng liên hệ qua hotline <strong>1900 1755</strong> hoặc đến trực tiếp cửa hàng Cà Phê Fiin đã xuất món, đồng thời cung cấp đầy đủ:
+                  </p>
+                  <ul class="styled-list">
+                    <li>Mã đơn đặt hàng hoặc Hóa đơn mua hàng; và/hoặc</li>
+                    <li>Hình ảnh / Video ghi lại rõ ràng phần sản phẩm Quý Khách muốn khiếu nại (đổ vỡ, vật lạ, sai món...).</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- BƯỚC 2 -->
+              <div class="step-card">
+                <div class="step-indicator">
+                  <span class="step-num">02</span>
+                  <span class="step-line" aria-hidden="true"></span>
+                </div>
+                <div class="step-info">
+                  <h3 class="step-title">Bước 2: Tiếp nhận và thẩm định trong 24 giờ</h3>
+                  <p class="step-desc">
+                    <strong>Cà Phê Fiin</strong> tiếp nhận phản hồi của Quý Khách Hàng trong vòng <strong>24 giờ</strong> kể từ thời điểm gửi thông tin, sau đó tiến hành kiểm tra yêu cầu trả hàng để xác định tính thỏa đáng và tính chính xác của phản ánh.
+                  </p>
+                </div>
+              </div>
+
+              <!-- BƯỚC 3 -->
+              <div class="step-card">
+                <div class="step-indicator">
+                  <span class="step-num">03</span>
+                </div>
+                <div class="step-info">
+                  <h3 class="step-title">Bước 3: Thỏa thuận phương án đổi hàng & hoàn tiền</h3>
+                  <p class="step-desc">
+                    Sau khi kiểm tra đối chiếu dữ liệu, Cà Phê Fiin sẽ tiến hành liên hệ trực tiếp với Quý Khách Hàng để thỏa thuận phương án đổi hàng theo đúng chính sách đã nêu tại <strong>Điều 3</strong> (đổi mới sản phẩm, đổi món tương đương hoặc hoàn tiền).
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ĐIỀU 5: CHÍNH SÁCH NGƯỜI DÙNG -->
+        <section id="nguoi-dung" class="policy-section">
+          <div class="section-title-wrap">
+            <span class="section-badge">ĐIỀU 5</span>
+            <h2 class="section-heading">Chính sách người dùng</h2>
+          </div>
+
+          <div class="section-body">
+            <p class="text-block">
+              Để bảo đảm môi trường giao dịch công bằng và quyền lợi cá nhân của mỗi thành viên:
+            </p>
+
+            <ul class="styled-list">
+              <li>
+                Mỗi số điện thoại chỉ tạo được một (<strong>01</strong>) tài khoản thành viên duy nhất cho mục đích sử dụng cá nhân.
+              </li>
+              <li>
+                Để đảm bảo quyền lợi, Quý Khách Hàng cam kết không chia sẻ thông tin tài khoản (bao gồm tên truy cập và mật khẩu) cho người khác hoặc chuyển nhượng tài khoản cho bất kỳ ai khác mà không có sự đồng ý của <strong>Cà Phê Fiin</strong>.
+              </li>
+              <li>
+                <strong>Cà Phê Fiin</strong> có quyền vô hiệu hoá hoặc tạm ngừng một phần tính năng của tài khoản nếu phát hiện vi phạm điều khoản hoặc chính sách của công ty, hoặc có hành vi mua hàng không trung thực, điển hình như:
+                <ul class="sub-styled-list">
+                  <li>Tạo các đơn hàng ảo hoặc gửi đánh giá giả mạo nhằm mục đích trục lợi;</li>
+                  <li>Có dấu hiệu lừa đảo hoặc lạm dụng các mã giảm giá voucher và chương trình khuyến mãi;</li>
+                  <li>Các trường hợp rủi ro bảo mật khác mà hệ thống của chúng tôi phát hiện. Trong mỗi trường hợp, Cà Phê Fiin sẽ áp dụng các biện pháp thích hợp, bao gồm việc vô hiệu hoá tài khoản tạm thời hoặc vĩnh viễn mà không cần thông báo trước.</li>
+                </ul>
+              </li>
+              <li>
+                <strong>Quy trình khôi phục:</strong> Khi Quý Khách Hàng hoàn thành quá trình xác minh qua các chứng từ / thông tin cung cấp chứng minh việc mua hàng minh bạch (như hóa đơn, hình ảnh sản phẩm đã mua, mã giao dịch...) và có sự đồng thuận giữa khách hàng và Cà Phê Fiin, tài khoản bị vô hiệu hoá hoặc tạm ngừng sẽ được xem xét mở lại.
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- ĐIỀU 6: PHƯƠNG THỨC THANH TOÁN -->
+        <section id="thanh-toan" class="policy-section">
+          <div class="section-title-wrap">
+            <span class="section-badge">ĐIỀU 6</span>
+            <h2 class="section-heading">Phương thức thanh toán</h2>
+          </div>
+
+          <div class="section-body">
+            <p class="text-block">
+              Hiện tại, <strong>Cà Phê Fiin</strong> hỗ trợ phương thức thanh toán linh hoạt khi đặt hàng:
+            </p>
+
+            <div class="payment-method-box">
+              <div class="payment-icon-wrap">
+                <svg lucideCreditCard class="payment-icon"></svg>
+              </div>
+              <div class="payment-info">
+                <h3 class="payment-name">Thanh toán bằng tiền mặt (COD / Tại quầy)</h3>
+                <p class="payment-detail">
+                  Khách hàng thanh toán trực tiếp bằng tiền mặt cho nhân viên giao hàng khi nhận thức uống, hoặc thanh toán trực tiếp tại quầy thu ngân của quán.
+                </p>
+              </div>
+            </div>
+
+            <p class="text-block">
+              Các kênh thanh toán điện tử (như quét mã VietQR tự động, thanh toán thẻ) sẽ được điều chỉnh, tích hợp và nâng cấp trong tương lai gần để cải thiện tiện ích cho khách hàng. Các thay đổi về phương thức thanh toán sẽ được thông báo rõ ràng đến Quý Khách Hàng trên website.
+            </p>
+          </div>
+        </section>
+
+        <!-- ĐIỀU 7: PHÍ VẬN CHUYỂN -->
+        <section id="phi-van-chuyen" class="policy-section">
+          <div class="section-title-wrap">
+            <span class="section-badge">ĐIỀU 7</span>
+            <h2 class="section-heading">Phí vận chuyển</h2>
+          </div>
+
+          <div class="section-body">
+            <p class="text-block">
+              <strong>Cà Phê Fiin</strong> áp dụng mức phí giao hàng minh bạch theo từng giá trị hóa đơn và khoảng cách địa lý như sau:
+            </p>
+
+            <div class="fee-cards-grid">
+              <div class="fee-card fee-card--highlight">
+                <div class="fee-tag">MIỄN PHÍ GIAO HÀNG</div>
+                <div class="fee-price">0đ</div>
+                <h3 class="fee-condition">Hóa đơn từ 99.000đ trở lên</h3>
+                <p class="fee-scope">Áp dụng trong bán kính từ <strong>0km đến 5km</strong> tính từ vị trí chi nhánh giao hàng.</p>
+              </div>
+
+              <div class="fee-card">
+                <div class="fee-tag">PHÍ TIÊU CHUẨN</div>
+                <div class="fee-price">10.000đ</div>
+                <h3 class="fee-condition">Đơn hàng dưới 99.000đ</h3>
+                <p class="fee-scope">Áp dụng phí cố định trong bán kính từ <strong>0km đến 5km</strong> tính từ vị trí chi nhánh giao hàng.</p>
+              </div>
+            </div>
+
+            <p class="text-footnote">
+              * Ghi chú: Chính sách phí giao hàng có thể thay đổi linh hoạt trong tương lai tùy theo biểu phí đối tác vận tải và sẽ luôn được thông báo công khai trước khi Quý Khách bấm đặt đơn.
+            </p>
+          </div>
+        </section>
+
+        <!-- ĐIỀU 8: HÌNH THỨC ĐẶT HÀNG -->
+        <section id="hinh-thuc-dat-hang" class="policy-section">
+          <div class="section-title-wrap">
+            <span class="section-badge">ĐIỀU 8</span>
+            <h2 class="section-heading">Hình thức đặt hàng</h2>
+          </div>
+
+          <div class="section-body">
+            <p class="text-block">
+              Quý Khách Hàng có thể lựa chọn 1 trong 2 hình thức đặt hàng thuận tiện của Cà Phê Fiin:
+            </p>
+
+            <div class="channels-grid">
+              <div class="channel-card">
+                <div class="channel-icon-circle">
+                  <svg lucideTruck class="channel-icon"></svg>
+                </div>
+                <h3 class="channel-title">Đặt hàng trực tuyến trên Website</h3>
+                <p class="channel-desc">
+                  Truy cập cổng đặt món trực tuyến tại địa chỉ website chính thức của Cà Phê Fiin để chọn món, tùy chỉnh đá - đường và nhận ưu đãi theo từng khung giờ.
+                </p>
+                <a routerLink="/home" class="channel-action-link">
+                  <span>Truy cập đặt món ngay</span>
+                  <svg lucideChevronRight class="arrow-icon"></svg>
+                </a>
+              </div>
+
+              <div class="channel-card">
+                <div class="channel-icon-circle">
+                  <svg lucidePhone class="channel-icon"></svg>
+                </div>
+                <h3 class="channel-title">Đặt hàng qua Tổng đài Hotline</h3>
+                <p class="channel-desc">
+                  Gọi trực tiếp đến Hotline chăm sóc khách hàng <strong>1900 1755</strong> để được nhân viên tiếp nhận đơn hàng nhanh chóng và thanh toán bằng tiền mặt khi nhận hàng.
+                </p>
+                <a href="tel:19001755" class="channel-action-link">
+                  <span>Gọi 1900 1755</span>
+                  <svg lucideChevronRight class="arrow-icon"></svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- HỘP CAM KẾT & KÊU GỌI HÀNH ĐỘNG CUỐI BÀI -->
+        <section class="policy-commitment-card">
+          <div class="commitment-content">
+            <h2 class="commitment-title">Cam Kết Chất Lượng Từ Cà Phê Fiin</h2>
+            <p class="commitment-text">
+              Mỗi giọt cà phê phin chảy tí tách là sự gửi gắm của tâm huyết và lòng mến khách Sài Gòn. Nếu bạn chưa hoàn toàn ưng ý với bất kỳ đơn hàng nào, hãy liên hệ ngay với chúng tôi để được hỗ trợ chu đáo nhất!
+            </p>
+            <div class="commitment-actions">
+              <a routerLink="/home" class="btn-primary-action">
+                <span>Về Trang Thực Đơn Đặt Món</span>
+                <svg lucideChevronRight class="btn-icon"></svg>
+              </a>
+              <a href="tel:19001755" class="btn-secondary-action">
+                <svg lucidePhone class="btn-icon"></svg>
+                <span>Tổng Đài: 1900 1755</span>
+              </a>
+            </div>
+          </div>
+        </section>
+
+      </article>
+
+    </div>
+  </main>
+
+  <!-- 4. NÚT TÁC VỤ NỔI (FAB) -->
+  <div class="policy-floating-group">
+    <button
+      type="button"
+      class="fab-btn fab-top"
+      (click)="scrollToTop()"
+      aria-label="Cuộn lên đầu trang"
+    >
+      <svg lucideChevronUp class="fab-icon"></svg>
+    </button>
+    <a
+      href="tel:19001755"
+      class="fab-btn fab-call"
+      aria-label="Gọi hotline hỗ trợ 1900 1755"
+    >
+      <svg lucidePhone class="fab-icon"></svg>
+    </a>
+  </div>
+
+  <!-- 5. FOOTER CHÍNH -->
+  <app-widget-landing-footer></app-widget-landing-footer>
+</div>
+

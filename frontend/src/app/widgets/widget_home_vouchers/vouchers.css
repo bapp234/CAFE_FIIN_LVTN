@@ -1,0 +1,103 @@
+@reference "../../../styles.css";
+
+:host {
+    display: block;
+    width: 100%;
+}
+
+.vouchers-section {
+    width: 100%;
+}
+
+.vouchers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: 1rem;
+}
+
+.voucher-ticket-card {
+    display: flex;
+    background-color: var(--color-trang);
+    border: 1.5px dashed var(--color-nau-dat);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+.ticket-left-badge {
+    background-color: #ffedd5;
+    color: #c2410c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0.75rem;
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 800;
+    text-align: center;
+    border-right: 1.5px dashed var(--color-nau-dat);
+    min-width: 5.5rem;
+}
+
+.ticket-right-info {
+    flex: 1;
+    padding: 0.75rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.35rem;
+}
+
+.voucher-code-title {
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-den);
+}
+
+.voucher-cond-text {
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    color: var(--color-nau-xam);
+    line-height: 1.35;
+}
+
+.voucher-action-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.35rem;
+}
+
+.btn-copy-voucher {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.35rem 0.75rem;
+    background-color: var(--color-do);
+    color: var(--color-trang);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.btn-copy-voucher.is-copied {
+    background-color: var(--color-xanh-dam);
+}
+
+.copy-icon {
+    width: 0.85rem;
+    height: 0.85rem;
+}
+
+.voucher-term-link {
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    color: var(--color-xanh-duong);
+    text-decoration: underline;
+}
