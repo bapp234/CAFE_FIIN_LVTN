@@ -1,15 +1,17 @@
-<aside class="sidebar" [class.is-hidden]="!isOpen()" aria-label="Danh mục sản phẩm">
-  <app-sidebar-header [title]="title()" />
+<!-- Lớp nền bấm ra ngoài để đóng (chỉ hiện ở dạng khung thả xuống trên màn hình nhỏ) -->
+<div class="backdrop" [class.is-visible]="isOpen()" (click)="onBackdropClick()" aria-hidden="true"></div>
 
-  <nav>
+<aside
+  class="sidebar"
+  [class.is-hidden]="!isOpen()"
+  [class.is-ready]="ready()"
+  aria-label="Danh mục sản phẩm"
+>
+  <nav class="sidebar-inner">
     <ul class="category-list">
-      @for (cat of categories(); track cat.id) {
-        <li class="category-row">
-          <app-category-item
-            [category]="cat"
-            [active]="cat.id === activeId()"
-            (selected)="onSelected($event)"
-          />
+      @for (cat of categories(); track cat.id; let i = $index) {
+        <li class="category-row" [style.--i]="i">
+          <app-category-group [category]="cat" [activeId]="activeId()" (selected)="onSelected($event)" />
         </li>
       }
     </ul>

@@ -21,7 +21,6 @@ import {
   LucideCoffee,
   LucideEye,
   LucideEyeOff,
-  LucideLock,
   LucideMail,
   LucidePhone,
   LucideShieldCheck,
@@ -36,7 +35,6 @@ export type AuthMode = 'login' | 'register' | 'forgot-password';
   imports: [
     ReactiveFormsModule,
     LucideUser,
-    LucideLock,
     LucideMail,
     LucidePhone,
     LucideEye,

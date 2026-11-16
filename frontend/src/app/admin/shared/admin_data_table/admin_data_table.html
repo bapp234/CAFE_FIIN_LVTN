@@ -1,0 +1,171 @@
+<div class="table-container">
+  <!-- Table Scroll Wrapper -->
+  <div class="table-scroll" tabindex="0" role="region" aria-label="Bảng dữ liệu">
+    <table class="data-table">
+      <thead>
+        <tr>
+          @if (selectable()) {
+            <th class="col-checkbox" scope="col">
+              <input
+                type="checkbox"
+                class="row-checkbox"
+                [checked]="isAllSelected()"
+                (change)="toggleSelectAll()"
+                aria-label="Chọn tất cả hàng"
+              />
+            </th>
+          }
+          @for (col of columns(); track col.key) {
+            <th
+              scope="col"
+              [class.col-sortable]="col.sortable"
+              [style.width]="col.width || null"
+              [style.text-align]="col.align || 'left'"
+              (click)="onSort(col.key, col.sortable)"
+            >
+              <div class="th-content" [style.justify-content]="col.align === 'right' ? 'flex-end' : col.align === 'center' ? 'center' : 'flex-start'">
+                <span>{{ col.label }}</span>
+                @if (col.sortable) {
+                  <span class="sort-icon-wrap" aria-hidden="true">
+                    @if (sortBy() === col.key) {
+                      @if (sortOrder() === 'asc') {
+                        <svg lucideArrowUp class="sort-icon"></svg>
+                      } @else {
+                        <svg lucideArrowDown class="sort-icon"></svg>
+                      }
+                    } @else {
+                      <svg lucideArrowUpDown class="sort-icon sort-icon-idle"></svg>
+                    }
+                  </span>
+                }
+              </div>
+            </th>
+          }
+        </tr>
+      </thead>
+
+      <tbody>
+        <!-- Loading State -->
+        @if (isLoading()) {
+          <tr>
+            <td [attr.colspan]="columns().length + (selectable() ? 1 : 0)" class="state-cell">
+              <div class="state-wrap">
+                <span class="table-spinner" aria-hidden="true"></span>
+                <span class="state-text">Đang tải dữ liệu...</span>
+              </div>
+            </td>
+          </tr>
+        } @else if (errorMessage()) {
+          <!-- Error State -->
+          <tr>
+            <td [attr.colspan]="columns().length + (selectable() ? 1 : 0)" class="state-cell">
+              <div class="state-wrap state-error">
+                <svg lucideAlertCircle class="state-icon" aria-hidden="true"></svg>
+                <span class="state-text">{{ errorMessage() }}</span>
+              </div>
+            </td>
+          </tr>
+        } @else if (items().length === 0) {
+          <!-- Empty State -->
+          <tr>
+            <td [attr.colspan]="columns().length + (selectable() ? 1 : 0)" class="state-cell">
+              <div class="state-wrap state-empty">
+                <svg lucideInbox class="state-icon" aria-hidden="true"></svg>
+                <span class="state-text">{{ emptyMessage() }}</span>
+              </div>
+            </td>
+          </tr>
+        } @else {
+          <!-- Data Rows -->
+          @for (item of items(); track item.id || $index) {
+            @if (rowTemplate) {
+              <ng-container
+                *ngTemplateOutlet="rowTemplate; context: { $implicit: item, isSelected: isItemSelected(item.id) }"
+              ></ng-container>
+            } @else {
+              <tr
+                class="data-row"
+                [class.row-selected]="isItemSelected(item.id)"
+                (click)="rowClick.emit(item)"
+              >
+                @if (selectable()) {
+                  <td class="col-checkbox">
+                    <input
+                      type="checkbox"
+                      class="row-checkbox"
+                      [checked]="isItemSelected(item.id)"
+                      (change)="toggleSelectItem(item.id, $event)"
+                      (click)="$event.stopPropagation()"
+                      aria-label="Chọn hàng"
+                    />
+                  </td>
+                }
+                @for (col of columns(); track col.key) {
+                  <td [style.text-align]="col.align || 'left'">
+                    {{ col.render ? col.render(item) : item[col.key] }}
+                  </td>
+                }
+              </tr>
+            }
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination Bar -->
+  <footer class="pagination-bar">
+    <div class="pagination-info">
+      @if (total() > 0) {
+        <span>
+          Hiển thị <strong>{{ startItemIndex() }}</strong> – <strong>{{ endItemIndex() }}</strong> trong tổng số <strong>{{ total() }}</strong> kết quả
+        </span>
+      } @else {
+        <span>Không có mục nào</span>
+      }
+    </div>
+
+    <div class="pagination-controls">
+      <!-- Page Size Selector -->
+      <div class="page-size-wrap">
+        <label for="page-size-select" class="page-size-label">Số dòng:</label>
+        <select
+          id="page-size-select"
+          class="page-size-select"
+          [value]="size()"
+          (change)="onSizeSelect($event)"
+        >
+          <option [value]="5">5</option>
+          <option [value]="10">10</option>
+          <option [value]="20">20</option>
+          <option [value]="50">50</option>
+        </select>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="page-nav">
+        <button
+          type="button"
+          class="btn-page"
+          [disabled]="page() <= 1"
+          (click)="onPageSelect(page() - 1)"
+          aria-label="Trang trước"
+        >
+          <svg lucideChevronLeft class="page-icon" aria-hidden="true"></svg>
+        </button>
+
+        <span class="page-indicator">Trang {{ page() }} / {{ totalPages() }}</span>
+
+        <button
+          type="button"
+          class="btn-page"
+          [disabled]="page() >= totalPages()"
+          (click)="onPageSelect(page() + 1)"
+          aria-label="Trang tiếp theo"
+        >
+          <svg lucideChevronRight class="page-icon" aria-hidden="true"></svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+</div>

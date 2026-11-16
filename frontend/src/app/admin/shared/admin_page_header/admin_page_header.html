@@ -1,0 +1,63 @@
+<header class="page-header">
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb-nav" aria-label="Đường dẫn trang">
+    <ol class="breadcrumb-list">
+      <li class="breadcrumb-item">
+        <a routerLink="/admin" class="breadcrumb-link">Quản trị</a>
+      </li>
+      @if (module()) {
+        <li class="breadcrumb-sep" aria-hidden="true">
+          <svg lucideChevronRight class="sep-svg"></svg>
+        </li>
+        <li class="breadcrumb-item">
+          @if (modulePath()) {
+            <a [routerLink]="['/admin', modulePath()]" class="breadcrumb-link">{{ moduleLabel() || module() }}</a>
+          } @else {
+            <span class="breadcrumb-current">{{ moduleLabel() || module() }}</span>
+          }
+        </li>
+      }
+      <li class="breadcrumb-sep" aria-hidden="true">
+        <svg lucideChevronRight class="sep-svg"></svg>
+      </li>
+      <li class="breadcrumb-item">
+        <span class="breadcrumb-current" aria-current="page">{{ title() }}</span>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Title & Action Bar -->
+  <div class="header-main">
+    <div class="title-group">
+      <h1 class="page-title">{{ title() }}</h1>
+      @if (subtitle()) {
+        <p class="page-subtitle">{{ subtitle() }}</p>
+      }
+    </div>
+
+    <div class="controls-group">
+      <!-- Multi-branch dropdown -->
+      @if (showBranchSelector()) {
+        <div class="branch-selector-wrap" title="Chọn chi nhánh hoạt động">
+          <svg lucideStore class="branch-icon" aria-hidden="true"></svg>
+          <select
+            class="branch-select"
+            [value]="branchService.selectedBranchId()"
+            (change)="onBranchChange($event)"
+            aria-label="Chọn chi nhánh áp dụng"
+          >
+            @for (branch of branchService.branches(); track branch.id) {
+              <option [value]="branch.id">{{ branch.name }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      <!-- Projected Action Buttons -->
+      <div class="action-slot">
+        <ng-content select="[actions]"></ng-content>
+        <ng-content></ng-content>
+      </div>
+    </div>
+  </div>
+</header>

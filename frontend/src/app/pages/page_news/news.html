@@ -7,8 +7,8 @@
     (toggleCart)="navigateToHome()"
   ></app-widget-header>
 
-  <!-- 2. MASTHEAD BÁO XƯA & BREADCRUMB -->
-  <header class="journal-masthead-banner">
+  <!-- 2. BREADCRUMB -->
+  <div class="news-breadcrumb-bar">
     <div class="news-container">
       <nav class="news-breadcrumb" aria-label="Đường dẫn trang">
         <ol class="breadcrumb-list">
@@ -25,37 +25,8 @@
           </li>
         </ol>
       </nav>
-
-      <!-- Khung Tiêu Đề Báo In Cổ Điển -->
-      <div class="newspaper-header-box">
-        <div class="newspaper-meta-top">
-          <span class="meta-side">BẢN TIN SỐ 19 • THÁNG 11/2026</span>
-          <span class="meta-center">FIIN JOURNAL • SÀI GÒN KÝ SỰ</span>
-          <span class="meta-side">PHÁT HÀNH ĐỊNH KỲ</span>
-        </div>
-
-        <h1 class="newspaper-main-title">CHUYỆN PHIẾM CÙNG FIIN</h1>
-        <p class="newspaper-tagline">
-          Ghi lại những nốt hương cà phê rang mộc, câu chuyện góc phố và những điều đáng nhớ bên tách phin mỗi ngày.
-        </p>
-      </div>
-
-      <!-- Thanh chọn chuyên mục bài viết -->
-      <nav class="categories-filter-bar" aria-label="Lọc theo chuyên mục bài viết">
-        @for (cat of categories; track cat.id) {
-          <button
-            type="button"
-            class="cat-filter-pill"
-            [class.is-active]="selectedCategory() === cat.id"
-            (click)="selectCategory(cat.id)"
-          >
-            <span class="pill-icon">{{ cat.icon }}</span>
-            <span class="pill-name">{{ cat.name }}</span>
-          </button>
-        }
-      </nav>
     </div>
-  </header>
+  </div>
 
   <!-- 3. KHU VỰC NỘI DUNG BÀI VIẾT -->
   <main class="news-main-content">

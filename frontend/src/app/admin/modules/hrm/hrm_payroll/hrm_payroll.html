@@ -1,0 +1,390 @@
+<div class="payroll-page">
+  <!-- 1. Header: Tiêu đề trang tính lương -->
+  <app-admin-page-header
+    title="Tính toán & Bảng lương"
+    module="HRM"
+    moduleLabel="Quản trị Nhân sự"
+    modulePath="hrm"
+    [showBranchSelector]="true"
+  >
+  </app-admin-page-header>
+
+  <!-- 2. Banner Kỳ Lương & Thống Kê Tổng Hợp -->
+  <section class="payroll-banner">
+    <div class="period-selector-box">
+      <div class="period-picker">
+        <label for="period-select" class="period-label">
+          <svg lucideCalendar class="cal-icon" aria-hidden="true"></svg>
+          <span>Kỳ lương tính toán:</span>
+        </label>
+        <select
+          id="period-select"
+          class="period-select"
+          [value]="selectedPeriod()"
+          (change)="onPeriodChange($event)"
+        >
+          <option value="2026-11">Tháng 11/2026 (Kỳ hiện tại)</option>
+          <option value="2026-10">Tháng 10/2026 (Kỳ trước)</option>
+        </select>
+      </div>
+
+      <div class="period-status-box">
+        @if (currentPeriodRecord(); as p) {
+          <app-admin-status-badge
+            [label]="p.statusLabel"
+            [variant]="getStatusBadge(p.status).variant"
+          />
+          @if (p.isLocked) {
+            <span class="lock-hint">
+              <svg lucideLock class="lock-icon" aria-hidden="true"></svg>
+              Đã khóa bởi {{ p.approvedBy }} lúc {{ p.approvedAt }}
+            </span>
+          }
+        }
+      </div>
+    </div>
+
+    <div class="payroll-stats">
+      <div class="p-stat">
+        <span class="p-stat-label">Tổng nhân sự trong kỳ</span>
+        <strong class="p-stat-val">{{ slips().length }} người</strong>
+      </div>
+      <div class="p-stat">
+        <span class="p-stat-label">Tổng chi phí tăng ca (OT)</span>
+        <strong class="p-stat-val text-ot">+{{ totalOvertimePay().toLocaleString('vi-VN') }} ₫</strong>
+      </div>
+      <div class="p-stat">
+        <span class="p-stat-label">Tổng quỹ lương thực lĩnh</span>
+        <strong class="p-stat-val text-green">{{ totalNetPayroll().toLocaleString('vi-VN') }} ₫</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. KHUNG BẢNG LƯỚI TÍNH LƯƠNG NHÂN SỰ (DATA GRID TABLE) -->
+  <div class="grid-card">
+    <!-- THANH CÔNG CỤ & THAO TÁC (GRID TOOLBAR) -->
+    <div class="grid-toolbar">
+      <div class="toolbar-left">
+        <div class="toolbar-title-wrap">
+          <svg lucideFileSpreadsheet class="toolbar-grid-icon" aria-hidden="true"></svg>
+          <span class="toolbar-grid-title">Bảng tính lương chi tiết</span>
+          <span class="badge-total">{{ total() }} nhân sự</span>
+        </div>
+
+        <div class="toolbar-sep" aria-hidden="true"></div>
+
+        <!-- Nút Tính toán lương tháng -->
+        <button
+          type="button"
+          class="btn-grid-tool btn-tool-calc"
+          [disabled]="isPeriodLocked() || isLoading()"
+          (click)="recalculatePayroll()"
+          title="Tính toán bảng lương từ dữ liệu chấm công"
+        >
+          <svg lucideSparkles class="tb-icon text-primary" aria-hidden="true"></svg>
+          <span>Tính lương tháng</span>
+        </button>
+
+        <!-- Nút Phê duyệt & Khóa -->
+        <button
+          type="button"
+          class="btn-grid-tool btn-tool-lock"
+          [disabled]="isPeriodLocked() || slips().length === 0"
+          (click)="confirmApprove()"
+          title="Phê duyệt và khóa không cho sửa đổi"
+        >
+          <svg lucideLock class="tb-icon" aria-hidden="true"></svg>
+          <span>{{ isPeriodLocked() ? 'Kỳ lương đã khóa' : 'Duyệt & Khóa kỳ' }}</span>
+        </button>
+
+        <!-- Nút Xuất Excel -->
+        <button
+          type="button"
+          class="btn-grid-tool"
+          (click)="exportExcel()"
+          title="Tải xuống bảng tính lương (.xlsx)"
+        >
+          <svg lucideDownload class="tb-icon" aria-hidden="true"></svg>
+          <span>Xuất Excel</span>
+        </button>
+
+        <!-- Nút In danh sách -->
+        <button
+          type="button"
+          class="btn-grid-tool"
+          (click)="printPayroll()"
+          title="In bảng lương"
+        >
+          <svg lucidePrinter class="tb-icon" aria-hidden="true"></svg>
+          <span>In bảng lương</span>
+        </button>
+      </div>
+
+      <div class="toolbar-right">
+        <!-- Ô tìm kiếm -->
+        <div class="grid-search-box">
+          <svg lucideSearch class="search-icon" aria-hidden="true"></svg>
+          <input
+            type="text"
+            class="grid-search-input"
+            placeholder="Tìm theo mã, họ tên nhân viên..."
+            [value]="searchQuery()"
+            (input)="onSearchChange($any($event.target).value)"
+          />
+          @if (searchQuery()) {
+            <button type="button" class="clear-search-btn" (click)="onSearchChange('')" title="Xóa tìm kiếm">×</button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- BẢNG LƯỚI TÍNH LƯƠNG (DATA GRID TABLE VIEWPORT) -->
+    <div class="grid-viewport" tabindex="0" role="region" aria-label="Bảng tính lương nhân viên">
+      <table class="grid-table">
+        <thead>
+          <tr class="grid-header-row">
+            <th class="th-cell text-center col-stt">STT</th>
+
+            <th class="th-cell text-center col-code" (click)="onSortToggle('code')">
+              <div class="th-content justify-center">
+                <span>MÃ NV</span>
+                <span class="sort-icon">{{ sortBy() === 'code' ? (sortOrder() === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-left col-name" (click)="onSortToggle('name')">
+              <div class="th-content">
+                <span>HỌ VÀ TÊN NHÂN SỰ</span>
+                <span class="sort-icon">{{ sortBy() === 'name' ? (sortOrder() === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-left col-branch">
+              <div class="th-content">
+                <span>CHI NHÁNH</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-left col-pos">
+              <div class="th-content">
+                <span>CHỨC DANH / VỊ TRÍ</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-right col-rate">
+              <div class="th-content justify-end">
+                <span>ĐƠN GIÁ / GIỜ</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-center col-hours">
+              <div class="th-content justify-center">
+                <span>GIỜ CHUẨN</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-center col-ot-hours">
+              <div class="th-content justify-center">
+                <span>GIỜ OT</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-right col-ot-pay">
+              <div class="th-content justify-end">
+                <span>TIỀN OT (x1.5)</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-right col-allowance">
+              <div class="th-content justify-end">
+                <span>PHỤ CẤP</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-right col-net" (click)="onSortToggle('net')">
+              <div class="th-content justify-end">
+                <span>THỰC LĨNH (NET)</span>
+                <span class="sort-icon">{{ sortBy() === 'net' ? (sortOrder() === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-center col-status">
+              <div class="th-content justify-center">
+                <span>TRẠNG THÁI</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-center col-actions">PHIẾU LƯƠNG</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @if (isLoading()) {
+            <tr>
+              <td colspan="13" class="grid-state-cell">
+                <div class="grid-state-wrap">
+                  <span class="grid-spinner" aria-hidden="true"></span>
+                  <span>Đang tính toán và tải dữ liệu bảng lương...</span>
+                </div>
+              </td>
+            </tr>
+          } @else if (slips().length === 0) {
+            <tr>
+              <td colspan="13" class="grid-state-cell">
+                <div class="grid-empty-wrap">
+                  <svg lucideInbox class="empty-icon" aria-hidden="true"></svg>
+                  <span>Chưa có dữ liệu bảng lương cho kỳ {{ selectedPeriod() }}</span>
+                </div>
+              </td>
+            </tr>
+          } @else {
+            @for (slip of slips(); track (slip.id || slip.employeeCode); let idx = $index) {
+              <tr
+                class="grid-row"
+                [class.is-selected]="selectedSlipId() === slip.id"
+                (click)="selectSlip(slip)"
+                (dblclick)="viewSlip(slip, $event)"
+                title="Nhấp đúp để mở chi tiết phiếu lương"
+              >
+                <!-- STT -->
+                <td class="grid-cell text-center font-mono text-muted">
+                  {{ (page() - 1) * size() + idx + 1 }}
+                </td>
+
+                <!-- Mã NV -->
+                <td class="grid-cell text-center">
+                  <span class="code-badge">{{ slip.employeeCode }}</span>
+                </td>
+
+                <!-- Họ và tên & Chức vụ phụ -->
+                <td class="grid-cell cell-name">
+                  <div class="emp-name-box">
+                    <span class="emp-name-main">{{ slip.employeeName }}</span>
+                    <span class="emp-sub-pos">{{ slip.position }}</span>
+                  </div>
+                </td>
+
+                <!-- Chi nhánh -->
+                <td class="grid-cell cell-branch">
+                  <span class="branch-pill">{{ slip.branchName }}</span>
+                </td>
+
+                <!-- Chức vụ -->
+                <td class="grid-cell cell-pos">
+                  <span class="pos-text">{{ slip.position }}</span>
+                </td>
+
+                <!-- Đơn giá/giờ -->
+                <td class="grid-cell text-right font-mono text-dark">
+                  {{ slip.hourlyRate.toLocaleString('vi-VN') }} ₫/h
+                </td>
+
+                <!-- Giờ chuẩn -->
+                <td class="grid-cell text-center font-mono font-semibold">
+                  {{ slip.standardWorkHours }}h
+                </td>
+
+                <!-- Giờ OT -->
+                <td class="grid-cell text-center font-mono">
+                  @if (slip.overtimeHours > 0) {
+                    <span class="ot-badge font-semibold text-ot">+{{ slip.overtimeHours }}h</span>
+                  } @else {
+                    <span class="text-muted">—</span>
+                  }
+                </td>
+
+                <!-- Tiền OT -->
+                <td class="grid-cell text-right font-mono text-ot">
+                  @if (slip.overtimePay > 0) {
+                    +{{ slip.overtimePay.toLocaleString('vi-VN') }} ₫
+                  } @else {
+                    <span class="text-muted">—</span>
+                  }
+                </td>
+
+                <!-- Phụ cấp -->
+                <td class="grid-cell text-right font-mono text-muted">
+                  +{{ slip.allowance.toLocaleString('vi-VN') }} ₫
+                </td>
+
+                <!-- Thực lĩnh (Net) -->
+                <td class="grid-cell text-right font-mono font-bold text-green">
+                  {{ slip.netPay.toLocaleString('vi-VN') }} ₫
+                </td>
+
+                <!-- Trạng thái -->
+                <td class="grid-cell text-center">
+                  <app-admin-status-badge
+                    [label]="getStatusBadge(slip.status).label"
+                    [variant]="getStatusBadge(slip.status).variant"
+                    size="sm"
+                  />
+                </td>
+
+                <!-- Phiếu lương Action -->
+                <td class="grid-cell cell-actions" (click)="$event.stopPropagation()">
+                  <div class="row-act-group">
+                    <button
+                      type="button"
+                      class="btn-act"
+                      title="Xem chi tiết phiếu lương cá nhân"
+                      (click)="viewSlip(slip, $event)"
+                      aria-label="Xem chi tiết phiếu lương"
+                    >
+                      <svg lucideEye class="act-icon" aria-hidden="true"></svg>
+                      <span class="btn-act-text">Phiếu</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+
+            <!-- Hàng Tổng Kết Thống Kê Bảng Lương -->
+            <tr class="grid-summary-row">
+              <td colspan="6" class="summary-title-cell">
+                <strong>TỔNG CỘNG: {{ total() }} NHÂN SỰ KỲ LƯƠNG {{ selectedPeriod() }}</strong>
+              </td>
+              <td class="grid-cell text-center font-mono font-bold text-dark">
+                {{ totalStandardHours() }}h
+              </td>
+              <td class="grid-cell text-center font-mono font-bold text-ot">
+                +{{ totalOtHours() }}h
+              </td>
+              <td class="grid-cell text-right font-mono font-bold text-ot">
+                +{{ totalOvertimePay().toLocaleString('vi-VN') }} ₫
+              </td>
+              <td class="grid-cell text-right font-mono font-bold text-muted">
+                +{{ totalAllowance().toLocaleString('vi-VN') }} ₫
+              </td>
+              <td class="grid-cell text-right font-mono font-bold text-green">
+                {{ totalNetPayroll().toLocaleString('vi-VN') }} ₫
+              </td>
+              <td colspan="2" class="summary-tail-cell">
+                <span class="summary-hint">Quỹ lương thực nhận toàn hệ thống</span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 4. Modal xác nhận phê duyệt & khóa kỳ lương -->
+  <app-admin-modal
+    [isOpen]="isApproveModalOpen()"
+    title="Xác nhận phê duyệt & khóa bảng lương"
+    [message]="'Bạn có chắc chắn muốn duyệt và KHÓA kỳ lương ' + selectedPeriod() + ' không? Sau khi khóa, hệ thống sẽ cố định toàn bộ số tiền thực nhận và ngăn chặn mọi sửa đổi tính toán lại.'"
+    confirmText="Phê duyệt & Khóa kỳ lương"
+    cancelText="Kiểm tra lại"
+    variant="warning"
+    (confirm)="executeApprove()"
+    (cancel)="isApproveModalOpen.set(false)"
+  />
+
+  <!-- 5. Modal chi tiết phiếu lương cá nhân -->
+  <app-hrm-payroll-slip-modal
+    [isOpen]="isSlipModalOpen()"
+    [slip]="selectedSlip()"
+    (close)="isSlipModalOpen.set(false)"
+  />
+</div>

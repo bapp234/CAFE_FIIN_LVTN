@@ -4,6 +4,7 @@ import { PageHome } from './pages/page_home/home';
 import { PagePolicy } from './pages/page_policy/policy';
 import { PageMembership } from './pages/page_membership/membership';
 import { PageProducts } from './pages/page_products/products';
+import { PageProductDetail } from './pages/page_product_detail/productDetail';
 import { PageSearch } from './pages/page_search/search';
 import { PageNews } from './pages/page_news/news';
 import { PageAuth } from './pages/page_auth/auth';
@@ -60,6 +61,16 @@ export const routes: Routes = [
     title: 'Thực Đơn Sản Phẩm - Cà Phê Fiin'
   },
   {
+    path: 'san-pham/:id',
+    component: PageProductDetail,
+    title: 'Chi Tiết Sản Phẩm - Cà Phê Fiin'
+  },
+  {
+    path: 'product/:id',
+    redirectTo: 'san-pham/:id',
+    pathMatch: 'full'
+  },
+  {
     path: 'menu',
     redirectTo: 'san-pham',
     pathMatch: 'full'
@@ -113,6 +124,10 @@ export const routes: Routes = [
     path: 'membership',
     redirectTo: 'uu-dai',
     pathMatch: 'full'
+  },
+  {
+    path: 'admin',
+    loadChildren: () => import('./admin/admin.routes').then((m) => m.ADMIN_ROUTES),
   },
   {
     path: '**',

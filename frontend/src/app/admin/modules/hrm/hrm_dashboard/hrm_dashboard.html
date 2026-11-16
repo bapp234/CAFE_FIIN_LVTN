@@ -1,0 +1,351 @@
+<div class="hrm-dashboard">
+  <!-- 1. Page Header (Đã căn thẳng hàng ngang, không gãy dòng) -->
+  <app-admin-page-header
+    title="Tổng quan Nhân sự"
+    module="HRM"
+    moduleLabel="Quản trị Nhân sự"
+    modulePath="hrm"
+    [showBranchSelector]="true"
+  >
+    <div actions class="header-actions">
+      <a routerLink="/admin/hrm/ca-lam" class="btn-action-outline">
+        <svg lucideCalendar class="btn-svg" aria-hidden="true"></svg>
+        <span>Lịch xếp ca tuần</span>
+      </a>
+      <a routerLink="/admin/hrm/ho-so-nhan-vien" [queryParams]="{ create: true }" class="btn-action-primary">
+        <svg lucideUserPlus class="btn-svg" aria-hidden="true"></svg>
+        <span>Thêm nhân sự</span>
+      </a>
+    </div>
+  </app-admin-page-header>
+
+  <!-- 2. 4 Stat Cards KPI Nhân sự -->
+  <section class="stat-grid" aria-label="Chỉ số nhân sự chủ chốt">
+    <app-admin-stat-card
+      label="Tổng nhân sự"
+      [value]="totalEmployees()"
+      diff="Toàn hệ thống"
+      trend="neutral"
+      trendLabel=""
+      icon="users"
+    />
+    <app-admin-stat-card
+      label="Nhân sự chính thức"
+      [value]="workingEmployees()"
+      diff="Đang làm việc"
+      trend="up"
+      trendLabel="ổn định biên chế"
+      icon="activity"
+    />
+    <app-admin-stat-card
+      label="Nhân viên mới (tháng)"
+      [value]="newEmployeesThisMonth()"
+      diff="Gia nhập Tháng 11"
+      trend="up"
+      trendLabel="tiếp nhận mới"
+      icon="users"
+    />
+    <app-admin-stat-card
+      label="Nhân viên đã nghỉ (tháng)"
+      [value]="resignedEmployeesThisMonth()"
+      diff="Thôi việc Tháng 11"
+      trend="neutral"
+      trendLabel="0 thôi việc"
+      icon="alert"
+    />
+  </section>
+
+  <!-- 3. Phím tắt điều hướng nhanh -->
+  <section class="quick-nav-grid" aria-label="Phím tắt chức năng HRM">
+    <a routerLink="/admin/hrm/ho-so-nhan-vien" class="quick-card">
+      <div class="quick-icon-wrap icon-emp">
+        <svg lucideUsers class="quick-icon"></svg>
+      </div>
+      <div class="quick-info">
+        <h3 class="quick-title">Hồ sơ Nhân viên</h3>
+        <p class="quick-desc">Tra cứu lý lịch, phân cấp cây phả hệ, hợp đồng và mức lương giờ.</p>
+      </div>
+    </a>
+
+    <a routerLink="/admin/hrm/ca-lam" class="quick-card">
+      <div class="quick-icon-wrap icon-shift">
+        <svg lucideCalendar class="quick-icon"></svg>
+      </div>
+      <div class="quick-info">
+        <h3 class="quick-title">Mẫu ca & Xếp lịch</h3>
+        <p class="quick-desc">Lưới phân ca tuần, điều phối nhân sự theo từng chi nhánh.</p>
+      </div>
+    </a>
+
+    <a routerLink="/admin/hrm/cham-cong" class="quick-card">
+      <div class="quick-icon-wrap icon-att">
+        <svg lucideClock class="quick-icon"></svg>
+      </div>
+      <div class="quick-info">
+        <h3 class="quick-title">Dữ liệu Chấm công</h3>
+        <p class="quick-desc">Đối chiếu giờ vào/ra thực tế, điểm danh ca và xuất file dữ liệu.</p>
+      </div>
+    </a>
+
+    <a routerLink="/admin/hrm/luong" class="quick-card">
+      <div class="quick-icon-wrap icon-pay">
+        <svg lucideDollarSign class="quick-icon"></svg>
+      </div>
+      <div class="quick-info">
+        <h3 class="quick-title">Tính toán Bảng lương</h3>
+        <p class="quick-desc">Lương giờ thực tế + tăng ca OT x1.5, phiếu lương và chốt kỳ lương.</p>
+      </div>
+    </a>
+  </section>
+
+  <!-- 4. BIỂU ĐỒ DEVEXTREME-LIKE: SỐ LƯỢNG NHÂN SỰ BIẾN ĐỘNG THEO NĂM (SPLINE CHART) -->
+  <section class="dx-chart-card" aria-labelledby="yearly-trend-title">
+    <div class="dx-chart-header">
+      <div class="dx-header-left">
+        <div class="dx-icon-badge">
+          <svg lucideTrendingUp class="dx-icon-svg" aria-hidden="true"></svg>
+        </div>
+        <div>
+          <h2 id="yearly-trend-title" class="dx-chart-title">Số lượng nhân sự biến động theo năm</h2>
+          <p class="dx-chart-subtitle">Biểu đồ đường cong Spline mô phỏng tăng trưởng qua 12 tháng · Năm 2026</p>
+        </div>
+      </div>
+
+      <div class="dx-header-right">
+        <!-- Chú thích Legend chuẩn DevExtreme -->
+        <div class="dx-legend">
+          <div class="dx-legend-item">
+            <span class="dx-legend-dot dot-actual"></span>
+            <span class="dx-legend-text">Nhân sự thực tế</span>
+          </div>
+          <div class="dx-legend-item">
+            <span class="dx-legend-line line-target"></span>
+            <span class="dx-legend-text">Định biên (16 người)</span>
+          </div>
+        </div>
+
+        <span class="dx-year-chip">Năm 2026</span>
+      </div>
+    </div>
+
+    <!-- Khung Canvas SVG Spline Chart -->
+    <div class="dx-chart-canvas-wrap">
+      <div class="dx-chart-body">
+        <svg viewBox="0 0 920 280" class="dx-svg-chart" preserveAspectRatio="none">
+          <defs>
+            <!-- Gradient dải màu fill dưới đường cong -->
+            <linearGradient id="dxSplineAreaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2F5D58" stop-opacity="0.32" />
+              <stop offset="60%" stop-color="#2F5D58" stop-opacity="0.10" />
+              <stop offset="100%" stop-color="#2F5D58" stop-opacity="0.0" />
+            </linearGradient>
+
+            <!-- Shadow cho đường nét nổi bật -->
+            <filter id="dxGlowShadow" x="-10%" y="-10%" width="120%" height="130%">
+              <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#1E4D3A" flood-opacity="0.22" />
+            </filter>
+          </defs>
+
+          <!-- Đường lưới ngang (Grid lines) & Nhãn trục Y -->
+          <g class="dx-grid-group">
+            <!-- 16 (Đỉnh) -->
+            <line x1="50" y1="35" x2="890" y2="35" class="dx-target-line" />
+            <text x="40" y="39" class="dx-axis-text">16</text>
+
+            <!-- 12 -->
+            <line x1="50" y1="84" x2="890" y2="84" class="dx-grid-line" />
+            <text x="40" y="88" class="dx-axis-text">12</text>
+
+            <!-- 8 -->
+            <line x1="50" y1="133" x2="890" y2="133" class="dx-grid-line" />
+            <text x="40" y="137" class="dx-axis-text">8</text>
+
+            <!-- 4 -->
+            <line x1="50" y1="181" x2="890" y2="181" class="dx-grid-line" />
+            <text x="40" y="185" class="dx-axis-text">4</text>
+
+            <!-- 0 (Đáy trục) -->
+            <line x1="50" y1="230" x2="890" y2="230" class="dx-base-line" />
+            <text x="40" y="234" class="dx-axis-text">0</text>
+          </g>
+
+          <!-- Vùng diện tích Gradient dưới đường Spline -->
+          @if (svgAreaPath()) {
+            <path [attr.d]="svgAreaPath()" fill="url(#dxSplineAreaGrad)" />
+          }
+
+          <!-- Đường cong Spline mượt mà (Cubic Bézier) -->
+          @if (svgSplinePath()) {
+            <path
+              [attr.d]="svgSplinePath()"
+              class="dx-spline-path"
+              filter="url(#dxGlowShadow)"
+            />
+          }
+
+          <!-- Các mốc điểm tương tác từng tháng -->
+          @for (pt of monthlyTrends(); track pt.month) {
+            <g
+              class="dx-node-group"
+              (mouseenter)="setHoveredPoint(pt)"
+              (mouseleave)="setHoveredPoint(null)"
+            >
+              <!-- Đường dóng phụ dọc khi hover -->
+              <line
+                [attr.x1]="pt.x"
+                [attr.y1]="pt.y"
+                [attr.x2]="pt.x"
+                y2="230"
+                class="dx-hover-guideline"
+              />
+
+              <!-- Vòng hào quang ngoài -->
+              <circle
+                [attr.cx]="pt.x"
+                [attr.cy]="pt.y"
+                r="10"
+                class="dx-node-halo"
+              />
+
+              <!-- Nút tròn chính -->
+              <circle
+                [attr.cx]="pt.x"
+                [attr.cy]="pt.y"
+                r="5.5"
+                class="dx-node-dot"
+                [class.active]="hoveredPoint()?.month === pt.month || pt.month === 11"
+              />
+
+              <!-- Nhãn giá trị phía trên nút tròn -->
+              <g class="dx-node-tag" [attr.transform]="'translate(' + pt.x + ', ' + (pt.y - 12) + ')'">
+                <rect x="-14" y="-14" width="28" height="16" rx="3" class="dx-tag-bg" />
+                <text x="0" y="-3" class="dx-tag-text">{{ pt.count }}</text>
+              </g>
+
+              <!-- Nhãn tháng trục hoành X -->
+              <text
+                [attr.x]="pt.x"
+                y="254"
+                class="dx-month-label"
+                [class.current-month]="pt.month === 11"
+              >
+                T{{ pt.month }}
+              </text>
+            </g>
+          }
+        </svg>
+
+        <!-- Tooltip nổi tương tác chuẩn DevExtreme -->
+        @if (hoveredPoint(); as hpt) {
+          <div class="dx-floating-tooltip" [style.left.px]="hpt.x" [style.top.px]="hpt.y - 50">
+            <div class="tooltip-title">{{ hpt.label }} · Năm 2026</div>
+            <div class="tooltip-val">{{ hpt.count }} nhân sự</div>
+            <div class="tooltip-sub">{{ hpt.growth }}</div>
+          </div>
+        }
+      </div>
+
+      <!-- Footer chú thích -->
+      <div class="dx-chart-footer">
+        <span class="dx-caption-note">Trục hoành: 12 tháng chu kỳ kinh doanh năm 2026 · Trục tung: Quy mô nhân sự (người)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. HÀNG 2 CỘT: CƠ CẤU ĐỘ TUỔI & PHÂN BỔ HỢP ĐỒNG (DEVEXTREME BAR CHARTS) -->
+  <div class="double-chart-grid">
+    <!-- Cột Trái: CƠ CẤU NHÂN SỰ THEO ĐỘ TUỔI (BAR CHART) -->
+    <section class="dx-chart-card" aria-labelledby="age-structure-title">
+      <div class="dx-chart-header">
+        <div class="dx-header-left">
+          <div class="dx-icon-badge badge-cyan">
+            <svg lucidePieChart class="dx-icon-svg" aria-hidden="true"></svg>
+          </div>
+          <div>
+            <h2 id="age-structure-title" class="dx-chart-title">Cơ cấu nhân sự theo độ tuổi</h2>
+            <p class="dx-chart-subtitle">Phân bổ nhân lực theo 5 nhóm thế hệ độ tuổi lao động</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="dx-bar-container">
+        <div class="dx-bar-canvas">
+          <!-- Trục Y chuẩn -->
+          <div class="dx-bar-y-scale">
+            <span>10</span>
+            <span>7</span>
+            <span>4</span>
+            <span>0</span>
+          </div>
+
+          <!-- Các cột nhóm tuổi -->
+          <div class="dx-bars-row">
+            @for (item of ageGroups(); track item.range) {
+              <div class="dx-column-item">
+                <div class="dx-col-pill">
+                  <span>{{ item.count }} người</span>
+                </div>
+                <div class="dx-col-track">
+                  <div
+                    class="dx-col-fill fill-green"
+                    [style.height.%]="item.heightPercent > 0 ? item.heightPercent : 4"
+                    [title]="item.label + ': ' + item.count + ' người (' + item.percentage + '%)'"
+                  ></div>
+                </div>
+                <div class="dx-col-axis-label">
+                  <strong>{{ item.range }}</strong>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cột Phải: PHÂN BỔ HỢP ĐỒNG LAO ĐỘNG (BAR CHART) -->
+    <section class="dx-chart-card" aria-labelledby="contract-dist-title">
+      <div class="dx-chart-header">
+        <div class="dx-header-left">
+          <div class="dx-icon-badge badge-brown">
+            <svg lucideFileText class="dx-icon-svg" aria-hidden="true"></svg>
+          </div>
+          <div>
+            <h2 id="contract-dist-title" class="dx-chart-title">Phân bổ hợp đồng nhân sự</h2>
+            <p class="dx-chart-subtitle">Tỷ lệ các loại hợp đồng lao động đang có hiệu lực</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="dx-bar-container">
+        <div class="dx-bar-canvas">
+          <div class="dx-bar-y-scale">
+            <span>8</span>
+            <span>6</span>
+            <span>3</span>
+            <span>0</span>
+          </div>
+
+          <div class="dx-bars-row">
+            @for (ct of contractStats(); track ct.code) {
+              <div class="dx-column-item">
+                <div class="dx-col-pill pill-brown">
+                  <span>{{ ct.count }} HĐ</span>
+                </div>
+                <div class="dx-col-track">
+                  <div
+                    class="dx-col-fill fill-brown"
+                    [style.height.%]="ct.percentage > 0 ? ct.percentage : 6"
+                    [title]="ct.name + ': ' + ct.count + ' HĐ (' + ct.percentage + '%)'"
+                  ></div>
+                </div>
+                <div class="dx-col-axis-label" [title]="ct.name">
+                  <strong>{{ ct.name }}</strong>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

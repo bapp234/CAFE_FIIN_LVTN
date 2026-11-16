@@ -3,20 +3,26 @@
   <app-widget-header [cartCount]="cartCount()" [isSidebarOpen]="isSidebarOpen()" (toggleSidebar)="toggleSidebar()"
     (toggleCart)="toggleCart()"></app-widget-header>
 
-  <!-- 2. BỐ CỤC CHÍNH (SIDEBAR + MAIN CONTENT) -->
+  <!-- 2. BỐ CỤC CHÍNH -->
   <div class="home-main-layout">
     <div class="layout-container">
 
-      <!-- Widget Sidebar -->
-      <app-widget-home-sidebar [categories]="categories" [isOpen]="isSidebarOpen()" />
+      <!-- Hàng trên: Sidebar danh mục + Hero Slider -->
+      <div class="home-top-row">
+        <!-- Widget Sidebar -->
+        <app-widget-home-sidebar [categories]="categories" [isOpen]="isSidebarOpen()"
+          (closed)="isSidebarOpen.set(false)" />
 
-      <!-- Khu vực nội dung -->
-      <main class="order-content-area">
         <!-- Widget Hero Banner -->
-        <app-widget-home-hero [slides]="heroSlides" [currentSlide]="currentSlide()"
-          (slideClick)="onHeroSlideClick($event)" (prevClick)="prevSlide()" (nextClick)="nextSlide()"
-          (selectSlide)="goToSlide($event)" />
+        <div class="hero-wrapper">
+          <app-widget-home-hero [slides]="heroSlides" [currentSlide]="currentSlide()"
+            (slideClick)="onHeroSlideClick($event)" (prevClick)="prevSlide()" (nextClick)="nextSlide()"
+            (selectSlide)="goToSlide($event)" />
+        </div>
+      </div>
 
+      <!-- Khu vực nội dung bên dưới (Vouchers, Kệ sản phẩm... luôn trải rộng 100%) -->
+      <main class="order-content-area">
         <!-- Widget Dải Voucher -->
         <app-widget-home-vouchers [vouchers]="vouchers()" (copyVoucher)="copyVoucher($event)" />
 
@@ -25,21 +31,13 @@
           (selectProduct)="openProductModal($event)" />
 
         <!-- Widget Kệ 2: Vị Ký Ức (Kèm Banner Điểm Tâm) -->
-        <app-widget-home-shelf [sectionId]="'banh-mi-que'" [title]="'VỊ KÝ ỨC'" [bannerLead]="memoryBanner"
-          [products]="memoryProducts" (selectProduct)="openProductModal($event)" />
+        <app-widget-home-pairing [sectionId]="'banh-mi-que'"
+          [heroImage]="'/assets/images/newsletter/fiin-newsletter.png'" [foodItems]="pastryProducts"
+          [drinkOptions]="phinProducts.slice(0, 3)" (selectSingleProduct)="openProductModal($event)"
+          (addComboToCart)="onPairingComboAdded($event)" />
       </main>
 
     </div>
-  </div>
-
-  <!-- 3. CÁC NÚT TÁC VỤ NỔI (FAB) -->
-  <div class="floating-buttons-group">
-    <button type="button" class="fab-btn fab-top" (click)="scrollToTop()" aria-label="Cuộn lên đầu trang">
-      <svg lucideChevronUp class="fab-icon"></svg>
-    </button>
-    <a href="tel:19001755" class="fab-btn fab-call" aria-label="Gọi hotline 1900 1755">
-      <svg lucidePhone class="fab-icon"></svg>
-    </a>
   </div>
 
   <!-- 4. MODAL TÙY CHỌN MÓN -->

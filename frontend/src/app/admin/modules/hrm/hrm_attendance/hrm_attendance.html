@@ -1,0 +1,489 @@
+<div class="attendance-page">
+  <!-- 1. Page Header (Đã tinh gọn tiêu đề và giữ chọn chi nhánh) -->
+  <app-admin-page-header
+    title="Dữ liệu Chấm công & Giám sát ca"
+    module="HRM"
+    moduleLabel="Quản trị Nhân sự"
+    modulePath="hrm"
+    [showBranchSelector]="true"
+  >
+  </app-admin-page-header>
+
+  <!-- 2. 4 Thẻ Thống Kê Nhanh Tình Hình Chấm Công Trong Ngày -->
+  <section class="summary-cards" aria-label="Tóm tắt tình hình chấm công ngày">
+    <div class="att-kpi-card card-scheduled">
+      <div class="kpi-top">
+        <span class="kpi-label">Có lịch phân ca</span>
+        <div class="kpi-icon-wrap icon-scheduled">
+          <svg lucideCalendar class="kpi-icon" aria-hidden="true"></svg>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-val">{{ summary().scheduled }}</strong>
+        <span class="kpi-sub">ca làm trong ngày</span>
+      </div>
+      <div class="kpi-footer">
+        <span class="kpi-badge badge-neutral">Đăng ký trước</span>
+      </div>
+    </div>
+
+    <div class="att-kpi-card card-ontime">
+      <div class="kpi-top">
+        <span class="kpi-label">Đúng giờ (On time)</span>
+        <div class="kpi-icon-wrap icon-ontime">
+          <svg lucideCheck class="kpi-icon" aria-hidden="true"></svg>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-val text-success">{{ summary().onTime }}</strong>
+        <span class="kpi-sub">hoàn tất ca chuẩn xác</span>
+      </div>
+      <div class="kpi-footer">
+        <span class="kpi-badge badge-success">Đạt tiêu chuẩn</span>
+      </div>
+    </div>
+
+    <div class="att-kpi-card card-late">
+      <div class="kpi-top">
+        <span class="kpi-label">Đi muộn / Về sớm</span>
+        <div class="kpi-icon-wrap icon-late">
+          <svg lucideClock class="kpi-icon" aria-hidden="true"></svg>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-val text-warning">{{ summary().late }}</strong>
+        <span class="kpi-sub">cần đối chiếu giải trình</span>
+      </div>
+      <div class="kpi-footer">
+        <span class="kpi-badge badge-warning">Cần nhắc nhở</span>
+      </div>
+    </div>
+
+    <div class="att-kpi-card card-absent">
+      <div class="kpi-top">
+        <span class="kpi-label">Vắng mặt (Có lịch)</span>
+        <div class="kpi-icon-wrap icon-absent">
+          <svg lucideAlertTriangle class="kpi-icon" aria-hidden="true"></svg>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-val text-danger">{{ summary().absent }}</strong>
+        <span class="kpi-sub">chưa điểm danh quét vân tay</span>
+      </div>
+      <div class="kpi-footer">
+        <span class="kpi-badge badge-danger">Chưa chấm công</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. KHUNG BẢNG LƯỚI DỮ LIỆU CHẤM CÔNG (DATA GRID TABLE) -->
+  <div class="grid-card">
+    <!-- THANH CÔNG CỤ & BỘ LỌC CHẤM CÔNG (GRID TOOLBAR) -->
+    <div class="grid-toolbar">
+      <div class="toolbar-left">
+        <div class="toolbar-title-wrap">
+          <svg lucideFileSpreadsheet class="toolbar-grid-icon" aria-hidden="true"></svg>
+          <span class="toolbar-grid-title">Bảng dữ liệu chấm công</span>
+          <span class="badge-total">{{ total() }} lượt ca</span>
+        </div>
+
+        <div class="toolbar-sep" aria-hidden="true"></div>
+
+        <!-- Bộ điều hướng ngày: Trước | Input Date | Sau | Hôm nay -->
+        <div class="date-navigator-group">
+          <button
+            type="button"
+            class="btn-date-step"
+            (click)="stepDate(-1)"
+            title="Xem ngày hôm trước"
+          >
+            <svg lucideChevronLeft class="step-icon" aria-hidden="true"></svg>
+          </button>
+
+          <div class="date-picker-wrap">
+            <svg lucideCalendar class="date-icon" aria-hidden="true"></svg>
+            <input
+              type="date"
+              class="date-input"
+              [value]="selectedDate()"
+              (change)="onDateChange($event)"
+              title="Chọn ngày cụ thể để xem dữ liệu chấm công"
+            />
+          </div>
+
+          <button
+            type="button"
+            class="btn-date-step"
+            (click)="stepDate(1)"
+            title="Xem ngày tiếp theo"
+          >
+            <svg lucideChevronRight class="step-icon" aria-hidden="true"></svg>
+          </button>
+
+          <button
+            type="button"
+            class="btn-date-today"
+            (click)="setToday()"
+            title="Quay lại ngày hôm nay"
+          >
+            Hôm nay
+          </button>
+        </div>
+
+        <div class="toolbar-sep" aria-hidden="true"></div>
+
+        <!-- Nút Tải file mẫu -->
+        <button
+          type="button"
+          class="btn-grid-tool"
+          (click)="downloadTemplate()"
+          title="Tải tệp Excel mẫu để ghi nhận lượt chấm công"
+        >
+          <svg lucideFileText class="tb-icon text-green" aria-hidden="true"></svg>
+          <span>File mẫu</span>
+        </button>
+
+        <!-- Nút Nhập máy chấm công -->
+        <label
+          class="btn-grid-tool btn-upload-label"
+          title="Đồng bộ dữ liệu quét vân tay từ tệp tin (.csv, .xlsx)"
+          [class.is-loading]="isImporting()"
+        >
+          <svg lucideUpload class="tb-icon text-cyan" aria-hidden="true"></svg>
+          <span>{{ isImporting() ? 'Đang đọc...' : 'Nhập máy chấm công' }}</span>
+          <input
+            type="file"
+            class="hidden-file-input"
+            accept=".csv, .xlsx, .xls, .txt, text/csv"
+            (change)="onImportLog($event)"
+            [disabled]="isImporting()"
+          />
+        </label>
+
+        <!-- Nút Xuất Excel -->
+        <button
+          type="button"
+          class="btn-grid-tool"
+          (click)="exportCsv()"
+          title="Xuất bảng đối soát chấm công ra tệp Excel (.csv UTF-8)"
+        >
+          <svg lucideDownload class="tb-icon" aria-hidden="true"></svg>
+          <span>Xuất Excel</span>
+        </button>
+
+        <!-- Nút In danh sách -->
+        <button
+          type="button"
+          class="btn-grid-tool"
+          (click)="printAttendance()"
+          title="In bảng chấm công"
+        >
+          <svg lucidePrinter class="tb-icon" aria-hidden="true"></svg>
+          <span>In danh sách</span>
+        </button>
+      </div>
+
+      <div class="toolbar-right">
+        <!-- Ô tìm kiếm -->
+        <div class="grid-search-box">
+          <svg lucideSearch class="search-icon" aria-hidden="true"></svg>
+          <input
+            type="text"
+            class="grid-search-input"
+            placeholder="Tìm theo mã NV, họ tên, ca..."
+            [value]="searchQuery()"
+            (input)="onSearchChange($any($event.target).value)"
+          />
+          @if (searchQuery()) {
+            <button type="button" class="clear-search-btn" (click)="onSearchChange('')" title="Xóa tìm kiếm">×</button>
+          }
+        </div>
+
+        <!-- Lọc Trạng thái -->
+        <select
+          class="grid-select-filter"
+          [value]="statusFilter()"
+          (change)="onStatusFilterChange($event)"
+          aria-label="Lọc theo trạng thái chấm công"
+        >
+          <option value="all">Tất cả trạng thái</option>
+          <option value="on_time">Đúng giờ (On time)</option>
+          <option value="late">Đi muộn (Late)</option>
+          <option value="absent">Vắng mặt (Absent)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- BẢNG LƯỚI CHẤM CÔNG (DATA GRID TABLE VIEWPORT) -->
+    <div class="grid-viewport" tabindex="0" role="region" aria-label="Bảng lưới chấm công ngày">
+      <table class="grid-table">
+        <thead>
+          <tr class="grid-header-row">
+            <th class="th-cell text-center col-stt">STT</th>
+
+            <th class="th-cell text-center col-code" (click)="onSortToggle('code')">
+              <div class="th-content justify-center">
+                <span>MÃ NV</span>
+                <span class="sort-icon">{{ sortBy() === 'code' ? (sortOrder() === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-left col-name" (click)="onSortToggle('name')">
+              <div class="th-content">
+                <span>HỌ VÀ TÊN NHÂN SỰ</span>
+                <span class="sort-icon">{{ sortBy() === 'name' ? (sortOrder() === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-left col-branch">
+              <div class="th-content">
+                <span>CHI NHÁNH</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-left col-sched">
+              <div class="th-content">
+                <span>CA ĐĂNG KÝ TRƯỚC</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-center col-time-in">
+              <div class="th-content justify-center">
+                <span>GIỜ VÀO THỰC TẾ</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-center col-time-out">
+              <div class="th-content justify-center">
+                <span>GIỜ RA THỰC TẾ</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-right col-hours" (click)="onSortToggle('hours')">
+              <div class="th-content justify-end">
+                <span>GIỜ CÔNG</span>
+                <span class="sort-icon">{{ sortBy() === 'hours' ? (sortOrder() === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-right col-ot">
+              <div class="th-content justify-end">
+                <span>TĂNG CA (OT)</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-center col-status" (click)="onSortToggle('status')">
+              <div class="th-content justify-center">
+                <span>ĐỐI CHIẾU LỊCH</span>
+                <span class="sort-icon">{{ sortBy() === 'status' ? (sortOrder() === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+              </div>
+            </th>
+
+            <th class="th-cell text-center col-actions">THAO TÁC</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @if (isLoading()) {
+            <tr>
+              <td colspan="11" class="grid-state-cell">
+                <div class="grid-state-wrap">
+                  <span class="grid-spinner" aria-hidden="true"></span>
+                  <span>Đang tải dữ liệu chấm công từ hệ thống...</span>
+                </div>
+              </td>
+            </tr>
+          } @else if (records().length === 0) {
+            <tr>
+              <td colspan="11" class="grid-state-cell">
+                <div class="grid-empty-wrap">
+                  <svg lucideInbox class="empty-icon" aria-hidden="true"></svg>
+                  <span>Không tìm thấy bản ghi chấm công nào trong ngày {{ selectedDate() }}</span>
+                </div>
+              </td>
+            </tr>
+          } @else {
+            @for (rec of records(); track (rec.id || rec.employeeCode); let idx = $index) {
+              <tr
+                class="grid-row"
+                [class.is-selected]="selectedRecordId() === rec.id"
+                (click)="selectRecord(rec)"
+                (dblclick)="openAdjustModal(rec, $event)"
+                title="Nhấp đúp để mở điều chỉnh giờ chấm công"
+              >
+                <!-- STT -->
+                <td class="grid-cell text-center font-mono text-muted">
+                  {{ (page() - 1) * size() + idx + 1 }}
+                </td>
+
+                <!-- Mã NV -->
+                <td class="grid-cell text-center">
+                  <span class="code-badge">{{ rec.employeeCode }}</span>
+                </td>
+
+                <!-- Họ và tên & Tag thủ công -->
+                <td class="grid-cell cell-name">
+                  <div class="emp-name-box">
+                    <span class="emp-name-main">{{ rec.employeeName }}</span>
+                    @if (rec.isManualAdjusted) {
+                      <span class="manual-badge" [title]="'Người duyệt: ' + (rec.adjustedBy || 'QL') + ' | Lý do: ' + (rec.adjustedNote || '')">
+                        Đã sửa thủ công
+                      </span>
+                    }
+                  </div>
+                </td>
+
+                <!-- Chi nhánh -->
+                <td class="grid-cell cell-branch">
+                  <span class="branch-pill">{{ rec.branchName }}</span>
+                </td>
+
+                <!-- Ca đăng ký trước -->
+                <td class="grid-cell cell-sched">
+                  @if (rec.scheduledShiftName) {
+                    <div class="sched-shift-box">
+                      <span class="sched-name">{{ rec.scheduledShiftName }}</span>
+                      <span class="sched-time font-mono">({{ rec.scheduledStartTime }} – {{ rec.scheduledEndTime }})</span>
+                    </div>
+                  } @else {
+                    <span class="text-muted font-italic">Không có lịch trước</span>
+                  }
+                </td>
+
+                <!-- Giờ vào thực tế -->
+                <td class="grid-cell text-center font-mono">
+                  @if (rec.checkIn) {
+                    <span class="time-in-text font-semibold">{{ rec.checkIn }}</span>
+                    @if (rec.lateMinutes > 0) {
+                      <span class="late-tag">Muộn {{ rec.lateMinutes }}p</span>
+                    }
+                  } @else {
+                    <span class="text-danger font-semibold">Chưa quét</span>
+                  }
+                </td>
+
+                <!-- Giờ ra thực tế -->
+                <td class="grid-cell text-center font-mono">
+                  @if (rec.checkOut) {
+                    <span class="time-out-text font-semibold">{{ rec.checkOut }}</span>
+                  } @else if (rec.checkIn) {
+                    <span class="working-pill">Đang trực</span>
+                  } @else {
+                    <span class="text-muted">—</span>
+                  }
+                </td>
+
+                <!-- Giờ công -->
+                <td class="grid-cell text-right font-mono font-bold text-dark">
+                  {{ rec.workHours }}h
+                </td>
+
+                <!-- Tăng ca OT -->
+                <td class="grid-cell text-right font-mono">
+                  @if (rec.overtimeHours > 0) {
+                    <span class="ot-tag font-semibold text-ot">+{{ rec.overtimeHours }}h</span>
+                  } @else {
+                    <span class="text-muted">—</span>
+                  }
+                </td>
+
+                <!-- Trạng thái đối chiếu -->
+                <td class="grid-cell text-center">
+                  <app-admin-status-badge
+                    [label]="getStatusBadge(rec).label"
+                    [variant]="getStatusBadge(rec).variant"
+                    size="sm"
+                  />
+                </td>
+
+                <!-- Thao tác Sửa giờ -->
+                <td class="grid-cell cell-actions" (click)="$event.stopPropagation()">
+                  <div class="row-act-group">
+                    <button
+                      type="button"
+                      class="btn-act"
+                      title="Điều chỉnh giờ chấm công thủ công (Audit trail)"
+                      (click)="openAdjustModal(rec, $event)"
+                      aria-label="Điều chỉnh giờ chấm công"
+                    >
+                      <svg lucideEdit class="act-icon" aria-hidden="true"></svg>
+                      <span class="btn-act-text">Sửa</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+
+            <!-- Hàng Tổng Kết Thống Kê Chân Bảng Lưới -->
+            <tr class="grid-summary-row">
+              <td colspan="7" class="summary-title-cell">
+                <strong>TỔNG CỘNG: {{ total() }} LƯỢT CA NGÀY {{ selectedDate() }}</strong>
+                <span class="summary-sub-stat">
+                  (Đúng giờ: <strong>{{ summary().onTime }}</strong> · Đi muộn: <strong>{{ summary().late }}</strong> · Vắng mặt: <strong>{{ summary().absent }}</strong>)
+                </span>
+              </td>
+              <td class="grid-cell text-right font-mono font-bold text-dark">
+                {{ totalWorkHours() }}h
+              </td>
+              <td class="grid-cell text-right font-mono font-bold text-ot">
+                +{{ totalOtHours() }}h OT
+              </td>
+              <td colspan="2" class="summary-tail-cell">
+                <span class="summary-hint">Đối soát tự động từ máy quét</span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 4. Modal Điều Chỉnh Giờ Chấm Công (Audit Trail Minh Bạch) -->
+  <app-admin-modal
+    [isOpen]="isAdjustModalOpen()"
+    title="Điều chỉnh giờ chấm công thủ công"
+    [message]="'Nhân sự: ' + (adjustingRecord()?.employeeName || '') + ' (' + (adjustingRecord()?.employeeCode || '') + ') · ' + (adjustingRecord()?.scheduledShiftName || '')"
+    confirmText="Lưu giờ chấm công"
+    cancelText="Đóng"
+    variant="primary"
+    (confirm)="saveAdjust()"
+    (cancel)="isAdjustModalOpen.set(false)"
+  >
+    <form class="adjust-form" [formGroup]="adjustForm">
+      <div class="form-row-2">
+        <app-admin-form-field label="Giờ vào thực tế (HH:mm)" htmlFor="adj-in" [required]="true">
+          <input id="adj-in" type="time" formControlName="checkIn" />
+        </app-admin-form-field>
+
+        <app-admin-form-field label="Giờ ra thực tế (HH:mm)" htmlFor="adj-out" [required]="true">
+          <input id="adj-out" type="time" formControlName="checkOut" />
+        </app-admin-form-field>
+      </div>
+
+      <app-admin-form-field label="Chọn nhanh lý do điều chỉnh phổ biến" htmlFor="adj-quick">
+        <select id="adj-quick" formControlName="quickReason" (change)="onQuickReasonSelect($event)">
+          <option value="">-- Chọn lý do mẫu hoặc tự nhập bên dưới --</option>
+          <option value="Máy chấm công mất điện hoặc lỗi kết nối mạng nội bộ">Máy chấm công mất điện hoặc lỗi kết nối mạng</option>
+          <option value="Mắt đọc vân tay không nhận diện được">Mắt đọc vân tay không nhận diện được</option>
+          <option value="Quên bấm vân tay lúc vào ca (Đã xác minh qua camera)">Quên bấm vân tay lúc vào ca (Đã xác minh qua camera)</option>
+          <option value="Đi tăng cường chi nhánh đột xuất theo yêu cầu Quản lý">Đi tăng cường chi nhánh đột xuất theo yêu cầu Quản lý</option>
+        </select>
+      </app-admin-form-field>
+
+      <app-admin-form-field
+        label="Lý do chi tiết & Căn cứ điều chỉnh"
+        htmlFor="adj-reason"
+        [required]="true"
+        hint="Nội dung này được lưu vào biên bản kiểm toán hệ thống (Audit Trail)."
+        [error]="adjustForm.controls.reason.touched && adjustForm.controls.reason.invalid ? 'Vui lòng nhập lý do tối thiểu 5 ký tự' : null"
+      >
+        <textarea
+          id="adj-reason"
+          rows="3"
+          formControlName="reason"
+          placeholder="Nhập lý do chi tiết..."
+        ></textarea>
+      </app-admin-form-field>
+    </form>
+  </app-admin-modal>
+</div>

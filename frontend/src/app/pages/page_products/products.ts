@@ -1,29 +1,45 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
+  OnDestroy,
   computed,
+  effect,
   signal,
+  viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import {
+  LucideCakeSlice,
   LucideCheck,
   LucideChevronDown,
+  LucideChevronLeft,
+  LucideChevronRight,
   LucideChevronUp,
-  LucideFilter,
+  LucideCoffee,
+  LucideCroissant,
+  LucideCupSoda,
+  LucideFlame,
+  LucideLayoutGrid,
+  LucideLeaf,
   LucidePhone,
   LucidePlus,
   LucideRotateCcw,
-  LucideSearch,
-  LucideShoppingCart,
+  LucideShoppingBag,
   LucideSlidersHorizontal,
+  LucideSnowflake,
+  LucideSparkles,
   LucideX,
 } from '@lucide/angular';
+import gsap from 'gsap';
 import { WidgetHeader } from '../../widgets/widget_header/header';
 import { WidgetLandingFooter } from '../../widgets/widget_landingFooter/landingFooter';
 import {
   WidgetProductModal,
   CustomizedItem,
+  ToppingOption,
 } from '../../widgets/widget_product_modal/modal';
 
 export interface ProductItem {
@@ -38,10 +54,20 @@ export interface ProductItem {
   description: string;
 }
 
+export type CategoryIconKey =
+  | 'all'
+  | 'coffee'
+  | 'leaf'
+  | 'sparkles'
+  | 'snowflake'
+  | 'croissant'
+  | 'cake'
+  | 'cup';
+
 export interface CategoryItem {
   id: string;
   name: string;
-  icon: string;
+  iconKey: CategoryIconKey;
 }
 
 export interface CartItem {
@@ -49,6 +75,8 @@ export interface CartItem {
   size: 'S' | 'M' | 'L';
   sugar: string;
   ice: string;
+  toppings?: ToppingOption[];
+  note?: string;
   quantity: number;
   unitPrice: number;
   totalPrice: number;
@@ -62,30 +90,43 @@ export interface CartItem {
     WidgetHeader,
     WidgetLandingFooter,
     WidgetProductModal,
-    LucideSearch,
-    LucideFilter,
     LucideSlidersHorizontal,
     LucidePlus,
     LucideX,
     LucideChevronDown,
     LucideChevronUp,
+    LucideChevronLeft,
+    LucideChevronRight,
     LucidePhone,
-    LucideShoppingCart,
+    LucideShoppingBag,
     LucideCheck,
     LucideRotateCcw,
+    LucideFlame,
+    LucideSparkles,
+    LucideCoffee,
+    LucideLeaf,
+    LucideSnowflake,
+    LucideCroissant,
+    LucideCakeSlice,
+    LucideCupSoda,
+    LucideLayoutGrid,
   ],
   templateUrl: './products.html',
   styleUrl: './products.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PageProducts {
-  readonly searchKeyword = signal<string>('');
+export class PageProducts implements AfterViewInit, OnDestroy {
+  readonly pageWrapperRef = viewChild.required<ElementRef<HTMLElement>>('pageWrapper');
+  readonly gridContainerRef = viewChild<ElementRef<HTMLElement>>('productsGrid');
+  readonly categoryTrackRef = viewChild.required<ElementRef<HTMLElement>>('categoryTrack');
+
+  // Filter Signals
   readonly selectedCategory = signal<string>('all');
   readonly selectedPriceRange = signal<'all' | 'under30' | 'from30to45' | 'over45'>('all');
   readonly selectedServing = signal<'all' | 'ice' | 'hot' | 'banchay' | 'moi'>('all');
   readonly selectedSort = signal<'featured' | 'price-asc' | 'price-desc' | 'name-asc'>('featured');
 
-  readonly isMobileFilterOpen = signal<boolean>(false);
+  // UI & Cart Signals
   readonly cart = signal<CartItem[]>([]);
   readonly isCartOpen = signal<boolean>(false);
   readonly selectedProductForModal = signal<ProductItem | null>(null);
@@ -100,18 +141,36 @@ export class PageProducts {
   );
 
   readonly categories: CategoryItem[] = [
-    { id: 'all', name: 'Tất Cả Thực Đơn', icon: '✦' },
-    { id: 'ca-phe', name: 'Cà Phê Phin Truyền Thống', icon: '☕' },
-    { id: 'tra', name: 'Trà & Trái Cây Tươi', icon: '🍵' },
-    { id: 'phindi', name: 'PhinDi Thế Hệ Mới', icon: '✨' },
-    { id: 'freeze', name: 'Freeze Đá Xay Béo Ngậy', icon: '🍧' },
-    { id: 'banh-mi-que', name: 'Bánh Mì Que & Điểm Tâm', icon: '🥖' },
-    { id: 'banh-ngot', name: 'Bánh Ngọt Thơm Bơ', icon: '🍰' },
-    { id: 'luu-niem', name: 'Quà Lưu Niệm & Bình Giữ Nhiệt', icon: '🍶' },
+    { id: 'all', name: 'Tất Cả Thực Đơn', iconKey: 'all' },
+    { id: 'ca-phe', name: 'Cà Phê Phin', iconKey: 'coffee' },
+    { id: 'tra', name: 'Trà & Trái Cây', iconKey: 'leaf' },
+    { id: 'phindi', name: 'PhinDi', iconKey: 'sparkles' },
+    { id: 'freeze', name: 'Freeze Đá Xay', iconKey: 'snowflake' },
+    { id: 'banh-mi-que', name: 'Bánh Mì Que', iconKey: 'croissant' },
+    { id: 'banh-ngot', name: 'Bánh Ngọt', iconKey: 'cake' },
+    { id: 'luu-niem', name: 'Quà Lưu Niệm', iconKey: 'cup' },
   ];
 
+  readonly priceOptions: Array<{ id: 'all' | 'under30' | 'from30to45' | 'over45'; label: string }> = [
+    { id: 'all', label: 'Tất cả giá' },
+    { id: 'under30', label: 'Dưới 30K' },
+    { id: 'from30to45', label: '30K – 45K' },
+    { id: 'over45', label: 'Trên 45K' },
+  ];
+
+  readonly servingOptions: Array<{
+    id: 'all' | 'ice' | 'hot' | 'banchay' | 'moi';
+    label: string;
+    iconType?: 'ice' | 'hot' | 'hot-badge' | 'new-badge';
+  }> = [
+      { id: 'all', label: 'Mọi đặc tính' },
+      { id: 'ice', label: 'Đá lạnh', iconType: 'ice' },
+      { id: 'hot', label: 'Nóng ấm', iconType: 'hot' },
+      { id: 'banchay', label: 'Bán chạy', iconType: 'hot-badge' },
+      { id: 'moi', label: 'Món mới', iconType: 'new-badge' },
+    ];
+
   readonly allProducts: ProductItem[] = [
-    // 1. CÀ PHÊ PHIN
     {
       id: 'p1',
       name: 'Phin Sữa Đá',
@@ -176,8 +235,6 @@ export class PageProducts {
       servingType: 'hot',
       description: 'Lớp kem trứng đánh bông mịn màng hòa quyện dòng cà phê phin nóng.',
     },
-
-    // 2. TRÀ & TRÁI CÂY
     {
       id: 't1',
       name: 'Trà Sen Vàng Hạt Sen',
@@ -209,8 +266,6 @@ export class PageProducts {
       servingType: 'ice',
       description: 'Hương hoa nhài thoang thoảng cùng vị đào thanh khiết giải nhiệt tức thì.',
     },
-
-    // 3. PHINDI
     {
       id: 'pd1',
       name: 'PhinDi Hạnh Nhân',
@@ -242,8 +297,6 @@ export class PageProducts {
       servingType: 'ice',
       description: 'Sự hòa quyện tuyệt hảo giữa cacao nguyên chất và cà phê phin.',
     },
-
-    // 4. FREEZE
     {
       id: 'fz1',
       name: 'Freeze Cà Phê Phin Béo',
@@ -265,8 +318,6 @@ export class PageProducts {
       servingType: 'ice',
       description: 'Matcha Nhật Bản xay nhuyễn mát lạnh phủ lớp kem tươi bồng bềnh.',
     },
-
-    // 5. BÁNH MÌ QUE & ĐIỂM TÂM
     {
       id: 'm1',
       name: 'Bánh Mì Que Chấm Sữa',
@@ -299,8 +350,6 @@ export class PageProducts {
       servingType: 'both',
       description: 'Nhân pate gan béo ngậy thơm nức mũi cùng tương ớt cay nồng đậm vị.',
     },
-
-    // 6. BÁNH NGỌT
     {
       id: 'b1',
       name: 'Bánh Mousse Cacao Đậm Vị',
@@ -321,8 +370,6 @@ export class PageProducts {
       servingType: 'both',
       description: 'Vị chua thanh mát của chanh dây hòa quyện lớp phô mai béo ngậy.',
     },
-
-    // 7. LƯU NIỆM & BÌNH GIỮ NHIỆT
     {
       id: 'ln1',
       name: 'Phin Nhôm Cà Phê Fiin Xưa',
@@ -346,30 +393,25 @@ export class PageProducts {
     },
   ];
 
+  readonly categoryCounts = computed(() => {
+    const map: Record<string, number> = { all: this.allProducts.length };
+    for (const p of this.allProducts) {
+      map[p.category] = (map[p.category] ?? 0) + 1;
+    }
+    return map;
+  });
+
   readonly filteredProducts = computed(() => {
     let list = [...this.allProducts];
     const cat = this.selectedCategory();
-    const kw = this.searchKeyword().trim().toLowerCase();
     const price = this.selectedPriceRange();
     const serving = this.selectedServing();
     const sort = this.selectedSort();
 
-    // 1. Lọc theo Danh mục
     if (cat !== 'all') {
       list = list.filter((p) => p.category === cat);
     }
 
-    // 2. Lọc theo Từ khóa tìm kiếm
-    if (kw) {
-      list = list.filter(
-        (p) =>
-          p.name.toLowerCase().includes(kw) ||
-          p.description.toLowerCase().includes(kw) ||
-          p.brand.toLowerCase().includes(kw)
-      );
-    }
-
-    // 3. Lọc theo Khoảng giá
     if (price === 'under30') {
       list = list.filter((p) => p.price < 30000);
     } else if (price === 'from30to45') {
@@ -378,7 +420,6 @@ export class PageProducts {
       list = list.filter((p) => p.price > 45000);
     }
 
-    // 4. Lọc theo Hình thức phục vụ & Bán chạy
     if (serving === 'ice') {
       list = list.filter((p) => p.servingType === 'ice' || p.servingType === 'both');
     } else if (serving === 'hot') {
@@ -389,7 +430,6 @@ export class PageProducts {
       list = list.filter((p) => p.badge === 'MỚI' || p.badge === 'THỬ NGAY!');
     }
 
-    // 5. Sắp xếp
     if (sort === 'price-asc') {
       list.sort((a, b) => a.price - b.price);
     } else if (sort === 'price-desc') {
@@ -405,12 +445,74 @@ export class PageProducts {
     return (
       this.selectedCategory() !== 'all' ||
       this.selectedPriceRange() !== 'all' ||
-      this.selectedServing() !== 'all' ||
-      this.searchKeyword().trim() !== ''
+      this.selectedServing() !== 'all'
     );
   });
 
-  constructor(private readonly router: Router) {}
+  private gsapCtx?: gsap.Context;
+  private isFirstRender = true;
+
+  constructor(private readonly router: Router) {
+    effect(() => {
+      const items = this.filteredProducts();
+      if (this.isFirstRender) {
+        this.isFirstRender = false;
+        return;
+      }
+      if (items.length > 0) {
+        requestAnimationFrame(() => {
+          const grid = this.gridContainerRef()?.nativeElement;
+          if (!grid) return;
+          gsap.fromTo(
+            grid.querySelectorAll('.catalog-product-card'),
+            { y: 16, opacity: 0 },
+            {
+              y: 0,
+              opacity: 1,
+              duration: 0.36,
+              stagger: 0.03,
+              ease: 'power2.out',
+              clearProps: 'transform',
+            }
+          );
+        });
+      }
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.gsapCtx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+      tl.from('.gsap-top-reveal', {
+        y: 14,
+        opacity: 0,
+        duration: 0.42,
+        stagger: 0.06,
+      }).from(
+        '.catalog-product-card',
+        {
+          y: 20,
+          opacity: 0,
+          duration: 0.45,
+          stagger: 0.035,
+          clearProps: 'transform',
+        },
+        '-=0.22'
+      );
+    }, this.pageWrapperRef().nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.gsapCtx?.revert();
+  }
+
+  // Điều khiển cuộn ngang dải danh mục
+  scrollCategories(direction: 'left' | 'right'): void {
+    const track = this.categoryTrackRef().nativeElement;
+    const distance = direction === 'left' ? -280 : 280;
+    track.scrollBy({ left: distance, behavior: 'smooth' });
+  }
 
   onCategorySelect(catId: string): void {
     this.selectedCategory.set(catId);
@@ -433,33 +535,31 @@ export class PageProducts {
     this.selectedSort.set(val);
   }
 
-  onSearchChange(e: Event): void {
-    const val = (e.target as HTMLInputElement).value;
-    this.searchKeyword.set(val);
-  }
-
-  clearSearch(): void {
-    this.searchKeyword.set('');
-  }
-
   resetAllFilters(): void {
     this.selectedCategory.set('all');
     this.selectedPriceRange.set('all');
     this.selectedServing.set('all');
     this.selectedSort.set('featured');
-    this.searchKeyword.set('');
   }
 
-  toggleMobileFilter(): void {
-    this.isMobileFilterOpen.update((v) => !v);
-  }
-
-  closeMobileFilter(): void {
-    this.isMobileFilterOpen.set(false);
-  }
-
-  openProductModal(product: ProductItem): void {
-    this.selectedProductForModal.set(product);
+  openProductModal(product: ProductItem, event?: MouseEvent): void {
+    if (event) {
+      const card = (event.currentTarget as HTMLElement).closest('.catalog-product-card') as HTMLElement;
+      if (card) {
+        gsap.fromTo(
+          card,
+          { scale: 0.98 },
+          {
+            scale: 1,
+            duration: 0.18,
+            ease: 'back.out(2)',
+            onComplete: () => this.router.navigate(['/san-pham', product.id]),
+          }
+        );
+        return;
+      }
+    }
+    this.router.navigate(['/san-pham', product.id]);
   }
 
   closeProductModal(): void {
@@ -472,6 +572,8 @@ export class PageProducts {
       size: item.size,
       sugar: item.sugar,
       ice: item.ice,
+      toppings: item.toppings,
+      note: item.note,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
       totalPrice: item.totalPrice,
@@ -488,6 +590,11 @@ export class PageProducts {
   removeFromCart(index: number): void {
     this.cart.update((list) => list.filter((_, i) => i !== index));
     this.triggerToast('Đã xóa món khỏi giỏ hàng.');
+  }
+
+  getToppingsText(toppings?: ToppingOption[]): string {
+    if (!toppings || toppings.length === 0) return '';
+    return toppings.map((t) => t.name).join(', ');
   }
 
   scrollToTop(): void {
@@ -507,4 +614,3 @@ export class PageProducts {
     return price.toLocaleString('vi-VN') + 'đ';
   }
 }
-

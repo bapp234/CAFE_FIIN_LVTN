@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import {
   LucideChevronUp,
   LucidePhone,
@@ -8,11 +9,15 @@ import {
 } from '@lucide/angular';
 import { WidgetLandingFooter } from '../../widgets/widget_landingFooter/landingFooter';
 import { WidgetHeader } from '../../widgets/widget_header/header';
-import { WidgetHomeSidebar } from '../../widgets/widget_home_sidebar/sidebar';
+import {
+  WidgetHomeSidebar,
+  DEFAULT_CATEGORY_TREE,
+} from '../../widgets/widget_home_sidebar/sidebar';
 import { WidgetHomeHero, HeroSlideItem } from '../../widgets/widget_home_hero/hero';
 import { WidgetHomeVouchers } from '../../widgets/widget_home_vouchers/vouchers';
 import { WidgetHomeShelf } from '../../widgets/widget_home_shelf/shelf';
 import { WidgetProductModal, CustomizedItem } from '../../widgets/widget_product_modal/modal';
+import { WidgetHomePairing, PairingComboSelection } from '../../widgets/widget_home_pairing/pairing';
 
 export interface Product {
   id: string;
@@ -20,7 +25,7 @@ export interface Product {
   brand: string;
   price: number;
   image: string;
-  badge?: 'BÁN CHẠY!' | 'THỬ NGAY!' | 'MỚI';
+  badge?: 'BÁN CHẠY!' | 'THỬ NGAY!' | 'MỚI' | 'GIÁ MỚI' | '-50%' | string;
   category: string;
 }
 
@@ -35,6 +40,7 @@ export interface Category {
   id: string;
   name: string;
   icon: string;
+  children?: Category[];
 }
 
 export interface CartItem {
@@ -62,12 +68,14 @@ export interface CartItem {
     WidgetHomeVouchers,
     WidgetHomeShelf,
     WidgetProductModal,
+    WidgetHomePairing
   ],
   templateUrl: './home.html',
   styleUrl: './home.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PageHome {
+  private readonly router = inject(Router);
   readonly isSidebarOpen = signal<boolean>(true);
   readonly currentSlide = signal<number>(0);
 
@@ -83,18 +91,7 @@ export class PageHome {
     this.cart().reduce((sum, item) => sum + item.totalPrice, 0)
   );
 
-  readonly categories: Category[] = [
-    { id: 'ca-phe', name: 'Cà Phê', icon: '☕' },
-    { id: 'tra', name: 'Trà', icon: '🍵' },
-    { id: 'freeze', name: 'Freeze', icon: '🍧' },
-    { id: 'phindi', name: 'PhinDi', icon: '☕' },
-    { id: 'banh-mi-que', name: 'Bánh Mì Que', icon: '🥖' },
-    { id: 'banh-ngot', name: 'Bánh Ngọt', icon: '🍰' },
-    { id: 'thuc-uong-khac', name: 'Thức Uống Khác', icon: '🧃' },
-    { id: 'matchadi', name: 'MatchaDi', icon: '🍵' },
-    { id: 'binh-giu-nhiet', name: 'Bình Giữ Nhiệt', icon: '🍶' },
-    { id: 'ca-phe-dong-goi', name: 'Cà Phê Đóng Gói', icon: '📦' },
-  ];
+  readonly categories: Category[] = DEFAULT_CATEGORY_TREE;
 
   readonly vouchers = signal<Voucher[]>([
     { code: 'BIGORDER20%', discount: 'GIẢM 20%', condition: 'Giảm 20% cho hóa đơn từ 8 triệu' },
@@ -104,11 +101,11 @@ export class PageHome {
   ]);
 
   readonly phinProducts: Product[] = [
-    { id: 'p1', name: 'Phin Sữa Đá', brand: 'HIGHLANDS COFFEE', price: 29000, image: '/assets/images/hero/slide-01-desktop.webp', badge: 'BÁN CHẠY!', category: 'ca-phe' },
-    { id: 'p2', name: 'Phin Đen Đá', brand: 'HIGHLANDS COFFEE', price: 29000, image: '/assets/images/hero/slide-02-desktop.webp', badge: 'BÁN CHẠY!', category: 'ca-phe' },
-    { id: 'p3', name: 'Bạc Xỉu Đá', brand: 'HIGHLANDS COFFEE', price: 29000, image: '/assets/images/hero/slide-03-desktop.webp', badge: 'THỬ NGAY!', category: 'ca-phe' },
-    { id: 'p4', name: 'Phin Sữa Nóng', brand: 'HIGHLANDS COFFEE', price: 29000, image: '/assets/images/hero/slide-01-desktop.webp', category: 'ca-phe' },
-    { id: 'p5', name: 'Phin Đen Nóng', brand: 'HIGHLANDS COFFEE', price: 29000, image: '/assets/images/hero/slide-02-desktop.webp', category: 'ca-phe' },
+    { id: 'p1', name: 'Phin Sữa Đá', brand: 'CÀ PHÊ FIIN', price: 29000, image: '/assets/images/hero/slide-01-desktop.webp', badge: 'BÁN CHẠY!', category: 'ca-phe' },
+    { id: 'p2', name: 'Phin Đen Đá', brand: 'CÀ PHÊ FIIN', price: 29000, image: '/assets/images/hero/slide-02-desktop.webp', badge: 'BÁN CHẠY!', category: 'ca-phe' },
+    { id: 'p3', name: 'Bạc Xỉu Đá', brand: 'CÀ PHÊ FIIN', price: 29000, image: '/assets/images/hero/slide-03-desktop.webp', badge: 'THỬ NGAY!', category: 'ca-phe' },
+    { id: 'p4', name: 'Phin Sữa Nóng', brand: 'CÀ PHÊ FIIN', price: 29000, image: '/assets/images/hero/slide-01-desktop.webp', category: 'ca-phe' },
+    { id: 'p5', name: 'Phin Đen Nóng', brand: 'CÀ PHÊ FIIN', price: 29000, image: '/assets/images/hero/slide-02-desktop.webp', category: 'ca-phe' },
   ];
 
   readonly memoryBanner = {
@@ -119,9 +116,9 @@ export class PageHome {
     image: '/assets/images/newsletter/fiin-newsletter.png',
   };
 
-  readonly memoryProducts: Product[] = [
+  readonly pastryProducts: Product[] = [
     { id: 'm1', name: 'Bánh Mì Que Chấm Sữa', brand: 'HIGHLANDS COFFEE', price: 14000, image: '/assets/images/newsletter/fiin-newsletter.png', badge: 'MỚI', category: 'banh-mi-que' },
-    { id: 'm2', name: 'Bánh Mì Que Chấm Cà Phê', brand: 'HIGHLANDS COFFEE', price: 38000, image: '/assets/images/hero/slide-03-desktop.webp', category: 'banh-mi-que' },
+    { id: 'm2', name: 'Bánh Mì Que Pate Truyền Thống', brand: 'HIGHLANDS COFFEE', price: 19000, image: '/assets/images/hero/slide-03-desktop.webp', badge: 'BÁN CHẠY!', category: 'banh-mi-que' },
   ];
 
   readonly heroSlides: HeroSlideItem[] = [
@@ -154,7 +151,9 @@ export class PageHome {
     }, 2500);
   }
 
-  openProductModal(product: Product): void { this.selectedProduct.set(product); }
+  openProductModal(product: Product): void {
+    this.router.navigate(['/san-pham', product.id]);
+  }
   closeProductModal(): void { this.selectedProduct.set(null); }
 
   onProductCustomized(item: CustomizedItem): void {
@@ -178,5 +177,30 @@ export class PageHome {
 
   formatPrice(price: number): string {
     return price.toLocaleString('vi-VN') + 'đ';
+  }
+  onPairingComboAdded(combo: PairingComboSelection): void {
+    const comboProduct: Product = {
+      id: `combo-${combo.food.id}-${combo.drink.id}`,
+      name: `Combo: ${combo.food.name} + ${combo.drink.name}`,
+      brand: 'GÓC ĐIỂM TÂM (-15%)',
+      price: combo.comboPrice,
+      image: combo.food.image,
+      category: 'combo',
+    };
+
+    this.cart.update((current) => [
+      ...current,
+      {
+        product: comboProduct,
+        size: 'M',
+        sugar: '100%',
+        ice: '100%',
+        quantity: 1,
+        unitPrice: combo.comboPrice,
+        totalPrice: combo.comboPrice,
+      },
+    ]);
+
+    this.triggerToast(`Đã thêm Combo tiết kiệm ${this.formatPrice(combo.savedAmount)} vào giỏ!`);
   }
 }

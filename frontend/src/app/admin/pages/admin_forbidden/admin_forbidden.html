@@ -1,0 +1,19 @@
+<section class="box" role="alert">
+  <span class="box-icon" aria-hidden="true">
+    <svg lucideShieldAlert class="box-icon-svg"></svg>
+  </span>
+
+  <h1 class="box-title">Bạn không có quyền vào phần này</h1>
+
+  @if (firstAllowed(); as mod) {
+    <p class="box-text">
+      Tài khoản của bạn chưa được cấp quyền cho module này. Hãy liên hệ quản trị viên nếu bạn cần truy cập.
+    </p>
+    <a class="box-btn" [routerLink]="['/admin', mod.key]">Về {{ mod.label }}</a>
+  } @else {
+    <p class="box-text">
+      Tài khoản của bạn chưa được cấp quyền vào module nào. Hãy liên hệ quản trị viên để được cấp quyền.
+    </p>
+    <button type="button" class="box-btn" (click)="signOut()">Đăng xuất</button>
+  }
+</section>

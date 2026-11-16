@@ -1,0 +1,23 @@
+<div
+  class="card-frame"
+  [class.variant-ticket]="variant() === 'ticket'"
+  [class.variant-dashed]="variant() === 'dashed'"
+  [class.variant-solid]="variant() === 'solid'"
+  [class.variant-vintage]="variant() === 'vintage'"
+  [class.bg-white]="bg() === 'white'"
+  [class.bg-card]="bg() === 'card'"
+  [class.bg-cream]="bg() === 'cream'"
+  [class.radius-none]="radius() === 'none'"
+  [class.radius-sm]="radius() === 'sm'"
+  [class.radius-md]="radius() === 'md'"
+  [class.radius-lg]="radius() === 'lg'"
+  [class.is-interactive]="interactive()"
+>
+  @if (interactive()) {
+    <span class="card-shimmer" aria-hidden="true"></span>
+  }
+
+  <div class="card-body">
+    <ng-content></ng-content>
+  </div>
+</div>

@@ -1,0 +1,564 @@
+@reference "../../../../../styles.css";
+
+/* ==========================================================================
+   TÍNH TOÁN & BẢNG LƯƠNG NHÂN SỰ (DATA GRID TABLE VIEW)
+   Phong cách bảng lưới sắc nét, chuẩn văn phòng, hài hòa Cafe Saigon Vintage
+   ========================================================================== */
+
+.payroll-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  font-family: var(--font-ui);
+}
+
+/* ==========================================================================
+   1. BANNER KỲ LƯƠNG & THỐNG KÊ TỔNG HỢP
+   ========================================================================== */
+.payroll-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  background-color: var(--color-giay-cu);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  padding: 0.875rem 1rem;
+  box-shadow: 0 1px 3px rgba(43, 30, 22, 0.04);
+}
+
+@media (min-width: 768px) {
+  .payroll-banner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.period-selector-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.period-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.period-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.78125rem;
+  font-weight: 700;
+  color: var(--color-nau-dam);
+}
+
+.cal-icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-xanh-dam);
+}
+
+.period-select {
+  height: 2rem;
+  padding: 0 1.5rem 0 0.5rem;
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-trang);
+  font-size: 0.78125rem;
+  font-weight: 600;
+  color: var(--color-nau-dam);
+  outline: none;
+  cursor: pointer;
+}
+
+.period-status-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lock-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  color: var(--color-nau-xam);
+  font-style: italic;
+}
+
+.lock-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.payroll-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.p-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+}
+
+.p-stat-label {
+  font-size: 0.65625rem;
+  color: var(--color-nau-xam);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.p-stat-val {
+  font-size: 1.125rem;
+  font-weight: 700;
+  font-family: monospace;
+  color: var(--color-nau-dam);
+  line-height: 1.2;
+}
+
+.text-green { color: #1b633f; }
+.text-ot { color: #d97706; }
+
+/* ==========================================================================
+   2. KHUNG BẢNG LƯỚI TÍNH LƯƠNG (GRID CARD & TOOLBAR)
+   ========================================================================== */
+.grid-card {
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 3px rgba(43, 30, 22, 0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.grid-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  background-color: var(--color-giay-cu);
+  border-bottom: 1px solid var(--color-vien-co);
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.toolbar-title-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  margin-right: 0.25rem;
+}
+
+.toolbar-grid-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--color-xanh-dam);
+}
+
+.toolbar-grid-title {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-nau-dam);
+}
+
+.badge-total {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-xanh-dam);
+  background-color: rgba(47, 93, 88, 0.12);
+  border: 1px solid rgba(47, 93, 88, 0.25);
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+}
+
+.toolbar-sep {
+  width: 1px;
+  height: 1.25rem;
+  background-color: var(--color-vien-co);
+}
+
+/* Các nút công cụ bảng lương */
+.btn-grid-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 2rem;
+  padding: 0 0.625rem;
+  background-color: var(--color-trang);
+  color: var(--color-nau-dam);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.btn-grid-tool:hover:not(:disabled) {
+  background-color: var(--color-trang-nga);
+  border-color: var(--color-nau-nhat);
+  color: var(--color-nau-nhat);
+}
+
+.btn-grid-tool:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-tool-calc {
+  background-color: rgba(47, 93, 88, 0.08);
+  border-color: var(--color-xanh-dam);
+  color: var(--color-xanh-dam);
+}
+
+.btn-tool-calc:hover:not(:disabled) {
+  background-color: var(--color-xanh-dam);
+  color: var(--color-trang);
+}
+
+.btn-tool-lock {
+  background-color: rgba(167, 40, 26, 0.08);
+  border-color: rgba(167, 40, 26, 0.3);
+  color: var(--color-do);
+}
+
+.btn-tool-lock:hover:not(:disabled) {
+  background-color: var(--color-do);
+  color: var(--color-trang);
+}
+
+.tb-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+/* Bên phải toolbar: Tìm kiếm */
+.toolbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.grid-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.5rem;
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--color-nau-xam);
+  pointer-events: none;
+}
+
+.grid-search-input {
+  height: 2rem;
+  width: 15rem;
+  padding: 0 1.5rem 0 1.75rem;
+  font-size: 0.75rem;
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-trang);
+  color: var(--color-nau-dam);
+  transition: border-color 0.15s ease;
+}
+
+.grid-search-input:focus {
+  outline: none;
+  border-color: var(--color-xanh-dam);
+}
+
+.clear-search-btn {
+  position: absolute;
+  right: 0.375rem;
+  width: 1.125rem;
+  height: 1.125rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: var(--color-nau-xam);
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   3. BẢNG DẠNG LƯỚI TÍNH LƯƠNG (GRID TABLE & CELLS)
+   ========================================================================== */
+.grid-viewport {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 40rem;
+  background-color: var(--color-trang);
+  outline: none;
+}
+
+.grid-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--color-nau-dam);
+  white-space: nowrap;
+}
+
+/* ĐƯỜNG VIỀN LƯỚI Ô CHO MỌI HÀNG VÀ CỘT */
+.grid-table th,
+.grid-table td {
+  border: 1px solid var(--color-vien-co);
+}
+
+.grid-header-row {
+  background-color: #ebe5d8;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.th-cell {
+  padding: 0.5rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--color-nau-dam);
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.th-cell[click] {
+  cursor: pointer;
+}
+
+.th-cell:hover {
+  background-color: #e2dbc9;
+}
+
+.th-content {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.sort-icon {
+  font-size: 0.625rem;
+  color: var(--color-nau-xam);
+}
+
+/* Độ rộng các cột bảng lương */
+.col-stt { width: 3.25rem; }
+.col-code { width: 6.25rem; }
+.col-name { min-width: 13rem; }
+.col-branch { width: 10.5rem; }
+.col-pos { width: 11rem; }
+.col-rate { width: 7.75rem; }
+.col-hours { width: 6.75rem; }
+.col-ot-hours { width: 6.25rem; }
+.col-ot-pay { width: 8.5rem; }
+.col-allowance { width: 7.75rem; }
+.col-net { width: 9rem; }
+.col-status { width: 8rem; }
+.col-actions { width: 5.5rem; }
+
+/* Hàng dữ liệu lưới */
+.grid-row {
+  background-color: var(--color-trang);
+  transition: background-color 0.12s ease;
+  cursor: default;
+}
+
+.grid-row:hover {
+  background-color: #faf7f0;
+}
+
+.grid-row.is-selected {
+  background-color: #f3efe6;
+}
+
+.grid-cell {
+  padding: 0.4375rem 0.625rem;
+  vertical-align: middle;
+}
+
+.code-badge {
+  display: inline-block;
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: var(--color-xanh-dam);
+  background-color: rgba(47, 93, 88, 0.08);
+  border: 1px solid rgba(47, 93, 88, 0.2);
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+}
+
+.cell-name {
+  white-space: normal;
+}
+
+.emp-name-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+}
+
+.emp-name-main {
+  font-weight: 600;
+  color: var(--color-nau-dam);
+}
+
+.emp-sub-pos {
+  font-size: 0.65625rem;
+  color: var(--color-nau-xam);
+}
+
+.branch-pill {
+  display: inline-block;
+  padding: 0.0625rem 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--color-nau-dam);
+  background-color: #f7f3eb;
+  border: 1px solid var(--color-vien-co);
+  border-radius: 2px;
+}
+
+.pos-text {
+  font-size: 0.71875rem;
+  color: var(--color-nau-dam);
+}
+
+.ot-badge {
+  display: inline-block;
+  padding: 0.0625rem 0.3125rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #b78103;
+  background-color: #fff8e1;
+  border-radius: 2px;
+}
+
+/* Nút xem phiếu lương */
+.row-act-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-act {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.1875rem 0.4375rem;
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: 2px;
+  color: var(--color-nau-dam);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.btn-act:hover {
+  background-color: var(--color-trang-nga);
+  border-color: var(--color-xanh-dam);
+  color: var(--color-xanh-dam);
+}
+
+.act-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+/* ==========================================================================
+   4. HÀNG TỔNG KẾT THỐNG KÊ BẢNG LƯƠNG
+   ========================================================================== */
+.grid-summary-row {
+  background-color: #f4efe4;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.summary-title-cell {
+  padding: 0.5rem 0.75rem;
+  color: var(--color-nau-dam);
+}
+
+.summary-tail-cell {
+  padding: 0.5rem 0.75rem;
+  color: var(--color-nau-xam);
+  font-style: italic;
+  font-size: 0.6875rem;
+}
+
+/* ==========================================================================
+   5. TRẠNG THÁI LOADING & EMPTY
+   ========================================================================== */
+.grid-state-cell {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  background-color: var(--color-trang);
+}
+
+.grid-state-wrap,
+.grid-empty-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--color-nau-xam);
+  font-size: 0.8125rem;
+}
+
+.empty-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--color-nau-xam);
+}
+
+.grid-spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--color-vien-co);
+  border-top-color: var(--color-xanh-dam);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Tiện ích căn chỉnh */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.font-mono { font-family: monospace; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+.text-dark { color: var(--color-nau-dam); }
+.text-muted { color: var(--color-nau-xam); }

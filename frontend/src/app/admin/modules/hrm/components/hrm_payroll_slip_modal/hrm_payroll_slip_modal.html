@@ -1,0 +1,158 @@
+@if (isOpen() && slip(); as s) {
+  <div class="slip-overlay" (click)="close.emit()" aria-hidden="true"></div>
+
+  <div class="slip-modal-wrapper">
+    <div class="slip-paper" role="dialog" aria-modal="true" aria-label="Phiếu lương chi tiết">
+      <!-- Header -->
+      <header class="slip-header">
+        <div class="slip-brand">
+          <app-brand-logo></app-brand-logo>
+          <div>
+            <span class="slip-brand-name">CÀ PHÊ FIIN</span>
+            <span class="slip-brand-sub">Hệ Thống Quản Trị Chuỗi Cửa Hàng</span>
+          </div>
+        </div>
+
+        <div class="slip-title-box">
+          <h2 class="slip-title">PHIẾU LƯƠNG NHÂN VIÊN</h2>
+          <span class="slip-period">Kỳ lương: Tháng {{ s.period }}</span>
+        </div>
+
+        <button type="button" class="btn-close-slip" (click)="close.emit()" aria-label="Đóng">
+          <svg lucideX class="close-icon" aria-hidden="true"></svg>
+        </button>
+      </header>
+
+      <!-- Employee Information -->
+      <section class="emp-info-grid">
+        <div class="info-item">
+          <span class="label">Mã nhân viên:</span>
+          <strong class="val">{{ s.employeeCode }}</strong>
+        </div>
+        <div class="info-item">
+          <span class="label">Họ và tên:</span>
+          <strong class="val">{{ s.employeeName }}</strong>
+        </div>
+        <div class="info-item">
+          <span class="label">Chi nhánh:</span>
+          <span class="val">{{ s.branchName }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Chức vụ:</span>
+          <span class="val">{{ s.position }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Đơn giá giờ:</span>
+          <strong class="val text-primary">{{ s.hourlyRate.toLocaleString('vi-VN') }}đ/giờ</strong>
+        </div>
+        <div class="info-item">
+          <span class="label">Trạng thái:</span>
+          <span class="status-pill">{{ s.statusLabel }}</span>
+        </div>
+      </section>
+
+      <!-- Calculation Breakdown Table -->
+      <table class="calc-table">
+        <thead>
+          <tr>
+            <th>Khoản mục thu nhập & khấu trừ</th>
+            <th style="text-align: center;">Số lượng (Giờ)</th>
+            <th style="text-align: right;">Đơn giá áp dụng</th>
+            <th style="text-align: right;">Thành tiền (VNĐ)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <strong>1. Lương giờ làm việc chuẩn</strong>
+              <span class="sub-desc">Tính theo tổng số giờ làm việc thực tế trong ca</span>
+            </td>
+            <td style="text-align: center;">{{ s.standardWorkHours }}h</td>
+            <td style="text-align: right;">{{ s.hourlyRate.toLocaleString('vi-VN') }}đ</td>
+            <td style="text-align: right;"><strong>{{ s.basePay.toLocaleString('vi-VN') }}đ</strong></td>
+          </tr>
+          <tr>
+            <td>
+              <strong>2. Lương tăng ca (Overtime OT x1.5)</strong>
+              <span class="sub-desc">Hệ số x1.5 theo quy chế chuỗi</span>
+            </td>
+            <td style="text-align: center;">{{ s.overtimeHours }}h</td>
+            <td style="text-align: right;">{{ (s.hourlyRate * 1.5).toLocaleString('vi-VN') }}đ</td>
+            <td style="text-align: right;"><strong class="text-ot">+{{ s.overtimePay.toLocaleString('vi-VN') }}đ</strong></td>
+          </tr>
+          <tr>
+            <td>
+              <strong>3. Phụ cấp trách nhiệm & ăn ca</strong>
+              <span class="sub-desc">Chuyên cần, đóng/mở quán và hỗ trợ cơm trưa</span>
+            </td>
+            <td style="text-align: center;">—</td>
+            <td style="text-align: right;">—</td>
+            <td style="text-align: right;"><strong>+{{ s.allowance.toLocaleString('vi-VN') }}đ</strong></td>
+          </tr>
+          @if (s.deduction > 0) {
+            <tr class="row-deduction">
+              <td>
+                <strong class="text-danger">4. Khấu trừ vi phạm & đi muộn</strong>
+                <span class="sub-desc">Khấu trừ theo quy định điểm danh</span>
+              </td>
+              <td style="text-align: center;">—</td>
+              <td style="text-align: right;">—</td>
+              <td style="text-align: right;"><strong class="text-danger">-{{ s.deduction.toLocaleString('vi-VN') }}đ</strong></td>
+            </tr>
+          }
+          @if (s.advance > 0) {
+            <tr class="row-deduction">
+              <td>
+                <strong class="text-danger">5. Tạm ứng lương trong kỳ</strong>
+                <span class="sub-desc">Đã nhận trước qua chuyển khoản ngân hàng</span>
+              </td>
+              <td style="text-align: center;">—</td>
+              <td style="text-align: right;">—</td>
+              <td style="text-align: right;"><strong class="text-danger">-{{ s.advance.toLocaleString('vi-VN') }}đ</strong></td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr class="row-total">
+            <td colspan="3">
+              <span class="total-title">THỰC LĨNH CHUYỂN KHOẢN (NET PAY):</span>
+            </td>
+            <td style="text-align: right;">
+              <span class="total-amount">{{ s.netPay.toLocaleString('vi-VN') }}đ</span>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <!-- Signatures -->
+      <footer class="slip-signatures">
+        <div class="sig-box">
+          <span class="sig-title">Người lập phiếu</span>
+          <span class="sig-sub">(Ký và ghi rõ họ tên)</span>
+          <div class="sig-space"></div>
+        </div>
+        <div class="sig-box">
+          <span class="sig-title">Trưởng phòng Nhân sự</span>
+          <span class="sig-sub">(Ký duyệt)</span>
+          <div class="sig-space"></div>
+        </div>
+        <div class="sig-box">
+          <span class="sig-title">Người nhận tiền</span>
+          <span class="sig-sub">(Đã nhận đủ lương)</span>
+          <div class="sig-space"></div>
+        </div>
+      </footer>
+
+      <!-- Action buttons -->
+      <div class="slip-modal-actions">
+        <button type="button" class="btn-print" (click)="printSlip()">
+          <svg lucidePrinter class="btn-svg" aria-hidden="true"></svg>
+          <span>In phiếu lương</span>
+        </button>
+        <button type="button" class="btn-close-btn" (click)="close.emit()">
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+}

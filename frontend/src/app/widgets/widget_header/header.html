@@ -3,7 +3,7 @@
     <div class="header-container">
       <!-- Logo -->
       <div class="brand-block">
-        <a href="" class="brand-link" (click)="onReloadPage($event)" aria-label="Tải lại trang Cà phê Fiin">
+        <a routerLink="/" class="brand-link" aria-label="Trang chủ Cà phê Fiin">
           <app-brand-logo></app-brand-logo>
           <span class="brand-name">Cà Phê Fiin</span>
         </a>
@@ -45,8 +45,9 @@
 
   <!-- 2. SUB-HEADER THANH ĐỎ HIGHLANDS SIGNATURE -->
   <app-widget-header-subbar
-    [isSidebarOpen]="isSidebarOpen()"
+    [isSidebarOpen]="effectiveSidebarOpen()"
     (toggleSidebar)="onToggleSidebar()"
+    (closeSidebar)="onCloseSidebar()"
   ></app-widget-header-subbar>
 
   <!-- Mobile Dropdown Menu -->

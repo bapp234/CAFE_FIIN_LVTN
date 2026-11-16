@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   ElementRef,
   afterNextRender,
@@ -10,7 +11,6 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { DOCUMENT } from '@angular/common';
 import gsap from 'gsap';
 import { BrandLogoComponent } from '../../components/brand_logo/brand_logo';
 import { SearchBoxComponent } from '../../components/search_box/search_box';
@@ -45,15 +45,34 @@ import {
 })
 export class WidgetHeader {
   private readonly router = inject(Router);
-  private readonly document = inject(DOCUMENT);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly cartCount = input<number>(0);
-  readonly isSidebarOpen = input<boolean>(true);
+  readonly isSidebarOpen = input<boolean | undefined>(undefined);
 
   readonly toggleSidebar = output<void>();
   readonly toggleCart = output<void>();
+
+  /** Quản lý trạng thái mở sidebar dropdown khi không ở trang Home */
+  readonly internalSidebarOpen = signal<boolean>(false);
+
+  /** Kiểm tra xem có đang ở trang chủ không */
+  protected readonly isHome = computed(() => {
+    const url = this.router.url.split('?')[0].split('#')[0];
+    return url === '' || url === '/' || url === '/home';
+  });
+
+  /**
+   * Ở trang chủ: dùng input isSidebarOpen từ cha (nếu có).
+   * Ở các trang khác: dùng internalSidebarOpen để mở dropdown tại chỗ.
+   */
+  readonly effectiveSidebarOpen = computed(() => {
+    if (this.isHome()) {
+      return this.isSidebarOpen() ?? true;
+    }
+    return this.internalSidebarOpen();
+  });
 
   readonly isMobileMenuOpen = signal<boolean>(false);
   private mobileMenuTl: gsap.core.Timeline | null = null;
@@ -181,7 +200,15 @@ export class WidgetHeader {
   }
 
   onToggleSidebar(): void {
-    this.toggleSidebar.emit();
+    if (this.isHome()) {
+      this.toggleSidebar.emit();
+    } else {
+      this.internalSidebarOpen.update((v) => !v);
+    }
+  }
+
+  onCloseSidebar(): void {
+    this.internalSidebarOpen.set(false);
   }
 
   onToggleCart(): void {
@@ -196,11 +223,5 @@ export class WidgetHeader {
       this.router.navigate(['/tim-kiem']);
     }
     this.closeMobileMenu();
-  }
-
-  onReloadPage(event: Event): void {
-    event.preventDefault();
-    this.closeMobileMenu();
-    this.document.defaultView?.location.reload();
   }
 }

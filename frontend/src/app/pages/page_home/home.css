@@ -22,13 +22,27 @@
   max-width: 80rem;
   margin-inline: auto;
   display: flex;
+  flex-direction: column;
+  gap: 2.25rem;
+}
+
+/* Hàng trên: Sidebar danh mục + Hero Slider */
+.home-top-row {
+  position: relative;
+  display: flex;
   gap: 1.75rem;
   align-items: flex-start;
+  width: 100%;
+}
+
+.hero-wrapper {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
 }
 
 .order-content-area {
-  flex: 1;
-  min-width: 0;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 2.25rem;

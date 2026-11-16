@@ -1,0 +1,73 @@
+@reference "../../../../styles.css";
+
+:host {
+  display: block;
+}
+
+.box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  max-width: 32rem;
+  margin: 3rem auto 0;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-md);
+}
+
+.box-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background-color: rgba(155, 45, 32, 0.1);
+  color: var(--color-do);
+}
+
+.box-icon-svg {
+  width: 1.8rem;
+  height: 1.8rem;
+}
+
+.box-title {
+  margin: 0.3rem 0 0;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  color: var(--color-den);
+}
+
+.box-text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--color-nau-xam);
+}
+
+.box-btn {
+  margin-top: 0.6rem;
+  padding: 0.65rem 1.4rem;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.box-btn:hover,
+.box-btn:focus-visible {
+  background-color: var(--color-do-hover);
+  transform: translateY(-1px);
+}

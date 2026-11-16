@@ -23,16 +23,14 @@
 }
 
 /* =========================================
-   2. MASTHEAD BÁO XƯA
+   2. BREADCRUMB
    ========================================= */
-.journal-masthead-banner {
-  background-color: var(--color-be-card);
-  border-bottom: 2px solid var(--color-vien-co);
-  padding: 2rem 0 2.5rem;
+.news-breadcrumb-bar {
+  padding: 1.25rem 0 0.25rem;
 }
 
 .news-breadcrumb {
-  margin-bottom: 1.25rem;
+  margin-bottom: 0;
 }
 
 .breadcrumb-list {
@@ -68,96 +66,12 @@
   font-weight: 600;
 }
 
-.newspaper-header-box {
-  text-align: center;
-  padding: 1.5rem 0 2rem;
-  border-bottom: 1px dashed var(--color-vien-co);
-  margin-bottom: 1.75rem;
-}
-
-.newspaper-meta-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: var(--font-ui);
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--color-nau-xam);
-  text-transform: uppercase;
-  padding-bottom: 0.85rem;
-  border-bottom: 1px solid var(--color-vien-co);
-  margin-bottom: 1.25rem;
-}
-
-.meta-center {
-  color: var(--color-do);
-}
-
-.newspaper-main-title {
-  margin: 0 0 0.85rem;
-  font-family: var(--font-display);
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--color-den);
-  letter-spacing: -0.01em;
-  line-height: 1.1;
-}
-
-.newspaper-tagline {
-  margin: 0 auto;
-  max-width: 680px;
-  font-size: 1.05rem;
-  line-height: 1.6;
-  color: var(--color-nau-xam);
-  font-style: italic;
-}
-
-/* Thanh phân loại chuyên mục */
-.categories-filter-bar {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.65rem;
-}
-
-.cat-filter-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 1rem;
-  background-color: var(--color-trang);
-  border: 1px solid var(--color-vien-co);
-  border-radius: var(--radius-sm);
-  color: var(--color-nau-xam);
-  font-family: var(--font-ui);
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 180ms ease;
-}
-
-.cat-filter-pill:hover {
-  background-color: var(--color-be);
-  color: var(--color-den);
-}
-
-.cat-filter-pill.is-active {
-  background-color: var(--color-do);
-  color: var(--color-trang);
-  border-color: var(--color-do);
-}
-
-.pill-icon {
-  font-size: 0.9rem;
-}
-
 /* =========================================
    3. BÀI VIẾT TIÊU ĐIỂM (FEATURED STORY)
    ========================================= */
 .news-main-content {
   flex: 1;
-  padding: 3rem 0 5rem;
+  padding: 1.25rem 0 5rem;
 }
 
 .featured-story-section {
@@ -866,15 +780,6 @@
 }
 
 @media (max-width: 768px) {
-  .newspaper-meta-top {
-    flex-direction: column;
-    gap: 0.35rem;
-  }
-
-  .newspaper-main-title {
-    font-size: 2.2rem;
-  }
-
   .stories-grid-layout {
     grid-template-columns: 1fr;
   }
@@ -894,7 +799,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .breadcrumb-link,
-  .cat-filter-pill,
   .story-grid-card,
   .btn-read-more,
   .btn-read-story,

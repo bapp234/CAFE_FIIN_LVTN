@@ -1,509 +1,297 @@
-<div class="products-page-wrapper">
+<div #pageWrapper class="products-page-wrapper">
   <!-- 1. HEADER CHÍNH DÙNG CHUNG -->
-  <app-widget-header
-    [cartCount]="cartCount()"
-    [isSidebarOpen]="false"
-    (toggleSidebar)="navigateToHome()"
-    (toggleCart)="toggleCart()"
-  ></app-widget-header>
+  <app-widget-header [cartCount]="cartCount()" [isSidebarOpen]="false" (toggleSidebar)="navigateToHome()"
+    (toggleCart)="toggleCart()"></app-widget-header>
 
-  <!-- 2. HERO BANNER THỰC ĐƠN VINTAGE -->
-  <header class="products-hero-banner">
-    <div class="products-container">
-      <nav class="products-breadcrumb" aria-label="Đường dẫn trang">
+  <!-- 2. THANH ĐIỀU HƯỚNG & BỘ LỌC NGANG STICKY -->
+  <section class="menu-filter-dock">
+    <div class="products-container dock-inner">
+      <!-- Breadcrumb -->
+      <nav class="products-breadcrumb gsap-top-reveal" aria-label="Đường dẫn trang">
         <ol class="breadcrumb-list">
-          <li class="breadcrumb-item">
-            <a routerLink="/" class="breadcrumb-link">Trang chủ</a>
-          </li>
-          <li class="breadcrumb-separator" aria-hidden="true">/</li>
-          <li class="breadcrumb-item">
-            <a routerLink="/home" class="breadcrumb-link">Cửa hàng trực tuyến</a>
-          </li>
-          <li class="breadcrumb-separator" aria-hidden="true">/</li>
-          <li class="breadcrumb-item breadcrumb-current" aria-current="page">
-            Tất cả thực đơn
-          </li>
+          <li><a routerLink="/" class="breadcrumb-link">Trang chủ</a></li>
+          <li class="breadcrumb-sep">/</li>
+          <li><a routerLink="/home" class="breadcrumb-link">Cửa hàng trực tuyến</a></li>
+          <li class="breadcrumb-sep">/</li>
+          <li class="breadcrumb-current" aria-current="page">Tất cả thực đơn</li>
         </ol>
       </nav>
 
-      <div class="hero-content-wrap">
-        <div class="hero-title-box">
-          <span class="vintage-stamp">THỰC ĐƠN TRUYỀN THỐNG • CÀ PHÊ FIIN</span>
-          <h1 class="hero-page-title">HƯƠNG VỊ PHIN XƯA & THỨC UỐNG MỘC MẠC</h1>
-          <p class="hero-page-desc">
-            Từ những giọt cà phê phin sánh đậm tí tách, những ly trà hoa quả thanh mát đến từng ổ bánh mì que giòn rụm — tất cả đều được chăm chút tỉ mỉ cho khẩu vị người Sài Gòn.
-          </p>
+      <!-- Hàng 1: Dải Danh Mục Ngang có thanh cuộn & nút trượt 2 đầu -->
+      <div class="category-scroller-wrapper gsap-top-reveal">
+        <button type="button" class="scroll-nav-btn" (click)="scrollCategories('left')"
+          aria-label="Cuộn danh mục sang trái">
+          <svg lucideChevronLeft class="nav-arrow-svg"></svg>
+        </button>
+
+        <div #categoryTrack class="category-tabs-bar" role="tablist" aria-label="Loại thực đơn">
+          @for (cat of categories; track cat.id) {
+          <button type="button" role="tab" [attr.aria-selected]="selectedCategory() === cat.id" class="cat-tab-pill"
+            [class.is-active]="selectedCategory() === cat.id" (click)="onCategorySelect(cat.id)">
+            @switch (cat.iconKey) {
+            @case ('all') { <svg lucideLayoutGrid class="cat-lucide-svg"></svg> }
+            @case ('coffee') { <svg lucideCoffee class="cat-lucide-svg"></svg> }
+            @case ('leaf') { <svg lucideLeaf class="cat-lucide-svg"></svg> }
+            @case ('sparkles') { <svg lucideSparkles class="cat-lucide-svg"></svg> }
+            @case ('snowflake') { <svg lucideSnowflake class="cat-lucide-svg"></svg> }
+            @case ('croissant') { <svg lucideCroissant class="cat-lucide-svg"></svg> }
+            @case ('cake') { <svg lucideCakeSlice class="cat-lucide-svg"></svg> }
+            @case ('cup') { <svg lucideCupSoda class="cat-lucide-svg"></svg> }
+            }
+            <span class="cat-tab-label">{{ cat.name }}</span>
+            <span class="cat-tab-badge">{{ categoryCounts()[cat.id] ?? 0 }}</span>
+          </button>
+          }
         </div>
 
-        <!-- Ô Tìm Kiếm Nhanh Kèm Gợi Ý -->
-        <div class="hero-search-area">
-          <div class="search-input-wrap">
-            <svg lucideSearch class="search-input-icon"></svg>
-            <input
-              type="text"
-              class="products-search-field"
-              placeholder="Tìm món ngon bạn thèm hôm nay (ví dụ: Phin Sữa Đá, Bạc Xỉu, Bánh Mì Que...)"
-              [value]="searchKeyword()"
-              (input)="onSearchChange($event)"
-              aria-label="Tìm kiếm sản phẩm"
-            />
-            @if (searchKeyword()) {
-              <button
-                type="button"
-                class="btn-clear-search"
-                (click)="clearSearch()"
-                aria-label="Xóa từ khóa tìm kiếm"
-              >
-                <svg lucideX class="clear-icon"></svg>
-              </button>
+        <button type="button" class="scroll-nav-btn" (click)="scrollCategories('right')"
+          aria-label="Cuộn danh mục sang phải">
+          <svg lucideChevronRight class="nav-arrow-svg"></svg>
+        </button>
+      </div>
+
+      <!-- Hàng 2: Thanh Lọc Nhanh (Khoảng giá + Đặc tính + Sắp xếp) -->
+      <div class="horizontal-filters-bar gsap-top-reveal">
+        <div class="filter-pills-scroll">
+          <div class="filter-icon-lead">
+            <svg lucideSlidersHorizontal class="filter-lead-svg"></svg>
+            <span>Lọc:</span>
+          </div>
+
+          <!-- Nhóm Chip Khoảng Giá -->
+          <div class="chip-segment-group" role="group" aria-label="Khoảng giá">
+            @for (p of priceOptions; track p.id) {
+            <button type="button" class="filter-chip-btn" [class.is-active]="selectedPriceRange() === p.id"
+              (click)="onPriceSelect(p.id)">
+              {{ p.label }}
+            </button>
             }
           </div>
 
-          <div class="quick-keywords-bar">
-            <span class="kw-label">Gợi ý tìm nhanh:</span>
-            <button type="button" class="kw-tag" (click)="searchKeyword.set('Phin Sữa Đá')">
-              Phin Sữa Đá
+          <span class="bar-vertical-sep" aria-hidden="true"></span>
+
+          <!-- Nhóm Chip Đặc Tính (Dùng Lucide Icons) -->
+          <div class="chip-segment-group" role="group" aria-label="Đặc tính phục vụ">
+            @for (s of servingOptions; track s.id) {
+            <button type="button" class="filter-chip-btn is-teal-mode" [class.is-active]="selectedServing() === s.id"
+              (click)="onServingSelect(s.id)">
+              @if (s.iconType === 'ice') {
+              <svg lucideSnowflake class="chip-lucide-svg"></svg>
+              } @else if (s.iconType === 'hot') {
+              <svg lucideCoffee class="chip-lucide-svg"></svg>
+              } @else if (s.iconType === 'hot-badge') {
+              <svg lucideFlame class="chip-lucide-svg"></svg>
+              } @else if (s.iconType === 'new-badge') {
+              <svg lucideSparkles class="chip-lucide-svg"></svg>
+              }
+              <span>{{ s.label }}</span>
             </button>
-            <button type="button" class="kw-tag" (click)="searchKeyword.set('Bạc Xỉu')">
-              Bạc Xỉu
-            </button>
-            <button type="button" class="kw-tag" (click)="searchKeyword.set('Bánh Mì Que')">
-              Bánh Mì Que
-            </button>
-            <button type="button" class="kw-tag" (click)="searchKeyword.set('Trà Sen')">
-              Trà Sen Vàng
-            </button>
+            }
+          </div>
+
+          @if (hasActiveFilters()) {
+          <button type="button" class="btn-reset-inline" (click)="resetAllFilters()">
+            <svg lucideRotateCcw class="reset-svg"></svg>
+            <span>Đặt lại</span>
+          </button>
+          }
+        </div>
+
+        <!-- Cụm phải: Đếm món + Sắp xếp -->
+        <div class="bar-right-controls">
+          <span class="items-counter">
+            <strong>{{ filteredProducts().length }}</strong> món
+          </span>
+
+          <div class="sort-select-box">
+            <select id="product-sort-select" class="sort-select-field" [value]="selectedSort()"
+              (change)="onSortSelect($event)" aria-label="Sắp xếp thực đơn">
+              <option value="featured">Nổi Bật Nhất</option>
+              <option value="price-asc">Giá: Thấp &rarr; Cao</option>
+              <option value="price-desc">Giá: Cao &rarr; Thấp</option>
+              <option value="name-asc">Tên món: A &rarr; Z</option>
+            </select>
+            <svg lucideChevronDown class="sort-chevron-svg"></svg>
           </div>
         </div>
       </div>
     </div>
-  </header>
+  </section>
 
-  <!-- 3. KHU VỰC THỰC ĐƠN CHÍNH (SIDEBAR BỘ LỌC + GRID SẢN PHẨM) -->
+  <!-- 3. KHU VỰC HIỂN THỊ LƯỚI THỰC ĐƠN -->
   <main class="products-main-layout">
-    <div class="products-container layout-grid-wrap">
+    <div class="products-container">
+      @if (filteredProducts().length > 0) {
+      <div #productsGrid class="products-grid-catalog">
+        @for (product of filteredProducts(); track product.id) {
+        <article class="catalog-product-card" (click)="openProductModal(product, $event)" role="button" tabindex="0"
+          (keydown.enter)="openProductModal(product)">
+          <!-- Khung ảnh -->
+          <div class="product-thumb-container">
+            <img [src]="product.image" [alt]="product.name" class="product-thumb-image" loading="lazy" />
 
-      <!-- ================= CỘT TRÁI: BỘ LỌC ĐA CHIỀU ================= -->
-      <aside class="products-filter-sidebar" [class.is-mobile-open]="isMobileFilterOpen()">
-        <div class="filter-panel-card">
-          <!-- Header bộ lọc -->
-          <div class="filter-panel-header">
-            <div class="filter-heading-group">
-              <svg lucideSlidersHorizontal class="filter-header-icon"></svg>
-              <h2 class="filter-heading-text">Bộ Lọc Thực Đơn</h2>
-            </div>
-            @if (hasActiveFilters()) {
-              <button type="button" class="btn-reset-filter" (click)="resetAllFilters()">
-                <svg lucideRotateCcw class="reset-icon"></svg>
-                <span>Đặt lại</span>
-              </button>
-            }
-            <button
-              type="button"
-              class="mobile-filter-close-btn"
-              (click)="closeMobileFilter()"
-              aria-label="Đóng bảng bộ lọc"
-            >
-              <svg lucideX class="close-icon"></svg>
-            </button>
-          </div>
-
-          <!-- Nhóm 1: Danh mục món ăn thức uống -->
-          <div class="filter-group">
-            <h3 class="filter-group-title">Danh Mục Món</h3>
-            <ul class="category-filter-list">
-              @for (cat of categories; track cat.id) {
-                <li class="category-filter-item">
-                  <button
-                    type="button"
-                    class="category-filter-btn"
-                    [class.is-active]="selectedCategory() === cat.id"
-                    (click)="onCategorySelect(cat.id)"
-                  >
-                    <span class="cat-icon-badge">{{ cat.icon }}</span>
-                    <span class="cat-name-text">{{ cat.name }}</span>
-                  </button>
-                </li>
+            @if (product.badge) {
+            <span class="product-badge-flag" [class.is-hot]="product.badge === 'BÁN CHẠY!'"
+              [class.is-try]="product.badge === 'THỬ NGAY!'" [class.is-new]="product.badge === 'MỚI'">
+              @if (product.badge === 'BÁN CHẠY!') {
+              <svg lucideFlame class="flag-icon"></svg>
+              } @else {
+              <svg lucideSparkles class="flag-icon"></svg>
               }
-            </ul>
-          </div>
-
-          <!-- Nhóm 2: Khoảng giá -->
-          <div class="filter-group">
-            <h3 class="filter-group-title">Khoảng Giá</h3>
-            <div class="filter-options-stack">
-              <label class="filter-radio-label">
-                <input
-                  type="radio"
-                  name="priceRange"
-                  value="all"
-                  [checked]="selectedPriceRange() === 'all'"
-                  (change)="onPriceSelect('all')"
-                />
-                <span class="radio-custom"></span>
-                <span class="radio-text">Tất cả mức giá</span>
-              </label>
-
-              <label class="filter-radio-label">
-                <input
-                  type="radio"
-                  name="priceRange"
-                  value="under30"
-                  [checked]="selectedPriceRange() === 'under30'"
-                  (change)="onPriceSelect('under30')"
-                />
-                <span class="radio-custom"></span>
-                <span class="radio-text">Dưới 30.000đ (Bình dân)</span>
-              </label>
-
-              <label class="filter-radio-label">
-                <input
-                  type="radio"
-                  name="priceRange"
-                  value="from30to45"
-                  [checked]="selectedPriceRange() === 'from30to45'"
-                  (change)="onPriceSelect('from30to45')"
-                />
-                <span class="radio-custom"></span>
-                <span class="radio-text">Từ 30.000đ – 45.000đ</span>
-              </label>
-
-              <label class="filter-radio-label">
-                <input
-                  type="radio"
-                  name="priceRange"
-                  value="over45"
-                  [checked]="selectedPriceRange() === 'over45'"
-                  (change)="onPriceSelect('over45')"
-                />
-                <span class="radio-custom"></span>
-                <span class="radio-text">Trên 45.000đ (Đặc biệt)</span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Nhóm 3: Hình thức phục vụ & Đặc sắc -->
-          <div class="filter-group">
-            <h3 class="filter-group-title">Đặc Tính & Thưởng Thức</h3>
-            <div class="serving-chips-grid">
-              <button
-                type="button"
-                class="serving-chip"
-                [class.is-active]="selectedServing() === 'all'"
-                (click)="onServingSelect('all')"
-              >
-                Tất cả
-              </button>
-              <button
-                type="button"
-                class="serving-chip"
-                [class.is-active]="selectedServing() === 'ice'"
-                (click)="onServingSelect('ice')"
-              >
-                🧊 Đá Lạnh
-              </button>
-              <button
-                type="button"
-                class="serving-chip"
-                [class.is-active]="selectedServing() === 'hot'"
-                (click)="onServingSelect('hot')"
-              >
-                ♨️ Nóng Ấm
-              </button>
-              <button
-                type="button"
-                class="serving-chip"
-                [class.is-active]="selectedServing() === 'banchay'"
-                (click)="onServingSelect('banchay')"
-              >
-                🔥 Bán Chạy
-              </button>
-              <button
-                type="button"
-                class="serving-chip"
-                [class.is-active]="selectedServing() === 'moi'"
-                (click)="onServingSelect('moi')"
-              >
-                ✨ Món Mới
-              </button>
-            </div>
-          </div>
-
-          <!-- Thẻ văn hóa cà phê xưa -->
-          <div class="vintage-tips-card">
-            <span class="tips-badge">GÓC ĐÀM ĐẠO</span>
-            <h4 class="tips-title">Thưởng Thức Đúng Điệu</h4>
-            <p class="tips-body">
-              Một ly cà phê phin hoàn hảo cần 4 đến 5 phút để từng giọt lắng đọng. Hãy kiên nhẫn cảm nhận hương thơm Robusta nồng nàn trước khi nhấp ngụm đầu tiên bạn nhé!
-            </p>
-          </div>
-        </div>
-      </aside>
-
-      <!-- ================= CỘT PHẢI: KHU VỰC SẢN PHẨM ================= -->
-      <section class="products-display-area">
-        <!-- Thanh công cụ phía trên (Top Toolbar) -->
-        <div class="display-toolbar">
-          <div class="toolbar-left">
-            <button
-              type="button"
-              class="mobile-filter-trigger-btn"
-              (click)="toggleMobileFilter()"
-            >
-              <svg lucideFilter class="btn-filter-icon"></svg>
-              <span>Bộ Lọc</span>
-              @if (hasActiveFilters()) {
-                <span class="active-dot" aria-hidden="true"></span>
-              }
-            </button>
-
-            <span class="results-count-text">
-              Tìm thấy <strong>{{ filteredProducts().length }}</strong> món trong thực đơn
+              <span>{{ product.badge }}</span>
             </span>
+            }
+
+            <!-- Tag phục vụ dùng Lucide Icon -->
+            <span class="serving-type-tag">
+              @if (product.servingType === 'ice') {
+              <svg lucideSnowflake class="serving-lucide-svg"></svg>
+              <span>Đá</span>
+              } @else if (product.servingType === 'hot') {
+              <svg lucideCoffee class="serving-lucide-svg"></svg>
+              <span>Nóng</span>
+              } @else {
+              <svg lucideSnowflake class="serving-lucide-svg"></svg>
+              <span>/</span>
+              <svg lucideCoffee class="serving-lucide-svg"></svg>
+              }
+            </span>
+
+            <!-- Nút Quick-Add -->
+            <button type="button" class="quick-add-fab"
+              (click)="$event.stopPropagation(); openProductModal(product, $event)"
+              [attr.aria-label]="'Tùy chỉnh và chọn món ' + product.name">
+              <svg lucidePlus class="fab-plus-svg"></svg>
+            </button>
           </div>
 
-          <div class="toolbar-right">
-            <div class="sort-selector-wrap">
-              <label for="product-sort-select" class="sort-label">Sắp xếp theo:</label>
-              <div class="select-box-wrap">
-                <select
-                  id="product-sort-select"
-                  class="sort-dropdown"
-                  (change)="onSortSelect($event)"
-                >
-                  <option value="featured">Nổi Bật Nhất</option>
-                  <option value="price-asc">Giá: Thấp đến Cao</option>
-                  <option value="price-desc">Giá: Cao đến Thấp</option>
-                  <option value="name-asc">Tên món: A &rarr; Z</option>
-                </select>
-                <svg lucideChevronDown class="select-arrow-icon"></svg>
-              </div>
+          <!-- Thông tin sản phẩm -->
+          <div class="product-info-container">
+            <span class="product-brand-line">{{ product.brand }}</span>
+            <h3 class="product-title-heading">{{ product.name }}</h3>
+            <p class="product-desc-snippet">{{ product.description }}</p>
+
+            <div class="product-footer-row">
+              <span class="product-price-highlight">
+                {{ formatPrice(product.price) }}
+              </span>
+              <span class="customize-hint-text">Tùy chỉnh &rarr;</span>
             </div>
           </div>
+        </article>
+        }
+      </div>
+      } @else {
+      <!-- Empty State -->
+      <div class="products-empty-state">
+        <div class="empty-icon-box">
+          <svg lucideCoffee class="empty-lucide-svg"></svg>
         </div>
-
-        <!-- Thanh hiển thị bộ lọc đang áp dụng -->
-        @if (hasActiveFilters()) {
-          <div class="active-filters-bar">
-            <span class="active-filters-label">Đang lọc theo:</span>
-
-            @if (searchKeyword()) {
-              <div class="active-chip">
-                <span>Từ khóa: "{{ searchKeyword() }}"</span>
-                <button type="button" class="btn-remove-chip" (click)="clearSearch()">
-                  <svg lucideX class="chip-x"></svg>
-                </button>
-              </div>
-            }
-
-            @if (selectedCategory() !== 'all') {
-              <div class="active-chip">
-                <span>Danh mục: {{ selectedCategory() }}</span>
-                <button type="button" class="btn-remove-chip" (click)="selectedCategory.set('all')">
-                  <svg lucideX class="chip-x"></svg>
-                </button>
-              </div>
-            }
-
-            @if (selectedPriceRange() !== 'all') {
-              <div class="active-chip">
-                <span>Giá: {{ selectedPriceRange() }}</span>
-                <button type="button" class="btn-remove-chip" (click)="selectedPriceRange.set('all')">
-                  <svg lucideX class="chip-x"></svg>
-                </button>
-              </div>
-            }
-
-            @if (selectedServing() !== 'all') {
-              <div class="active-chip">
-                <span>Đặc tính: {{ selectedServing() }}</span>
-                <button type="button" class="btn-remove-chip" (click)="selectedServing.set('all')">
-                  <svg lucideX class="chip-x"></svg>
-                </button>
-              </div>
-            }
-
-            <button type="button" class="btn-clear-all-chips" (click)="resetAllFilters()">
-              Xóa tất cả
-            </button>
-          </div>
-        }
-
-        <!-- Lưới sản phẩm (Grid) -->
-        @if (filteredProducts().length > 0) {
-          <div class="products-grid-catalog">
-            @for (product of filteredProducts(); track product.id) {
-              <article class="catalog-product-card">
-                <!-- Thumbnail & Huy hiệu -->
-                <div class="product-thumb-container">
-                  <img
-                    [src]="product.image"
-                    [alt]="product.name"
-                    class="product-thumb-image"
-                    loading="lazy"
-                  />
-                  @if (product.badge) {
-                    <span
-                      class="product-badge-flag"
-                      [class.badge-banchay]="product.badge === 'BÁN CHẠY!'"
-                      [class.badge-moi]="product.badge === 'MỚI' || product.badge === 'THỬ NGAY!'"
-                    >
-                      {{ product.badge }}
-                    </span>
-                  }
-                  <span class="serving-type-tag">
-                    {{ product.servingType === 'ice' ? '🧊 Đá' : product.servingType === 'hot' ? '♨️ Nóng' : '🧊 / ♨️' }}
-                  </span>
-                </div>
-
-                <!-- Thân thẻ sản phẩm -->
-                <div class="product-info-container">
-                  <span class="product-brand-line">{{ product.brand }}</span>
-                  <h3 class="product-title-heading">{{ product.name }}</h3>
-                  <p class="product-desc-snippet">{{ product.description }}</p>
-
-                  <div class="product-footer-row">
-                    <span class="product-price-highlight">
-                      {{ formatPrice(product.price) }}
-                    </span>
-
-                    <button
-                      type="button"
-                      class="btn-add-product"
-                      (click)="openProductModal(product)"
-                      [attr.aria-label]="'Tùy chỉnh và chọn món ' + product.name"
-                    >
-                      <svg lucidePlus class="add-plus-icon"></svg>
-                      <span class="add-text">Chọn món</span>
-                    </button>
-                  </div>
-                </div>
-              </article>
-            }
-          </div>
-        } @else {
-          <!-- Trạng thái không tìm thấy món -->
-          <div class="products-empty-state">
-            <span class="empty-icon-symbol">☕</span>
-            <h3 class="empty-title">Chưa tìm thấy món phù hợp</h3>
-            <p class="empty-suggestion">
-              Thực đơn hiện không có món nào thỏa mãn toàn bộ tiêu chí lọc của bạn. Bạn hãy thử nới lỏng khoảng giá hoặc xóa từ khóa tìm kiếm nhé!
-            </p>
-            <button type="button" class="btn-empty-reset" (click)="resetAllFilters()">
-              <svg lucideRotateCcw class="btn-icon"></svg>
-              <span>Xem Lại Toàn Bộ Thực Đơn</span>
-            </button>
-          </div>
-        }
-      </section>
-
+        <h3 class="empty-title">Chưa tìm thấy món phù hợp</h3>
+        <p class="empty-suggestion">
+          Thực đơn hiện không có món nào thỏa mãn các tiêu chí lọc đang chọn. Hãy thử đặt lại bộ lọc để xem toàn bộ món
+          nhé!
+        </p>
+        <button type="button" class="btn-empty-reset" (click)="resetAllFilters()">
+          <svg lucideRotateCcw class="reset-svg"></svg>
+          <span>Xem Toàn Bộ Thực Đơn</span>
+        </button>
+      </div>
+      }
     </div>
   </main>
 
-  <!-- 4. MODAL TÙY CHỌN MÓN (SIZE, ĐƯỜNG, ĐÁ) -->
+  <!-- 4. MODAL TÙY CHỌN MÓN -->
   @if (selectedProductForModal(); as prod) {
-    <app-widget-product-modal
-      [product]="prod"
-      (closeModal)="closeProductModal()"
-      (addToCart)="onProductCustomized($event)"
-    ></app-widget-product-modal>
+  <app-widget-product-modal [product]="prod" (closeModal)="closeProductModal()"
+    (addToCart)="onProductCustomized($event)"></app-widget-product-modal>
   }
 
   <!-- 5. GIỎ HÀNG DRAWER NHANH -->
   @if (isCartOpen()) {
-    <div class="cart-drawer-backdrop" (click)="toggleCart()">
-      <aside class="cart-drawer-panel" (click)="$event.stopPropagation()">
-        <div class="drawer-header-row">
-          <div class="drawer-title-group">
-            <svg lucideShoppingCart class="drawer-header-icon"></svg>
-            <h3 class="drawer-title-text">Giỏ Hàng Của Bạn ({{ cartCount() }})</h3>
+  <div class="cart-drawer-backdrop" (click)="toggleCart()">
+    <aside class="cart-drawer-panel" (click)="$event.stopPropagation()">
+      <div class="drawer-header-row">
+        <div class="drawer-title-group">
+          <svg lucideShoppingBag class="drawer-header-icon"></svg>
+          <h3 class="drawer-title-text">Giỏ Hàng Của Bạn ({{ cartCount() }})</h3>
+        </div>
+        <button type="button" class="btn-close-drawer" (click)="toggleCart()" aria-label="Đóng giỏ hàng">
+          <svg lucideX class="close-icon"></svg>
+        </button>
+      </div>
+
+      <div class="drawer-items-scroll">
+        @if (cart().length === 0) {
+        <div class="empty-cart-state">
+          <div class="empty-icon-box">
+            <svg lucideCoffee class="empty-lucide-svg"></svg>
           </div>
-          <button
-            type="button"
-            class="btn-close-drawer"
-            (click)="toggleCart()"
-            aria-label="Đóng giỏ hàng"
-          >
-            <svg lucideX class="close-icon"></svg>
+          <p>Giỏ hàng hiện chưa có món nào.</p>
+          <button type="button" class="btn-start-select" (click)="toggleCart()">
+            Chọn món ngay
           </button>
         </div>
-
-        <div class="drawer-items-scroll">
-          @if (cart().length === 0) {
-            <div class="empty-cart-state">
-              <span class="empty-cup">☕</span>
-              <p>Giỏ hàng hiện chưa có món nào.</p>
-              <button type="button" class="btn-start-select" (click)="toggleCart()">
-                Chọn món ngay
-              </button>
-            </div>
-          } @else {
-            @for (item of cart(); track $index; let idx = $index) {
-              <div class="cart-item-card">
-                <div class="cart-item-info">
-                  <h4 class="cart-item-name">{{ item.product.name }} (Size {{ item.size }})</h4>
-                  <p class="cart-item-specs">Đường: {{ item.sugar }}, Đá: {{ item.ice }}</p>
-                  <span class="cart-item-quantity">Số lượng: x{{ item.quantity }}</span>
-                </div>
-                <div class="cart-item-action">
-                  <span class="cart-item-price">{{ formatPrice(item.totalPrice) }}</span>
-                  <button
-                    type="button"
-                    class="btn-remove-item"
-                    (click)="removeFromCart(idx)"
-                    aria-label="Xóa món khỏi giỏ hàng"
-                  >
-                    Xóa
-                  </button>
-                </div>
-              </div>
+        } @else {
+        @for (item of cart(); track $index; let idx = $index) {
+        <div class="cart-item-card">
+          <img [src]="item.product.image" [alt]="item.product.name" class="cart-item-thumb" />
+          <div class="cart-item-info">
+            <h4 class="cart-item-name">{{ item.product.name }} (Size {{ item.size }})</h4>
+            <p class="cart-item-specs">Đường: {{ item.sugar }} • Đá: {{ item.ice }}</p>
+            @if (getToppingsText(item.toppings); as tops) {
+            <p class="cart-item-toppings">+ {{ tops }}</p>
             }
-          }
-        </div>
-
-        @if (cart().length > 0) {
-          <div class="drawer-footer-row">
-            <div class="drawer-total-summary">
-              <span class="total-label">Tổng cộng:</span>
-              <strong class="total-number">{{ formatPrice(cartTotal()) }}</strong>
+            @if (item.note) {
+            <p class="cart-item-note">“{{ item.note }}”</p>
+            }
+            <div class="cart-item-bottom-meta">
+              <span class="cart-item-quantity">x{{ item.quantity }}</span>
+              <span class="cart-item-price">{{ formatPrice(item.totalPrice) }}</span>
             </div>
-            <button type="button" class="btn-checkout-order">
-              <span>Tiến Hành Thanh Toán &rarr;</span>
-            </button>
           </div>
+          <button type="button" class="btn-remove-item" (click)="removeFromCart(idx)"
+            aria-label="Xóa món khỏi giỏ hàng">
+            <svg lucideX class="remove-x-svg"></svg>
+          </button>
+        </div>
         }
-      </aside>
-    </div>
+        }
+      </div>
+
+      @if (cart().length > 0) {
+      <div class="drawer-footer-row">
+        <div class="drawer-total-summary">
+          <span class="total-label">Tạm tính ({{ cartCount() }} món):</span>
+          <strong class="total-number">{{ formatPrice(cartTotal()) }}</strong>
+        </div>
+        <button type="button" class="btn-checkout-order">
+          <span>Tiến Hành Thanh Toán &rarr;</span>
+        </button>
+      </div>
+      }
+    </aside>
+  </div>
   }
 
   <!-- 6. NÚT NỔI TÁC VỤ (FAB) -->
   <div class="products-floating-group">
-    <button
-      type="button"
-      class="fab-btn fab-top"
-      (click)="scrollToTop()"
-      aria-label="Cuộn lên đầu trang"
-    >
+    <button type="button" class="fab-btn fab-top" (click)="scrollToTop()" aria-label="Cuộn lên đầu trang">
       <svg lucideChevronUp class="fab-icon"></svg>
     </button>
-    <a
-      href="tel:19001755"
-      class="fab-btn fab-call"
-      aria-label="Gọi hotline hỗ trợ 1900 1755"
-    >
+    <a href="tel:19001755" class="fab-btn fab-call" aria-label="Gọi hotline hỗ trợ 1900 1755">
       <svg lucidePhone class="fab-icon"></svg>
     </a>
   </div>
 
   <!-- 7. THÔNG BÁO TOAST -->
   @if (toastMessage(); as msg) {
-    <div class="catalog-toast-box" role="status" aria-live="polite">
-      <svg lucideCheck class="toast-check-icon"></svg>
-      <span>{{ msg }}</span>
-    </div>
+  <div class="catalog-toast-box" role="status" aria-live="polite">
+    <svg lucideCheck class="toast-check-icon"></svg>
+    <span>{{ msg }}</span>
+  </div>
   }
 
   <!-- 8. FOOTER CHÍNH -->
   <app-widget-landing-footer></app-widget-landing-footer>
 </div>
-

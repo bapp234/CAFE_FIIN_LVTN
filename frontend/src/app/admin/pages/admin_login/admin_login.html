@@ -1,0 +1,153 @@
+<main class="login-wrapper">
+  <div class="login-container">
+    <!-- Brand Header -->
+    <header class="brand-header">
+      <div class="brand-logo-wrap">
+        <app-brand-logo></app-brand-logo>
+      </div>
+      <div class="brand-meta">
+        <span class="brand-sub">Cà Phê Fiin · Hệ Thống Quản Trị</span>
+        <h1 class="brand-title">Cổng Điều Hành Doanh Nghiệp</h1>
+      </div>
+    </header>
+
+    <!-- Login Card -->
+    <section class="card login-card" aria-labelledby="login-title">
+      <div class="card-header">
+        <div class="card-title-row">
+          <span class="icon-chip" aria-hidden="true">
+            <svg lucideLock class="icon-chip-svg"></svg>
+          </span>
+          <div>
+            <h2 id="login-title" class="card-heading">Đăng nhập tài khoản</h2>
+            <p class="card-desc">Nhập thông tin xác thực để truy cập bảng điều khiển.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Alert -->
+      @if (errorMessage(); as err) {
+        <div class="alert-error" role="alert">
+          <svg lucideAlertCircle class="alert-icon" aria-hidden="true"></svg>
+          <span class="alert-text">{{ err }}</span>
+        </div>
+      }
+
+      <!-- Form -->
+      <form class="login-form" (ngSubmit)="onSubmit()" novalidate>
+        <div class="form-field">
+          <label for="admin-email" class="form-label">Email quản trị</label>
+          <div class="input-wrap">
+            <span class="input-icon" aria-hidden="true">
+              <svg lucideMail class="icon-svg"></svg>
+            </span>
+            <input
+              id="admin-email"
+              name="admin-email"
+              type="email"
+              class="form-input"
+              placeholder="admin@fiin.vn"
+              [value]="email()"
+              (input)="email.set($any($event.target).value)"
+              autocomplete="username"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="admin-password" class="form-label">Mật khẩu</label>
+          <div class="input-wrap">
+            <span class="input-icon" aria-hidden="true">
+              <svg lucideLock class="icon-svg"></svg>
+            </span>
+            <input
+              id="admin-password"
+              name="admin-password"
+              [type]="showPassword() ? 'text' : 'password'"
+              class="form-input"
+              placeholder="••••••••"
+              [value]="password()"
+              (input)="password.set($any($event.target).value)"
+              autocomplete="current-password"
+              required
+            />
+            <button
+              type="button"
+              class="btn-toggle-pass"
+              (click)="toggleShowPassword()"
+              [attr.aria-label]="showPassword() ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
+            >
+              @if (showPassword()) {
+                <svg lucideEyeOff class="toggle-svg"></svg>
+              } @else {
+                <svg lucideEye class="toggle-svg"></svg>
+              }
+            </button>
+          </div>
+        </div>
+
+        <div class="security-note">
+          <svg lucideShieldCheck class="shield-svg" aria-hidden="true"></svg>
+          <span>Phiên làm việc được bảo mật an toàn với cơ chế <strong>HttpOnly Cookie</strong>.</span>
+        </div>
+
+        <button type="submit" class="btn-submit" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Đang xác thực...</span>
+          } @else {
+            <span>Đăng nhập hệ thống</span>
+            <svg lucideArrowRight class="btn-arrow" aria-hidden="true"></svg>
+          }
+        </button>
+      </form>
+    </section>
+
+    <!-- Demo Quick Switcher -->
+    <section class="card demo-card" aria-labelledby="demo-title">
+      <div class="demo-header">
+        <div class="demo-title-wrap">
+          <svg lucideSparkles class="sparkle-svg" aria-hidden="true"></svg>
+          <h2 id="demo-title" class="demo-title">Tài khoản kiểm thử nhanh (Demo 1-Click)</h2>
+        </div>
+        <p class="demo-desc">Bấm vào bất kỳ tài khoản nào để thử nghiệm phân quyền theo vai trò:</p>
+      </div>
+
+      <div class="demo-grid">
+        @for (acc of demoAccounts; track acc.id) {
+          <div
+            class="demo-item"
+            [class.demo-item-active]="email() === acc.email"
+            (click)="selectDemoAccount(acc, false)"
+            role="button"
+            tabindex="0"
+            (keydown.enter)="selectDemoAccount(acc, false)"
+            (keydown.space)="selectDemoAccount(acc, false)"
+          >
+            <div class="demo-item-top">
+              <span class="demo-role">{{ acc.role }}</span>
+              <span class="demo-badge">{{ acc.badge }}</span>
+            </div>
+            <div class="demo-email">{{ acc.email }}</div>
+            <p class="demo-note">{{ acc.description }}</p>
+            <button
+              type="button"
+              class="btn-quick-login"
+              (click)="$event.stopPropagation(); selectDemoAccount(acc, true)"
+            >
+              Vào ngay với vai trò này →
+            </button>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Footer Back Link -->
+    <footer class="login-footer">
+      <a routerLink="/" class="back-link">
+        ← Quay lại trang chủ khách hàng Cà Phê Fiin
+      </a>
+    </footer>
+  </div>
+</main>

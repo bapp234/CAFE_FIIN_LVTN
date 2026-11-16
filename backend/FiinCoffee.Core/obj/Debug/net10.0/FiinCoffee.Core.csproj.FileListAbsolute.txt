@@ -1,0 +1,12 @@
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Core\bin\Debug\net10.0\FiinCoffee.Core.deps.json
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Core\bin\Debug\net10.0\FiinCoffee.Core.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Core\bin\Debug\net10.0\FiinCoffee.Core.pdb
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Core\obj\Debug\net10.0\FiinCoffee.Core.GeneratedMSBuildEditorConfig.editorconfig
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Core\obj\Debug\net10.0\FiinCoffee.Core.AssemblyInfoInputs.cache
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Core\obj\Debug\net10.0\FiinCoffee.Core.AssemblyInfo.cs
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Core\obj\Debug\net10.0\FiinCoffee.Core.csproj.CoreCompileInputs.cache
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Core\obj\Debug\net10.0\FiinCoffee.Core.sourcelink.json
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Core\obj\Debug\net10.0\FiinCoffee.Core.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Core\obj\Debug\net10.0\refint\FiinCoffee.Core.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Core\obj\Debug\net10.0\FiinCoffee.Core.pdb
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Core\obj\Debug\net10.0\ref\FiinCoffee.Core.dll

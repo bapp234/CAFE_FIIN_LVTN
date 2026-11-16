@@ -1,27 +1,70 @@
 <section class="vouchers-section" aria-label="Mã giảm giá và ưu đãi">
-    <div class="vouchers-grid">
-        @for (voucher of vouchers(); track voucher.code) {
-        <div class="voucher-ticket-card">
-            <div class="ticket-left-badge">
-                <span class="discount-label">{{ voucher.discount }}</span>
+  <div class="vouchers-grid">
+    @for (voucher of vouchers(); track voucher.code) {
+      <app-card-frame
+        variant="ticket"
+        bg="white"
+        radius="sm"
+        [interactive]="true"
+        class="voucher-card-item"
+      >
+        <div class="voucher-ticket">
+          <!-- Phần cuống vé bên trái (Stub) -->
+          <div class="ticket-stub">
+            <span class="stub-prefix">{{ getDiscountPrefix(voucher.discount) }}</span>
+            <strong class="stub-value">{{ getDiscountValue(voucher.discount) }}</strong>
+            <span class="stub-sub">ĐƠN HÀNG</span>
+          </div>
+
+          <!-- Rãnh cắt vé & đường đứt đoạn (Perforation Notch) -->
+          <div class="ticket-perforation" aria-hidden="true">
+            <span class="perforation-notch notch-top"></span>
+            <span class="perforation-line"></span>
+            <span class="perforation-notch notch-bottom"></span>
+          </div>
+
+          <!-- Phần thông tin vé bên phải (Info & Action) -->
+          <div class="ticket-info">
+            <div class="ticket-top-row">
+              <span class="voucher-code-pill">
+                <span class="code-label">MÃ:</span>
+                <strong class="code-value">{{ voucher.code }}</strong>
+              </span>
             </div>
-            <div class="ticket-right-info">
-                <div class="voucher-code-title">NHẬP MÃ: {{ voucher.code }}</div>
-                <div class="voucher-cond-text">{{ voucher.condition }}</div>
-                <div class="voucher-action-row">
-                    <button type="button" class="btn-copy-voucher" (click)="copyVoucher.emit(voucher.code)"
-                        [class.is-copied]="voucher.copied">
-                        @if (voucher.copied) {
-                        <svg lucideCheck class="copy-icon"></svg>
-                        <span>Đã chép</span>
-                        } @else {
-                        <span>Sao chép mã</span>
-                        }
-                    </button>
-                    <a href="#dieu-kien" class="voucher-term-link">Điều kiện</a>
-                </div>
+
+            <p class="voucher-desc" [title]="voucher.condition">
+              {{ voucher.condition }}
+            </p>
+
+            <div class="ticket-bottom-row">
+              <button
+                type="button"
+                class="btn-copy-code"
+                [class.is-copied]="voucher.copied"
+                (click)="copyVoucher.emit(voucher.code)"
+                [attr.aria-label]="voucher.copied ? 'Đã sao chép mã ' + voucher.code : 'Sao chép mã ' + voucher.code"
+              >
+                @if (voucher.copied) {
+                  <svg lucideCheck class="btn-icon" aria-hidden="true"></svg>
+                  <span>Đã lưu mã!</span>
+                } @else {
+                  <svg lucideCopy class="btn-icon" aria-hidden="true"></svg>
+                  <span>Sao chép mã</span>
+                }
+              </button>
+
+              <a
+                href="#dieu-kien"
+                class="voucher-term-link"
+                (click)="$event.preventDefault()"
+                aria-label="Xem điều kiện áp dụng mã"
+              >
+                Điều kiện
+              </a>
             </div>
+          </div>
         </div>
-        }
-    </div>
+      </app-card-frame>
+    }
+  </div>
 </section>

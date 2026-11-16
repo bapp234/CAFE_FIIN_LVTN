@@ -1,0 +1,476 @@
+<div class="product-detail-page-wrapper">
+  <!-- 1. HEADER DÙNG CHUNG -->
+  <app-widget-header
+    [cartCount]="cartCount()"
+    [isSidebarOpen]="false"
+    (toggleCart)="toggleCartDrawer()"
+  ></app-widget-header>
+
+  <main class="product-detail-main">
+    <div class="product-detail-container">
+
+      <!-- 2. BREADCRUMB THANH ĐIỀU HƯỚNG -->
+      <nav class="detail-breadcrumb" aria-label="Đường dẫn trang">
+        <ol class="breadcrumb-list">
+          <li class="breadcrumb-item">
+            <a routerLink="/" class="breadcrumb-link">Trang chủ</a>
+          </li>
+          <li class="breadcrumb-separator" aria-hidden="true">/</li>
+          <li class="breadcrumb-item">
+            <a routerLink="/san-pham" class="breadcrumb-link">Thực đơn</a>
+          </li>
+          <li class="breadcrumb-separator" aria-hidden="true">/</li>
+          <li class="breadcrumb-item">
+            <span class="breadcrumb-link">{{ categoryName() }}</span>
+          </li>
+          <li class="breadcrumb-separator" aria-hidden="true">/</li>
+          <li class="breadcrumb-item breadcrumb-current" aria-current="page">
+            {{ currentProduct().name }}
+          </li>
+        </ol>
+      </nav>
+
+      <!-- 3. PHẦN TRÊN: ẢNH SẢN PHẨM & TÙY CHỌN MUA (LAYOUT 2 CỘT) -->
+      <section class="product-hero-section" aria-label="Thông tin chi tiết món">
+        <!-- CỘT TRÁI: KHUNG ẢNH CHÍNH & THUMBNAILS -->
+        <div class="gallery-column">
+          <div class="main-image-viewport">
+            @if (currentProduct().badge) {
+              <span class="product-status-badge">{{ currentProduct().badge }}</span>
+            }
+
+            <img
+              [src]="activeImage()"
+              [alt]="currentProduct().name"
+              class="main-product-photo"
+              loading="eager"
+            />
+
+            @if (galleryImages().length > 1) {
+              <button
+                type="button"
+                class="gallery-nav-arrow arrow-prev"
+                (click)="prevGalleryImage()"
+                aria-label="Xem ảnh trước"
+              >
+                <svg lucideChevronLeft class="arrow-svg"></svg>
+              </button>
+              <button
+                type="button"
+                class="gallery-nav-arrow arrow-next"
+                (click)="nextGalleryImage()"
+                aria-label="Xem ảnh tiếp theo"
+              >
+                <svg lucideChevronRight class="arrow-svg"></svg>
+              </button>
+            }
+          </div>
+
+          <!-- Dải Thumbnails bên dưới ảnh chính -->
+          <div class="thumbnail-strip" role="tablist" aria-label="Ảnh chi tiết sản phẩm">
+            @for (img of galleryImages(); track $index; let idx = $index) {
+              <button
+                type="button"
+                class="thumbnail-pill"
+                [class.is-active]="activeImageIndex() === idx"
+                (click)="selectGalleryImage(idx)"
+                [attr.aria-label]="'Ảnh ' + (idx + 1)"
+              >
+                <img [src]="img" [alt]="currentProduct().name + ' thumbnail ' + (idx + 1)" class="thumb-img" />
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- CỘT PHẢI: THÔNG TIN MÓN, GIÁ, SIZE, SỐ LƯỢNG & NÚT MUA -->
+        <div class="config-column">
+          <!-- Thương hiệu -->
+          <span class="product-brand-label">{{ currentProduct().brand }}</span>
+
+          <!-- Tên món H1 -->
+          <h1 class="product-title-heading">{{ currentProduct().name }}</h1>
+
+          <!-- Trạng thái kho & Mã SKU -->
+          <div class="product-sku-row">
+            <span class="stock-status-tag">
+              <span class="status-dot"></span>
+              Tình trạng: <strong>Còn hàng</strong>
+            </span>
+            <span class="sku-divider" aria-hidden="true">|</span>
+            <span class="sku-code-tag">
+              Mã SKU: <strong>{{ currentProduct().sku ?? 'PVN31' }}</strong>
+            </span>
+          </div>
+
+          <!-- Giá niêm yết -->
+          <div class="product-price-block">
+            <span class="price-current">{{ formatPrice(unitPrice()) }}</span>
+            @if (currentProduct().originalPrice) {
+              <span class="price-original">{{ formatPrice(currentProduct().originalPrice!) }}</span>
+            }
+          </div>
+
+          <!-- Lựa chọn Kích thước (Size) -->
+          <div class="option-group size-option-group">
+            <span class="option-title">Kích thước:</span>
+            <div class="size-button-group" role="radiogroup" aria-label="Chọn kích thước">
+              <button
+                type="button"
+                class="size-choice-btn"
+                [class.is-active]="selectedSize() === 'S'"
+                (click)="selectSize('S')"
+                aria-label="Size Nhỏ S"
+              >
+                <span>S</span>
+              </button>
+              <button
+                type="button"
+                class="size-choice-btn"
+                [class.is-active]="selectedSize() === 'M'"
+                (click)="selectSize('M')"
+                aria-label="Size Vừa M"
+              >
+                <span>M</span>
+              </button>
+              <button
+                type="button"
+                class="size-choice-btn"
+                [class.is-active]="selectedSize() === 'L'"
+                (click)="selectSize('L')"
+                aria-label="Size Lớn L"
+              >
+                <span>L</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Lựa chọn Mức đường & Mức đá (nếu là thức uống) -->
+          @if (currentProduct().category === 'ca-phe' || currentProduct().category === 'tra' || currentProduct().category === 'phindi' || currentProduct().category === 'freeze') {
+            <div class="option-grid-row">
+              <div class="option-group">
+                <span class="option-title">Đường:</span>
+                <div class="spec-button-group" role="radiogroup" aria-label="Mức đường">
+                  @for (s of ['100%', '70%', '50%', '0%']; track s) {
+                    <button
+                      type="button"
+                      class="spec-pill-btn"
+                      [class.is-active]="selectedSugar() === s"
+                      (click)="selectSugar(s)"
+                    >
+                      {{ s }}
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <div class="option-group">
+                <span class="option-title">Đá:</span>
+                <div class="spec-button-group" role="radiogroup" aria-label="Mức đá">
+                  @for (ic of ['100%', '70%', '50%', 'Không đá']; track ic) {
+                    <button
+                      type="button"
+                      class="spec-pill-btn"
+                      [class.is-active]="selectedIce() === ic"
+                      (click)="selectIce(ic)"
+                    >
+                      {{ ic }}
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Lựa chọn Số lượng -->
+          <div class="option-group quantity-option-group">
+            <span class="option-title">Số lượng:</span>
+            <div class="quantity-stepper-box">
+              <button
+                type="button"
+                class="stepper-btn btn-dec"
+                (click)="decrementQuantity()"
+                [disabled]="quantity() <= 1"
+                aria-label="Giảm số lượng"
+              >
+                <svg lucideMinus class="stepper-icon"></svg>
+              </button>
+              <span class="stepper-display" aria-live="polite">{{ quantity() }}</span>
+              <button
+                type="button"
+                class="stepper-btn btn-inc"
+                (click)="incrementQuantity()"
+                [disabled]="quantity() >= 99"
+                aria-label="Tăng số lượng"
+              >
+                <svg lucidePlus class="stepper-icon"></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Các nút tác vụ: MUA NGAY & THÊM VÀO GIỎ -->
+          <div class="cta-actions-row">
+            <button
+              type="button"
+              class="btn-action-primary btn-buy-now"
+              (click)="buyNow()"
+            >
+              <span>MUA NGAY</span>
+            </button>
+            <button
+              type="button"
+              class="btn-action-secondary btn-add-cart"
+              (click)="addToCart()"
+            >
+              <span>THÊM VÀO GIỎ</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. PHẦN GIỮA: MÔ TẢ SẢN PHẨM & BÁNH NGON ĐỪNG BỎ LỠ (LAYOUT 2 CỘT) -->
+      <section class="product-body-section" aria-label="Mô tả và Gợi ý bánh">
+        <!-- CỘT TRÁI: MÔ TẢ CHI TIẾT SẢN PHẨM -->
+        <div class="description-column">
+          <div class="tab-header-strip">
+            <h2 class="tab-heading is-active">Mô tả sản phẩm</h2>
+          </div>
+
+          <div class="description-body-content">
+            <p class="desc-main-text">
+              {{ currentProduct().detailedDescription ?? currentProduct().description }}
+            </p>
+
+            <!-- Khối thông tin nốt hương & xuất xứ -->
+            <div class="heritage-notes-card">
+              <h3 class="notes-heading">Nét Đậm Đà Bản Sắc Sài Gòn</h3>
+              <ul class="notes-list">
+                <li class="note-item">
+                  <strong>Nguồn gốc hạt:</strong> Tuyển chọn 100% hạt Robusta Đắk Lắk đậm đà kết hợp hạt Arabica Cầu Đất thơm nồng nàn.
+                </li>
+                <li class="note-item">
+                  <strong>Phương pháp pha chế:</strong> Rót nước sôi qua phin nhôm truyền thống từng giọt chầm chậm, chắt lọc trọn vẹn hương vị tinh túy nhất.
+                </li>
+                <li class="note-item">
+                  <strong>Thưởng thức:</strong> Ngon nhất khi dùng kèm với các loại bánh mì que giòn nóng hoặc bánh ngọt điểm tâm.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- CỘT PHẢI: BÁNH NGON ĐỪNG BỎ LỠ (CROSS-SELL SIDEBAR) -->
+        <aside class="pastry-sidebar-column" aria-label="Gợi ý món ăn kèm">
+          <div class="pastry-widget-box">
+            <!-- Header banner màu xanh -->
+            <div class="pastry-banner-header">
+              <span class="banner-title">Bánh ngon đừng bỏ lỡ 🥪</span>
+            </div>
+
+            <!-- Danh sách các món bánh kèm nút (+) -->
+            <div class="pastry-items-stack">
+              @for (pastry of pastryProducts(); track pastry.id) {
+                <article class="pastry-row-card" (click)="openProductDetail(pastry.id)" role="button" tabindex="0">
+                  <div class="pastry-thumb-wrap">
+                    @if (pastry.badge) {
+                      <span class="pastry-mini-badge">{{ pastry.badge }}</span>
+                    }
+                    <img [src]="pastry.image" [alt]="pastry.name" class="pastry-img" loading="lazy" />
+                  </div>
+
+                  <div class="pastry-info-wrap">
+                    <span class="pastry-brand">{{ pastry.brand }}</span>
+                    <h4 class="pastry-name">{{ pastry.name }}</h4>
+                    <span class="pastry-price">{{ formatPrice(pastry.price) }}</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="btn-pastry-quick-add"
+                    (click)="quickAdd(pastry, $event)"
+                    aria-label="Thêm bánh vào giỏ"
+                  >
+                    <svg lucidePlus class="add-plus-icon"></svg>
+                  </button>
+                </article>
+              }
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <!-- 5. PHẦN DƯỚI: SẢN PHẨM CÙNG LOẠI -->
+      <section class="related-products-section" aria-label="Sản phẩm cùng loại">
+        <div class="section-title-strip">
+          <h2 class="section-heading-text">Sản phẩm cùng loại</h2>
+        </div>
+
+        <div class="related-products-grid">
+          @for (item of relatedProducts(); track item.id) {
+            <article class="related-card-item" (click)="openProductDetail(item.id)" role="button" tabindex="0">
+              <div class="related-thumb-box">
+                @if (item.badge) {
+                  <span class="related-badge-tag">{{ item.badge }}</span>
+                }
+                <img [src]="item.image" [alt]="item.name" class="related-photo" loading="lazy" />
+              </div>
+
+              <div class="related-info-box">
+                <span class="related-brand-name">{{ item.brand }}</span>
+                <h3 class="related-item-title">{{ item.name }}</h3>
+                <div class="related-bottom-line">
+                  <span class="related-item-price">{{ formatPrice(item.price) }}</span>
+                  <button
+                    type="button"
+                    class="btn-related-add"
+                    (click)="quickAdd(item, $event)"
+                    aria-label="Thêm nhanh vào giỏ"
+                  >
+                    <svg lucidePlus class="card-add-svg"></svg>
+                  </button>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      <!-- 6. PHẦN DƯỚI: SẢN PHẨM ĐÃ XEM -->
+      @if (recentlyViewed().length > 0) {
+        <section class="recently-viewed-section" aria-label="Sản phẩm đã xem">
+          <div class="section-title-strip">
+            <h2 class="section-heading-text">Sản phẩm đã xem</h2>
+          </div>
+
+          <div class="recently-viewed-grid">
+            @for (item of recentlyViewed(); track item.id) {
+              <article class="related-card-item" (click)="openProductDetail(item.id)" role="button" tabindex="0">
+                <div class="related-thumb-box">
+                  @if (item.badge) {
+                    <span class="related-badge-tag is-discount">{{ item.badge }}</span>
+                  }
+                  <img [src]="item.image" [alt]="item.name" class="related-photo" loading="lazy" />
+                </div>
+
+                <div class="related-info-box">
+                  <span class="related-brand-name">{{ item.brand }}</span>
+                  <h3 class="related-item-title">{{ item.name }}</h3>
+                  <div class="related-bottom-line">
+                    <span class="related-item-price">{{ formatPrice(item.price) }}</span>
+                    @if (item.originalPrice) {
+                      <span class="related-orig-price">{{ formatPrice(item.originalPrice) }}</span>
+                    }
+                    <button
+                      type="button"
+                      class="btn-related-add"
+                      (click)="quickAdd(item, $event)"
+                      aria-label="Thêm nhanh vào giỏ"
+                    >
+                      <svg lucidePlus class="card-add-svg"></svg>
+                    </button>
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+      }
+
+    </div>
+  </main>
+
+  <!-- 7. CART DRAWER (GIỎ HÀNG TRƯỢT TỪ PHẢI SANG) -->
+  @if (isCartOpen()) {
+    <div class="cart-drawer-backdrop" (click)="toggleCartDrawer()">
+      <aside class="cart-drawer-panel" (click)="$event.stopPropagation()">
+        <div class="drawer-header-row">
+          <div class="drawer-header-title">
+            <svg lucideShoppingCart class="drawer-header-icon"></svg>
+            <h3 class="drawer-heading-text">Giỏ hàng của bạn ({{ cartCount() }})</h3>
+          </div>
+          <button
+            type="button"
+            class="btn-close-drawer"
+            (click)="toggleCartDrawer()"
+            aria-label="Đóng giỏ hàng"
+          >
+            <svg lucideX class="close-drawer-svg"></svg>
+          </button>
+        </div>
+
+        <div class="drawer-items-list">
+          @if (cartItems().length === 0) {
+            <div class="drawer-empty-state">
+              <span class="empty-cup-icon">☕</span>
+              <p>Giỏ hàng hiện chưa có món nào.</p>
+              <button type="button" class="btn-continue-order" (click)="toggleCartDrawer()">Chọn món ngay</button>
+            </div>
+          } @else {
+            @for (item of cartItems(); track $index; let idx = $index) {
+              <div class="cart-item-card">
+                <div class="cart-item-details">
+                  <h4 class="cart-item-name">{{ item.product.name }} (Size {{ item.size }})</h4>
+                  @if (item.sugar || item.ice) {
+                    <p class="cart-item-specs">Đường: {{ item.sugar ?? '100%' }}, Đá: {{ item.ice ?? '100%' }}</p>
+                  }
+                  <div class="cart-item-stepper-inline">
+                    <button
+                      type="button"
+                      class="mini-qty-btn"
+                      (click)="updateCartItemQty(idx, item.quantity - 1)"
+                      aria-label="Giảm"
+                    >
+                      <svg lucideMinus class="mini-qty-svg"></svg>
+                    </button>
+                    <span class="mini-qty-val">{{ item.quantity }}</span>
+                    <button
+                      type="button"
+                      class="mini-qty-btn"
+                      (click)="updateCartItemQty(idx, item.quantity + 1)"
+                      aria-label="Tăng"
+                    >
+                      <svg lucidePlus class="mini-qty-svg"></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="cart-item-price-actions">
+                  <span class="cart-item-subtotal">{{ formatPrice(item.totalPrice) }}</span>
+                  <button
+                    type="button"
+                    class="btn-remove-cart-item"
+                    (click)="removeFromCart(idx)"
+                    aria-label="Xóa món"
+                  >
+                    Xóa
+                  </button>
+                </div>
+              </div>
+            }
+          }
+        </div>
+
+        @if (cartItems().length > 0) {
+          <div class="drawer-footer-row">
+            <div class="total-summary-line">
+              <span>Tạm tính ({{ cartCount() }} món):</span>
+              <strong class="total-summary-val">{{ formatPrice(cartTotal()) }}</strong>
+            </div>
+            <button type="button" class="btn-checkout-flow">
+              <span>Tiến Hành Đặt Hàng &rarr;</span>
+            </button>
+          </div>
+        }
+      </aside>
+    </div>
+  }
+
+  <!-- 8. TOAST NOTIFICATION -->
+  @if (toastMessage(); as msg) {
+    <div class="product-toast-banner" role="status" aria-live="polite">
+      <span>{{ msg }}</span>
+    </div>
+  }
+
+  <!-- 9. FOOTER DÙNG CHUNG -->
+  <app-widget-landing-footer></app-widget-landing-footer>
+</div>

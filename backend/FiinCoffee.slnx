@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="FiinCoffee.Api/FiinCoffee.Api.csproj" />
+  <Project Path="FiinCoffee.Core/FiinCoffee.Core.csproj" />
+  <Project Path="FiinCoffee.Infrastructure/FiinCoffee.Infrastructure.csproj" />
+</Solution>

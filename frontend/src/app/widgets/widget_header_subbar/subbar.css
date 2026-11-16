@@ -18,6 +18,7 @@
 .header-sub-bar {
   background-color: var(--color-do);
   color: var(--color-trang);
+  padding: 0.45rem 1rem;
 }
 
 .sub-bar-container {
@@ -26,7 +27,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.45rem 1rem;
+  padding: 0;
 }
 
 .cat-toggle-btn {
@@ -41,6 +42,7 @@
   font-weight: 700;
   cursor: pointer;
   padding: 0.35rem 0.75rem;
+  margin-left: -0.75rem;
   border-radius: 4px;
   transition: background-color 0.2s;
 }
@@ -82,5 +84,47 @@
 @media (min-width: 768px) {
   .sub-nav-links {
     display: flex;
+  }
+}
+
+/* Wrapper bọc nút danh mục và dropdown */
+.cat-dropdown-wrapper {
+  position: relative;
+}
+
+/* Lớp nền mờ khi mở dropdown */
+.dropdown-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background-color: rgba(28, 21, 18, 0.35);
+  backdrop-filter: blur(2px);
+  animation: fadeInBackdrop 0.2s ease-out;
+}
+
+/* Khung dropdown nổi */
+.dropdown-panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: -0.75rem;
+  z-index: 70;
+  box-shadow: 0 16px 40px rgba(28, 21, 18, 0.25);
+  border-radius: var(--radius-md);
+  animation: dropdownIn 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes fadeInBackdrop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes dropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

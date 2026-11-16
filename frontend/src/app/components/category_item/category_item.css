@@ -4,20 +4,36 @@
   display: block;
 }
 
+.cat-row {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  transition: background-color 0.2s ease;
+}
+
+.cat-row:hover {
+  background-color: rgba(155, 45, 32, 0.06);
+}
+
+.cat-row.is-active {
+  background-color: rgba(155, 45, 32, 0.09);
+}
+
+/* ---------- Phần bấm vào tên ---------- */
 .cat-link {
   position: relative;
+  flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.55rem 1rem;
+  padding: 0.55rem 0.5rem 0.55rem 1rem;
   text-decoration: none;
   color: var(--color-den);
   font-family: var(--font-ui);
   font-size: 0.9rem;
   font-weight: 500;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
+  transition: color 0.2s ease;
 }
 
 /* Thanh nhấn đỏ bên trái: lớn dần từ giữa khi hover hoặc đang chọn */
@@ -34,10 +50,20 @@
   transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.cat-link:hover,
+.cat-row:hover .cat-link,
+.cat-row.is-active .cat-link,
 .cat-link:focus-visible {
-  background-color: rgba(155, 45, 32, 0.06);
   color: var(--color-do);
+}
+
+.cat-row.is-active .cat-link {
+  font-weight: 700;
+}
+
+.cat-row:hover .cat-link::before,
+.cat-row.is-active .cat-link::before,
+.cat-link:focus-visible::before {
+  transform: scaleY(1);
 }
 
 .cat-link:focus-visible {
@@ -45,19 +71,7 @@
   outline-offset: -2px;
 }
 
-.cat-link:hover::before,
-.cat-link:focus-visible::before,
-.cat-link.is-active::before {
-  transform: scaleY(1);
-}
-
-.cat-link.is-active {
-  background-color: rgba(155, 45, 32, 0.09);
-  color: var(--color-do);
-  font-weight: 700;
-}
-
-/* Chip tròn chứa icon, đổi sang đỏ đặc khi hover hoặc đang chọn */
+/* Chip tròn chứa icon */
 .cat-chip {
   flex-shrink: 0;
   display: flex;
@@ -74,15 +88,11 @@
     transform 0.25s ease;
 }
 
-.cat-link:hover .cat-chip,
-.cat-link:focus-visible .cat-chip,
-.cat-link.is-active .cat-chip {
+.cat-row:hover .cat-chip,
+.cat-row.is-active .cat-chip,
+.cat-link:focus-visible .cat-chip {
   background-color: var(--color-do);
   color: var(--color-trang);
-}
-
-.cat-link:hover .cat-chip {
-  transform: scale(1.06);
 }
 
 .cat-name {
@@ -90,21 +100,77 @@
   min-width: 0;
 }
 
-/* Mũi tên ẩn mặc định, hiện và trượt sang phải khi hover */
-.cat-arrow {
+/* ---------- Nút mũi tên mở/thu gọn ---------- */
+.cat-toggle {
   flex-shrink: 0;
-  width: 1rem;
-  height: 1rem;
-  opacity: 0;
-  transform: translateX(-6px);
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin-right: 0.5rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--color-nau-xam);
+  cursor: pointer;
   transition:
-    opacity 0.25s ease,
-    transform 0.25s ease;
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
-.cat-link:hover .cat-arrow,
-.cat-link:focus-visible .cat-arrow,
-.cat-link.is-active .cat-arrow {
-  opacity: 1;
-  transform: translateX(0);
+.cat-toggle:hover,
+.cat-toggle:focus-visible {
+  background-color: rgba(155, 45, 32, 0.12);
+  color: var(--color-do);
+}
+
+.cat-arrow {
+  width: 1.1rem;
+  height: 1.1rem;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cat-toggle[aria-expanded="true"] .cat-arrow {
+  transform: rotate(90deg);
+}
+
+/* ---------- Cấp chi tiết: thụt vào, có đường nối cây ---------- */
+.cat-row.level-1 .cat-link {
+  padding-left: 3.1rem;
+  padding-block: 0.45rem;
+  font-size: 0.85rem;
+}
+
+.cat-row.level-1 .cat-chip {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+/* Đường dọc (thẳng hàng với tâm chip của nhóm cha) */
+.cat-row.level-1::before {
+  content: "";
+  position: absolute;
+  left: 2rem;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: var(--color-vien-co);
+}
+
+.cat-row.level-1.is-last::before {
+  bottom: 50%;
+}
+
+/* Nhánh ngang nối sang chip */
+.cat-row.level-1::after {
+  content: "";
+  position: absolute;
+  left: 2rem;
+  top: 50%;
+  width: 0.75rem;
+  height: 1px;
+  background-color: var(--color-vien-co);
 }

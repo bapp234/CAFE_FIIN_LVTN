@@ -2,15 +2,23 @@ import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   ElementRef,
   inject,
   input,
   output,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { LucideMenu } from '@lucide/angular';
 import gsap from 'gsap';
+import { filter } from 'rxjs';
+import {
+  CategoryItem,
+  DEFAULT_CATEGORY_TREE,
+  WidgetHomeSidebar,
+} from '../widget_home_sidebar/sidebar';
 
 export interface SubbarLink {
   label: string;
@@ -27,20 +35,42 @@ export const DEFAULT_SUBBAR_LINKS: SubbarLink[] = [
 
 @Component({
   selector: 'app-widget-header-subbar',
-  imports: [RouterLink, LucideMenu],
+  imports: [RouterLink, LucideMenu, WidgetHomeSidebar],
   templateUrl: './subbar.html',
   styleUrl: './subbar.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WidgetHeaderSubbar {
+  private readonly router = inject(Router);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly isSidebarOpen = input<boolean>(true);
+  readonly isSidebarOpen = input<boolean>(false);
+  readonly categories = input<CategoryItem[]>(DEFAULT_CATEGORY_TREE);
   readonly links = input<SubbarLink[]>(DEFAULT_SUBBAR_LINKS);
   readonly toggleSidebar = output<void>();
+  readonly closeSidebar = output<void>();
+
+  /** Trang chủ thì dùng sidebar dạng inline/ngăn kéo có sẵn, các trang khác dùng dạng dropdown */
+  protected readonly isHome = computed(() => {
+    const url = this.router.url.split('?')[0].split('#')[0];
+    return url === '' || url === '/' || url === '/home';
+  });
+
+  protected readonly isDropdownMode = computed(() => !this.isHome());
 
   constructor() {
+    this.router.events
+      .pipe(
+        filter((e) => e instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        if (this.isSidebarOpen() && this.isDropdownMode()) {
+          this.closeSidebar.emit();
+        }
+      });
+
     afterNextRender(() => {
       const el = this.host.nativeElement;
       const q = gsap.utils.selector(el);
@@ -72,5 +102,9 @@ export class WidgetHeaderSubbar {
 
   onToggleSidebar(): void {
     this.toggleSidebar.emit();
+  }
+
+  onCloseDropdown(): void {
+    this.closeSidebar.emit();
   }
 }

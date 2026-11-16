@@ -210,7 +210,7 @@ export class PageSearch implements OnInit {
   }
 
   openProductModal(product: ProductItem): void {
-    this.selectedProductForModal.set(product);
+    this.router.navigate(['/san-pham', product.id]);
   }
 
   closeProductModal(): void {
