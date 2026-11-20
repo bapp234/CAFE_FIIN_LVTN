@@ -1,0 +1,21 @@
+<div class="folder-shell">
+  <!-- TẦNG 1: 3 TAB ĐƠN TỪ (ĐƠN XIN TĂNG CA | ĐƠN BÙ CÔNG | ĐƠN NGHỈ PHÉP) -->
+  <div class="folder-tabs-header">
+    <div class="tabs-container">
+      <a routerLink="don-tang-ca" routerLinkActive="active" class="folder-tab-btn">
+        <span class="tab-label">Đơn xin tăng ca</span>
+      </a>
+      <a routerLink="don-bu-cong" routerLinkActive="active" class="folder-tab-btn">
+        <span class="tab-label">Đơn bù công</span>
+      </a>
+      <a routerLink="don-nghi-phep" routerLinkActive="active" class="folder-tab-btn">
+        <span class="tab-label">Đơn nghỉ phép</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- TẦNG 2: NỘI DUNG TỪNG TAB -->
+  <div class="folder-body-outlet">
+    <router-outlet />
+  </div>
+</div>

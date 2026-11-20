@@ -1,311 +1,460 @@
-import { Injectable } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { Page } from '../../../shared/models/page';
 import { PayrollFilterQuery, PayrollPeriod, PayrollSlip } from '../models/payroll';
-import { INITIAL_EMPLOYEES } from './hrm_employee_api';
+import { getCurrentYearMonth } from '../utils/hrm_date_helpers';
+import { HrmEmployeeApi } from './hrm_employee_api';
 
-export const INITIAL_PAYROLL_PERIODS: PayrollPeriod[] = [
-  {
-    id: 'pay-2026-10-all',
-    period: '2026-10',
-    branchId: 'all',
-    branchName: 'Toàn hệ thống',
-    status: 'paid',
-    statusLabel: 'Đã chi trả',
-    totalEmployees: 9,
-    totalNetPay: 78450000,
-    createdAt: '31/10/2026',
-    approvedAt: '03/11/2026',
-    approvedBy: 'Trần Thị Mai',
-    isLocked: true,
-  },
-  {
-    id: 'pay-2026-11-all',
-    period: '2026-11',
-    branchId: 'all',
-    branchName: 'Toàn hệ thống',
-    status: 'draft',
-    statusLabel: 'Bản nháp (Đang tính)',
-    totalEmployees: 10,
-    totalNetPay: 83200000,
-    createdAt: '15/11/2026',
-    isLocked: false,
-  },
-];
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
 
-export const INITIAL_PAYROLL_SLIPS: PayrollSlip[] = [
-  {
-    id: 'slip-01',
-    period: '2026-11',
-    employeeId: 'emp-01',
-    employeeCode: 'NV001',
-    employeeName: 'Đặng Quốc Anh',
-    branchId: 'cn-q1',
-    branchName: 'Fiin Đinh Tiên Hoàng',
-    position: 'Trưởng ca Pha chế',
-    hourlyRate: 35000,
-    standardWorkHours: 132,
-    overtimeHours: 10,
-    basePay: 4620000,
-    overtimePay: 525000, // 10 * 35000 * 1.5
-    allowance: 1200000,  // Phụ cấp trách nhiệm + ăn ca
-    deduction: 0,
-    advance: 1000000,
-    netPay: 5345000,
-    status: 'draft',
-    statusLabel: 'Bản nháp',
-  },
-  {
-    id: 'slip-02',
-    period: '2026-11',
-    employeeId: 'emp-02',
-    employeeCode: 'NV002',
-    employeeName: 'Nguyễn Thị Hương',
-    branchId: 'cn-q1',
-    branchName: 'Fiin Đinh Tiên Hoàng',
-    position: 'Barista Chuyên nghiệp',
-    hourlyRate: 28000,
-    standardWorkHours: 120,
-    overtimeHours: 6,
-    basePay: 3360000,
-    overtimePay: 252000, // 6 * 28000 * 1.5
-    allowance: 800000,
-    deduction: 50000,    // Phạt đi muộn 1 lần
-    advance: 500000,
-    netPay: 3862000,
-    status: 'draft',
-    statusLabel: 'Bản nháp',
-  },
-  {
-    id: 'slip-03',
-    period: '2026-11',
-    employeeId: 'emp-03',
-    employeeCode: 'NV003',
-    employeeName: 'Lê Thanh Tùng',
-    branchId: 'cn-q3',
-    branchName: 'Fiin Hồ Con Rùa',
-    position: 'Quản lý Cửa hàng',
-    hourlyRate: 42000,
-    standardWorkHours: 160,
-    overtimeHours: 12,
-    basePay: 6720000,
-    overtimePay: 756000, // 12 * 42000 * 1.5
-    allowance: 2000000,  // Phụ cấp quản lý + doanh số
-    deduction: 0,
-    advance: 0,
-    netPay: 9476000,
-    status: 'draft',
-    statusLabel: 'Bản nháp',
-  },
-  {
-    id: 'slip-04',
-    period: '2026-11',
-    employeeId: 'emp-04',
-    employeeCode: 'NV004',
-    employeeName: 'Phạm Minh Tuấn',
-    branchId: 'cn-q3',
-    branchName: 'Fiin Hồ Con Rùa',
-    position: 'Nhân viên Thu ngân',
-    hourlyRate: 25000,
-    standardWorkHours: 85,
-    overtimeHours: 2,
-    basePay: 2125000,
-    overtimePay: 75000,
-    allowance: 400000,
-    deduction: 100000, // Đi muộn 2 lần
-    advance: 0,
-    netPay: 2500000,
-    status: 'draft',
-    statusLabel: 'Bản nháp',
-  },
-  {
-    id: 'slip-05',
-    period: '2026-11',
-    employeeId: 'emp-05',
-    employeeCode: 'NV005',
-    employeeName: 'Võ Ngọc Bích',
-    branchId: 'cn-td',
-    branchName: 'Fiin Làng Đại Học',
-    position: 'Barista Part-time',
-    hourlyRate: 26000,
-    standardWorkHours: 70,
-    overtimeHours: 0,
-    basePay: 1820000,
-    overtimePay: 0,
-    allowance: 300000,
-    deduction: 0,
-    advance: 0,
-    netPay: 2120000,
-    status: 'draft',
-    statusLabel: 'Bản nháp',
-  },
-  {
-    id: 'slip-07',
-    period: '2026-11',
-    employeeId: 'emp-07',
-    employeeCode: 'NV007',
-    employeeName: 'Bùi Mỹ Linh',
-    branchId: 'cn-bt',
-    branchName: 'Fiin Phan Xích Long',
-    position: 'Trưởng ca Cửa hàng',
-    hourlyRate: 36000,
-    standardWorkHours: 140,
-    overtimeHours: 8,
-    basePay: 5040000,
-    overtimePay: 432000,
-    allowance: 1500000,
-    deduction: 0,
-    advance: 1000000,
-    netPay: 5972000,
-    status: 'draft',
-    statusLabel: 'Bản nháp',
-  },
-];
+interface PayrollPeriodHeaderDto {
+  periodId: number;
+  periodMonth: string;
+  branchId: number | null;
+  branchName: string | null;
+  status: string;
+  isLocked: boolean;
+  totalEmployees: number;
+  totalNetPay: number;
+  approvedBy: string | null;
+  approvedAt: string | null;
+  createdAt: string;
+}
+
+interface PayrollSlipDetailDto {
+  slipId: number;
+  periodId: number;
+  employeeId: number;
+  employeeCode: string;
+  fullName: string;
+  position: string;
+  branchCode: string | null;
+  branchName: string | null;
+  contractCode: string | null;
+  contractName: string | null;
+  hourlyRate: number;
+  standardHours: number;
+  overtimeHours: number;
+  basePay: number;
+  overtimePay: number;
+  allowance: number;
+  deduction: number;
+  advance: number;
+  netPay: number;
+  status: string;
+}
+
+interface PayrollPeriodDetailsResponse {
+  period: PayrollPeriodHeaderDto | null;
+  slips: PayrollSlipDetailDto[];
+}
+
+export interface PayrollSettingItem {
+  settingId: number;
+  code: string;
+  name: string;
+  category: 'allowance' | 'subsidy' | 'deduction' | 'insurance' | 'tax' | string;
+  calcType: 'percent' | 'fixed_month' | 'fixed_shift' | 'fixed_count' | string;
+  rawValue: number;
+  impact: 'Addition' | 'Deduction' | 'Employer' | string;
+  applyScope: string;
+  note?: string | null;
+  isActive: boolean;
+}
+
+export interface SavePayrollSettingRequest {
+  settingId?: number | null;
+  code: string;
+  name: string;
+  category: string;
+  calcType: string;
+  rawValue: number;
+  impact: string;
+  applyScope: string;
+  note?: string | null;
+  isActive: boolean;
+}
+
+export interface SalaryAdvanceItem {
+  advanceId: number;
+  advanceCode: string;
+  employeeId: number;
+  employeeCode: string;
+  employeeName: string;
+  position: string;
+  branchId: number | null;
+  branchName: string;
+  requestDate: string;
+  period: string;
+  amount: number;
+  paymentMethod: string;
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected' | 'deducted' | 'cancel_pending' | 'cancelled';
+  approvedBy?: string | null;
+  approvedAt?: string | null;
+  decisionNote?: string | null;
+  createdBy?: string | null;
+  createdAt?: string;
+  otMonthlyLimit?: number;
+  otApprovedHours?: number;
+  otPendingHours?: number;
+  otTotalRegisteredHours?: number;
+  otRemainingHours?: number;
+  otWarningStatus?: string;
+  annualLeaveTotalDays?: number;
+  annualLeaveApprovedDays?: number;
+  annualLeavePendingDays?: number;
+  annualLeaveRemainingDays?: number;
+  isAttendanceLocked?: boolean;
+}
+
+export interface EmployeeMonthlyQuotaItem {
+  employeeId: number;
+  employeeCode: string;
+  fullName: string;
+  position: string;
+  branchId: number | null;
+  branchName: string;
+  periodMonth: string;
+  otMonthlyLimit: number;
+  otApprovedHours: number;
+  otPendingHours: number;
+  otTotalRegisteredHours: number;
+  otRemainingHours: number;
+  otWarningStatus: string;
+  annualLeaveTotalDays: number;
+  annualLeaveApprovedDays: number;
+  annualLeavePendingDays: number;
+  annualLeaveTotalRegisteredDays: number;
+  annualLeaveRemainingDays: number;
+  annualLeaveWarningStatus: string;
+  isAttendanceLocked: boolean;
+}
+
+export interface CreateSalaryAdvanceRequest {
+  employeeId: number;
+  periodMonth: string;
+  requestDate: string;
+  amount: number;
+  paymentMethod: string;
+  reason: string;
+  createdBy?: string;
+}
+
+export interface CreateSalaryAdvanceResult {
+  advanceId: number;
+  advanceCode: string;
+}
+
+export interface ProcessSalaryAdvanceRequest {
+  action: 'approve' | 'reject' | 'request_cancel' | 'approve_cancel' | 'reject_cancel';
+  approverName: string;
+  note?: string;
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  draft: 'Bản nháp',
+  approved: 'Đã duyệt (Khóa)',
+  paid: 'Đã chi trả',
+};
 
 @Injectable({ providedIn: 'root' })
 export class HrmPayrollApi {
-  private periods: PayrollPeriod[] = [...INITIAL_PAYROLL_PERIODS];
-  private slips: PayrollSlip[] = [...INITIAL_PAYROLL_SLIPS];
+  private readonly http = inject(HttpClient);
+  private readonly employeeApi = inject(HrmEmployeeApi);
+  private readonly baseUrl = 'http://localhost:5107/api/v1/payroll';
 
-  getPayrollPeriods(): Observable<PayrollPeriod[]> {
-    return of([...this.periods]).pipe(delay(150));
+  private lastLoadedPeriod: PayrollPeriod | null = null;
+  private lastLoadedPeriodMonth = getCurrentYearMonth();
+  private lastLoadedBranchId: string | number = 'all';
+
+  private toNumericBranchId(branchId?: string | number | null): number | null {
+    if (branchId === undefined || branchId === null || branchId === 'all' || branchId === '') {
+      return null;
+    }
+    if (typeof branchId === 'number') {
+      return branchId > 0 ? branchId : null;
+    }
+    const normalized = this.employeeApi.normalizeBranchId(branchId);
+    return normalized && normalized > 0 ? normalized : null;
+  }
+
+  private mapPeriod(dto: PayrollPeriodHeaderDto): PayrollPeriod {
+    const status = (dto.status || 'draft') as PayrollPeriod['status'];
+    return {
+      id: String(dto.periodId),
+      period: dto.periodMonth,
+      branchId: dto.branchId ? String(dto.branchId) : 'all',
+      branchName: dto.branchName || 'Toàn hệ thống',
+      status,
+      statusLabel: STATUS_LABELS[status] || status,
+      totalEmployees: dto.totalEmployees,
+      totalNetPay: dto.totalNetPay,
+      createdAt: dto.createdAt ? new Date(dto.createdAt).toLocaleDateString('vi-VN') : '',
+      approvedAt: dto.approvedAt ? new Date(dto.approvedAt).toLocaleDateString('vi-VN') : undefined,
+      approvedBy: dto.approvedBy || undefined,
+      isLocked: dto.isLocked,
+    };
+  }
+
+  private mapSlip(dto: PayrollSlipDetailDto, periodMonth: string): PayrollSlip {
+    const status = (dto.status || 'draft') as PayrollSlip['status'];
+    return {
+      id: String(dto.slipId),
+      period: periodMonth,
+      employeeId: String(dto.employeeId),
+      employeeCode: dto.employeeCode,
+      employeeName: dto.fullName,
+      branchId: dto.branchCode || '',
+      branchName: dto.branchName || 'Mặc định',
+      position: dto.position || 'Nhân viên',
+      hourlyRate: dto.hourlyRate,
+      standardWorkHours: dto.standardHours,
+      overtimeHours: dto.overtimeHours,
+      basePay: dto.basePay,
+      overtimePay: dto.overtimePay,
+      allowance: dto.allowance,
+      deduction: dto.deduction,
+      advance: dto.advance,
+      netPay: dto.netPay,
+      status,
+      statusLabel: STATUS_LABELS[status] || status,
+    };
+  }
+
+  getLastLoadedPeriod(): PayrollPeriod | null {
+    return this.lastLoadedPeriod;
+  }
+
+  getPayrollPeriods(period?: string, branchId?: string): Observable<PayrollPeriod[]> {
+    const periodMonth = period || this.lastLoadedPeriodMonth;
+    const branchIdNum = this.toNumericBranchId(branchId ?? this.lastLoadedBranchId);
+    let params = new HttpParams();
+    if (branchIdNum !== null) {
+      params = params.set('branchId', branchIdNum.toString());
+    }
+    return this.http
+      .get<ApiResponse<PayrollPeriodDetailsResponse>>(`${this.baseUrl}/${periodMonth}`, { params })
+      .pipe(
+        map((res) => {
+          const p = res.data?.period ? this.mapPeriod(res.data.period) : null;
+          this.lastLoadedPeriod = p;
+          return p ? [p] : [];
+        }),
+        catchError(() => {
+          return this.lastLoadedPeriod ? [ [this.lastLoadedPeriod] ] : [ [] ];
+        })
+      );
   }
 
   getPayrollSlips(query: PayrollFilterQuery): Observable<Page<PayrollSlip>> {
-    let list = this.slips.filter((s) => s.period === query.period);
+    const periodMonth = query.period || getCurrentYearMonth();
+    this.lastLoadedPeriodMonth = periodMonth;
+    this.lastLoadedBranchId = query.branchId || 'all';
 
-    if (query.branchId && query.branchId !== 'all') {
-      list = list.filter((s) => s.branchId === query.branchId);
+    let params = new HttpParams();
+    const branchIdNum = this.toNumericBranchId(query.branchId);
+    if (branchIdNum !== null) {
+      params = params.set('branchId', branchIdNum.toString());
+    }
+    if (query.q && query.q.trim()) {
+      params = params.set('search', query.q.trim());
     }
 
-    if (query.q) {
-      const kw = query.q.trim().toLowerCase();
-      list = list.filter(
-        (s) => s.employeeName.toLowerCase().includes(kw) || s.employeeCode.toLowerCase().includes(kw)
+    return this.http
+      .get<ApiResponse<PayrollPeriodDetailsResponse>>(`${this.baseUrl}/${periodMonth}`, { params })
+      .pipe(
+        map((res) => {
+          const periodDto = res.data?.period ?? null;
+          this.lastLoadedPeriod = periodDto ? this.mapPeriod(periodDto) : null;
+          const allSlips = (res.data?.slips ?? []).map((s) => this.mapSlip(s, periodMonth));
+
+          const page = query.page || 1;
+          const size = query.size || 100;
+          const start = (page - 1) * size;
+          const items = allSlips.slice(start, start + size);
+          const total = allSlips.length;
+          const totalPages = Math.max(1, Math.ceil(total / size));
+
+          return { items, total, page, size, totalPages };
+        }),
+        catchError((err) => {
+          const msg = err.error?.message || err.message || 'Không thể tải dữ liệu bảng lương';
+          return throwError(() => new Error(msg));
+        })
       );
-    }
-
-    const total = list.length;
-    const page = query.page || 1;
-    const size = query.size || 10;
-    const start = (page - 1) * size;
-    const items = list.slice(start, start + size);
-    const totalPages = Math.max(1, Math.ceil(total / size));
-
-    return of({ items, total, page, size, totalPages }).pipe(delay(200));
   }
 
   /**
-   * Tính toán lại bảng lương cho kỳ và chi nhánh
+   * Tính toán lại bảng lương (Backend chặn nếu kỳ công tháng chưa khóa)
    */
   generatePayroll(period: string, branchId: string): Observable<PayrollPeriod> {
-    const existing = this.periods.find((p) => p.period === period && p.branchId === branchId);
-    if (existing && existing.isLocked) {
-      return throwError(() => new Error('Kỳ lương này đã được phê duyệt và khóa, không thể tính lại.'));
-    }
-
-    // Quét nhân viên đang làm việc
-    let activeEmployees = INITIAL_EMPLOYEES.filter((e) => e.status !== 'resigned');
-    if (branchId !== 'all') {
-      activeEmployees = activeEmployees.filter((e) => e.branchId === branchId);
-    }
-
-    const newSlips: PayrollSlip[] = activeEmployees.map((e) => {
-      const stdHours = e.contractType === 'full_time' ? 120 + Math.floor(Math.random() * 30) : 60 + Math.floor(Math.random() * 25);
-      const otHours = Math.floor(Math.random() * 8);
-      const basePay = stdHours * e.hourlyRate;
-      const otPay = otHours * (e.hourlyRate * 1.5);
-      const allowance = e.contractType === 'full_time' ? 1000000 : 300000;
-      const deduction = Math.random() > 0.7 ? 50000 : 0;
-      const advance = Math.random() > 0.6 ? 500000 : 0;
-      const netPay = basePay + otPay + allowance - deduction - advance;
-
-      return {
-        id: `slip-${period}-${e.id}`,
-        period,
-        employeeId: e.id,
-        employeeCode: e.code,
-        employeeName: e.fullName,
-        branchId: e.branchId,
-        branchName: e.branchName,
-        position: e.position,
-        hourlyRate: e.hourlyRate,
-        standardWorkHours: stdHours,
-        overtimeHours: otHours,
-        basePay,
-        overtimePay: otPay,
-        allowance,
-        deduction,
-        advance,
-        netPay,
-        status: 'draft',
-        statusLabel: 'Bản nháp',
-      };
-    });
-
-    // Thay thế slips của period
-    this.slips = this.slips.filter((s) => s.period !== period || (branchId !== 'all' && s.branchId !== branchId));
-    this.slips.push(...newSlips);
-
-    const totalNetPay = newSlips.reduce((sum, s) => sum + s.netPay, 0);
-
-    let periodRec = this.periods.find((p) => p.period === period && p.branchId === branchId);
-    if (!periodRec) {
-      periodRec = {
-        id: `pay-${period}-${branchId}`,
-        period,
-        branchId,
-        branchName: branchId === 'all' ? 'Toàn hệ thống' : newSlips[0]?.branchName || 'Chi nhánh',
-        status: 'draft',
-        statusLabel: 'Bản nháp (Đang tính)',
-        totalEmployees: newSlips.length,
-        totalNetPay,
-        createdAt: new Date().toLocaleDateString('vi-VN'),
-        isLocked: false,
-      };
-      this.periods.unshift(periodRec);
-    } else {
-      periodRec.totalEmployees = newSlips.length;
-      periodRec.totalNetPay = totalNetPay;
-      periodRec.status = 'draft';
-      periodRec.statusLabel = 'Bản nháp (Đã tính lại)';
-    }
-
-    return of(periodRec).pipe(delay(350));
+    const branchIdNum = this.toNumericBranchId(branchId);
+    return this.http
+      .post<ApiResponse<{ periodId: number; periodMonth: string }>>(`${this.baseUrl}/calculate`, {
+        periodMonth: period,
+        branchId: branchIdNum,
+      })
+      .pipe(
+        map((res) => ({
+          id: String(res.data?.periodId ?? ''),
+          period,
+          branchId: branchId || 'all',
+          branchName: branchId === 'all' ? 'Toàn hệ thống' : 'Chi nhánh',
+          status: 'draft' as const,
+          statusLabel: 'Bản nháp',
+          totalEmployees: 0,
+          totalNetPay: 0,
+          createdAt: new Date().toLocaleDateString('vi-VN'),
+          isLocked: false,
+        })),
+        catchError((err) => {
+          const msg = err.error?.message || err.message || 'Không thể tính toán bảng lương';
+          return throwError(() => new Error(msg));
+        })
+      );
   }
 
   /**
-   * Phê duyệt và KHÓA kỳ lương
+   * Phê duyệt và khóa sổ kỳ lương
    */
-  approvePayroll(periodId: string, approverName: string): Observable<PayrollPeriod> {
-    const idx = this.periods.findIndex((p) => p.id === periodId);
-    if (idx === -1) {
-      return throwError(() => new Error('Không tìm thấy kỳ lương.'));
-    }
-
-    this.periods[idx] = {
-      ...this.periods[idx],
-      status: 'approved',
-      statusLabel: 'Đã duyệt (Đã khóa)',
-      approvedAt: new Date().toLocaleDateString('vi-VN'),
-      approvedBy: approverName,
-      isLocked: true,
-    };
-
-    // Cập nhật trạng thái phiếu lương con
-    const p = this.periods[idx];
-    this.slips = this.slips.map((s) =>
-      s.period === p.period && (p.branchId === 'all' || s.branchId === p.branchId)
-        ? { ...s, status: 'approved', statusLabel: 'Đã duyệt' }
-        : s
-    );
-
-    return of(this.periods[idx]).pipe(delay(250));
+  approvePayroll(periodId: string, approverName: string, password?: string): Observable<boolean> {
+    return this.http
+      .post<ApiResponse<unknown>>(`${this.baseUrl}/lock`, {
+        periodId: Number(periodId),
+        approverName,
+        password,
+      })
+      .pipe(
+        map((res) => res.success),
+        catchError((err) => {
+          const msg = err.error?.message || err.message || 'Không thể duyệt và khóa kỳ lương';
+          return throwError(() => new Error(msg));
+        })
+      );
   }
 
-  getPayrollSlipById(id: string): Observable<PayrollSlip | null> {
-    const slip = this.slips.find((s) => s.id === id) ?? null;
-    return of(slip).pipe(delay(150));
+  /**
+   * Mở khóa sổ kỳ lương
+   */
+  unlockPayroll(periodId: string, unlockedBy: string, reason: string, password?: string): Observable<boolean> {
+    return this.http
+      .post<ApiResponse<unknown>>(`${this.baseUrl}/unlock`, {
+        periodId: Number(periodId),
+        unlockedBy,
+        reason,
+        password,
+      })
+      .pipe(
+        map((res) => res.success),
+        catchError((err) => {
+          const msg = err.error?.message || err.message || 'Không thể mở khóa kỳ lương';
+          return throwError(() => new Error(msg));
+        })
+      );
+  }
+
+  getPayrollSettings(category?: string, calcType?: string, search?: string): Observable<PayrollSettingItem[]> {
+    let params = new HttpParams();
+    if (category && category !== 'all') params = params.set('category', category);
+    if (calcType && calcType !== 'all') params = params.set('calcType', calcType);
+    if (search && search.trim()) params = params.set('search', search.trim());
+    return this.http
+      .get<ApiResponse<PayrollSettingItem[]>>(`${this.baseUrl}/settings`, { params })
+      .pipe(
+        map((res) => res.data ?? []),
+        catchError((err) => throwError(() => new Error(err.error?.message || err.message || 'Không thể tải danh mục thiết lập lương')))
+      );
+  }
+
+  savePayrollSetting(req: SavePayrollSettingRequest): Observable<number> {
+    return this.http
+      .post<ApiResponse<number>>(`${this.baseUrl}/settings`, req)
+      .pipe(
+        map((res) => res.data),
+        catchError((err) => throwError(() => new Error(err.error?.message || err.message || 'Không thể lưu khoản mục thiết lập lương')))
+      );
+  }
+
+  deletePayrollSetting(id: number): Observable<boolean> {
+    return this.http
+      .delete<ApiResponse<boolean>>(`${this.baseUrl}/settings/${id}`)
+      .pipe(
+        map((res) => res.success),
+        catchError((err) => throwError(() => new Error(err.error?.message || err.message || 'Không thể xóa khoản mục thiết lập lương')))
+      );
+  }
+
+  getSalaryAdvances(
+    periodMonth?: string,
+    branchId?: string | number | null,
+    status?: string,
+    search?: string
+  ): Observable<SalaryAdvanceItem[]> {
+    let params = new HttpParams();
+    if (periodMonth) params = params.set('periodMonth', periodMonth);
+    const branchIdNum = this.toNumericBranchId(branchId);
+    if (branchIdNum !== null) params = params.set('branchId', branchIdNum.toString());
+    if (status && status !== 'all') params = params.set('status', status);
+    if (search && search.trim()) params = params.set('search', search.trim());
+
+    return this.http
+      .get<ApiResponse<SalaryAdvanceItem[]>>(`${this.baseUrl}/advances`, { params })
+      .pipe(
+        map((res) => res.data ?? []),
+        catchError((err) =>
+          throwError(() => new Error(err.error?.message || err.message || 'Không thể tải danh sách phiếu tạm ứng lương'))
+        )
+      );
+  }
+
+  createSalaryAdvance(req: CreateSalaryAdvanceRequest): Observable<CreateSalaryAdvanceResult> {
+    return this.http
+      .post<ApiResponse<CreateSalaryAdvanceResult>>(`${this.baseUrl}/advances`, req)
+      .pipe(
+        map((res) => res.data),
+        catchError((err) =>
+          throwError(() => new Error(err.error?.message || err.message || 'Không thể tạo phiếu tạm ứng lương'))
+        )
+      );
+  }
+
+  processSalaryAdvance(advanceId: number, req: ProcessSalaryAdvanceRequest): Observable<boolean> {
+    return this.http
+      .post<ApiResponse<boolean>>(`${this.baseUrl}/advances/${advanceId}/process`, req)
+      .pipe(
+        map((res) => res.success),
+        catchError((err) =>
+          throwError(() => new Error(err.error?.message || err.message || 'Không thể xử lý phiếu tạm ứng lương'))
+        )
+      );
+  }
+
+  getEmployeeMonthlyQuotas(
+    periodMonth: string,
+    branchId?: string | number | null,
+    employeeId?: number | null,
+    search?: string
+  ): Observable<EmployeeMonthlyQuotaItem[]> {
+    let params = new HttpParams().set('periodMonth', periodMonth || getCurrentYearMonth());
+    const branchIdNum = this.toNumericBranchId(branchId);
+    if (branchIdNum !== null) params = params.set('branchId', branchIdNum.toString());
+    if (employeeId && employeeId > 0) params = params.set('employeeId', employeeId.toString());
+    if (search && search.trim()) params = params.set('search', search.trim());
+
+    return this.http
+      .get<ApiResponse<EmployeeMonthlyQuotaItem[]>>(`${this.baseUrl}/quotas`, { params })
+      .pipe(
+        map((res) => res.data ?? []),
+        catchError((err) =>
+          throwError(() => new Error(err.error?.message || err.message || 'Không thể tải dữ liệu hạn mức tăng ca & phép năm'))
+        )
+      );
   }
 }

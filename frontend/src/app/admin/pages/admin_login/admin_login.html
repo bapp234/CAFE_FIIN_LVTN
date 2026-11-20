@@ -1,4 +1,4 @@
-<main class="login-wrapper">
+<main class="login-wrapper" [class.is-staff-portal]="isStaffPortal()">
   <div class="login-container">
     <!-- Brand Header -->
     <header class="brand-header">
@@ -6,10 +6,32 @@
         <app-brand-logo></app-brand-logo>
       </div>
       <div class="brand-meta">
-        <span class="brand-sub">Cà Phê Fiin · Hệ Thống Quản Trị</span>
-        <h1 class="brand-title">Cổng Điều Hành Doanh Nghiệp</h1>
+        <span class="brand-sub">
+          @if (isStaffPortal()) {
+            Cà Phê Fiin · Cổng Tự Phục Vụ Nhân Viên
+          } @else {
+            Cà Phê Fiin · Hệ Thống Quản Trị
+          }
+        </span>
+        <h1 class="brand-title">
+          @if (isStaffPortal()) {
+            Cổng Nhân Viên &amp; Trưởng Ca
+          } @else {
+            Cổng Điều Hành Doanh Nghiệp
+          }
+        </h1>
       </div>
     </header>
+
+    <!-- Portal Switch Bar -->
+    <div class="portal-switch-bar">
+      <a routerLink="/admin/login" class="portal-tab" [class.is-active]="!isStaffPortal()">
+        Cổng Quản trị
+      </a>
+      <a routerLink="/staff/login" class="portal-tab" [class.is-active]="isStaffPortal()">
+        Cổng Nhân viên
+      </a>
+    </div>
 
     <!-- Login Card -->
     <section class="card login-card" aria-labelledby="login-title">
@@ -19,8 +41,16 @@
             <svg lucideLock class="icon-chip-svg"></svg>
           </span>
           <div>
-            <h2 id="login-title" class="card-heading">Đăng nhập tài khoản</h2>
-            <p class="card-desc">Nhập thông tin xác thực để truy cập bảng điều khiển.</p>
+            <h2 id="login-title" class="card-heading">
+              {{ isStaffPortal() ? 'Đăng nhập Cổng Nhân viên' : 'Đăng nhập Cổng Quản trị' }}
+            </h2>
+            <p class="card-desc">
+              @if (isStaffPortal()) {
+                Nhập tài khoản nhân sự vận hành để truy cập cổng tự phục vụ.
+              } @else {
+                Nhập thông tin xác thực để truy cập bảng điều khiển quản trị.
+              }
+            </p>
           </div>
         </div>
       </div>
@@ -29,27 +59,34 @@
       @if (errorMessage(); as err) {
         <div class="alert-error" role="alert">
           <svg lucideAlertCircle class="alert-icon" aria-hidden="true"></svg>
-          <span class="alert-text">{{ err }}</span>
+          <div class="alert-content">
+            <span class="alert-text">{{ err }}</span>
+            @if (wrongPortalRedirect()) {
+              <button type="button" class="btn-portal-redirect" (click)="goToSuggestedPortal()">
+                Chuyển sang Cổng Nhân viên →
+              </button>
+            }
+          </div>
         </div>
       }
 
       <!-- Form -->
-      <form class="login-form" (ngSubmit)="onSubmit()" novalidate>
+      <form class="login-form" (ngSubmit)="onSubmit()" novalidate autocomplete="off">
         <div class="form-field">
-          <label for="admin-email" class="form-label">Email quản trị</label>
+          <label for="admin-identifier" class="form-label">Tên đăng nhập / Email / Mã NV</label>
           <div class="input-wrap">
             <span class="input-icon" aria-hidden="true">
               <svg lucideMail class="icon-svg"></svg>
             </span>
             <input
-              id="admin-email"
-              name="admin-email"
-              type="email"
+              id="admin-identifier"
+              name="admin-identifier"
+              type="text"
               class="form-input"
-              placeholder="admin@fiin.vn"
-              [value]="email()"
-              (input)="email.set($any($event.target).value)"
-              autocomplete="username"
+              placeholder="Nhập tên đăng nhập, email hoặc mã NV..."
+              [value]="identifier()"
+              (input)="identifier.set($any($event.target).value)"
+              autocomplete="off"
               required
             />
           </div>
@@ -66,10 +103,10 @@
               name="admin-password"
               [type]="showPassword() ? 'text' : 'password'"
               class="form-input"
-              placeholder="••••••••"
+              placeholder="Nhập mật khẩu..."
               [value]="password()"
               (input)="password.set($any($event.target).value)"
-              autocomplete="current-password"
+              autocomplete="new-password"
               required
             />
             <button
@@ -89,7 +126,7 @@
 
         <div class="security-note">
           <svg lucideShieldCheck class="shield-svg" aria-hidden="true"></svg>
-          <span>Phiên làm việc được bảo mật an toàn với cơ chế <strong>HttpOnly Cookie</strong>.</span>
+          <span>Mỗi tài khoản chỉ duy trì <strong>1 phiên đăng nhập</strong> tại cùng một thời điểm.</span>
         </div>
 
         <button type="submit" class="btn-submit" [disabled]="isLoading()">
@@ -97,50 +134,11 @@
             <span class="spinner" aria-hidden="true"></span>
             <span>Đang xác thực...</span>
           } @else {
-            <span>Đăng nhập hệ thống</span>
+            <span>{{ isStaffPortal() ? 'Đăng nhập Cổng Nhân viên' : 'Đăng nhập Cổng Quản trị' }}</span>
             <svg lucideArrowRight class="btn-arrow" aria-hidden="true"></svg>
           }
         </button>
       </form>
-    </section>
-
-    <!-- Demo Quick Switcher -->
-    <section class="card demo-card" aria-labelledby="demo-title">
-      <div class="demo-header">
-        <div class="demo-title-wrap">
-          <svg lucideSparkles class="sparkle-svg" aria-hidden="true"></svg>
-          <h2 id="demo-title" class="demo-title">Tài khoản kiểm thử nhanh (Demo 1-Click)</h2>
-        </div>
-        <p class="demo-desc">Bấm vào bất kỳ tài khoản nào để thử nghiệm phân quyền theo vai trò:</p>
-      </div>
-
-      <div class="demo-grid">
-        @for (acc of demoAccounts; track acc.id) {
-          <div
-            class="demo-item"
-            [class.demo-item-active]="email() === acc.email"
-            (click)="selectDemoAccount(acc, false)"
-            role="button"
-            tabindex="0"
-            (keydown.enter)="selectDemoAccount(acc, false)"
-            (keydown.space)="selectDemoAccount(acc, false)"
-          >
-            <div class="demo-item-top">
-              <span class="demo-role">{{ acc.role }}</span>
-              <span class="demo-badge">{{ acc.badge }}</span>
-            </div>
-            <div class="demo-email">{{ acc.email }}</div>
-            <p class="demo-note">{{ acc.description }}</p>
-            <button
-              type="button"
-              class="btn-quick-login"
-              (click)="$event.stopPropagation(); selectDemoAccount(acc, true)"
-            >
-              Vào ngay với vai trò này →
-            </button>
-          </div>
-        }
-      </div>
     </section>
 
     <!-- Footer Back Link -->

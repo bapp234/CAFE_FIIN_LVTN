@@ -1,5 +1,9 @@
+using System.Security.Claims;
 using System.Text.Json;
+using FiinCoffee.Core.Common;
+using FiinCoffee.Core.Interfaces;
 using FiinCoffee.Infrastructure;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,12 +43,80 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 4. Đăng ký Hạ tầng dữ liệu Dapper & Bảo mật
+// 4. Cấu hình xác thực phiên HttpOnly Cookie (Admin Portal & Staff Portal)
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "fiin_auth_session";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.ExpireTimeSpan = TimeSpan.FromHours(12);
+        options.SlidingExpiration = true;
+
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnValidatePrincipal = async ctx =>
+            {
+                var userIdStr = ctx.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!int.TryParse(userIdStr, out var userId))
+                {
+                    ctx.RejectPrincipal();
+                    return;
+                }
+
+                var repo = ctx.HttpContext.RequestServices.GetRequiredService<IAuthRepository>();
+                var record = await repo.GetUserByIdAsync(userId);
+                if (record == null || !record.IsActive || string.Equals(record.EmployeeStatus, "resigned", StringComparison.OrdinalIgnoreCase))
+                {
+                    ctx.RejectPrincipal();
+                    return;
+                }
+
+                var tabToken = ctx.HttpContext.Request.Headers["X-Tab-Session-Id"].FirstOrDefault();
+                var cookieToken = ctx.Principal?.FindFirstValue("session_token");
+                var presented = !string.IsNullOrWhiteSpace(tabToken) ? tabToken : cookieToken;
+
+                if (string.IsNullOrWhiteSpace(record.ActiveSessionToken) ||
+                    !string.Equals(record.ActiveSessionToken, presented, StringComparison.Ordinal))
+                {
+                    ctx.HttpContext.Items["SessionReplaced"] = true;
+                    ctx.RejectPrincipal();
+                }
+            },
+            OnRedirectToLogin = ctx =>
+            {
+                ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                ctx.Response.ContentType = "application/json; charset=utf-8";
+                if (ctx.HttpContext.Items.ContainsKey("SessionReplaced"))
+                {
+                    return ctx.Response.WriteAsJsonAsync(new
+                    {
+                        success = false,
+                        code = "SESSION_REPLACED",
+                        message = "Tài khoản đã được đăng nhập ở một cửa sổ khác hoặc phiên đã kết thúc."
+                    });
+                }
+                return ctx.Response.WriteAsJsonAsync(ApiResponse.Fail("Phiên đăng nhập chưa được xác thực hoặc đã hết hạn."));
+            },
+            OnRedirectToAccessDenied = ctx =>
+            {
+                ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                ctx.Response.ContentType = "application/json; charset=utf-8";
+                return ctx.Response.WriteAsJsonAsync(ApiResponse.Fail("Bạn không có quyền thực hiện thao tác này."));
+            },
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+// 5. Đăng ký Hạ tầng dữ liệu Dapper & Bảo mật
 builder.Services.AddInfrastructure();
+builder.Services.AddScoped<FiinCoffee.Api.Services.ILockPasswordVerifier, FiinCoffee.Api.Services.LockPasswordVerifier>();
 
 var app = builder.Build();
 
-// 5. Cấu hình HTTP Pipeline
+// 6. Cấu hình HTTP Pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -54,11 +126,14 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = "swagger";
     });
 }
-
-app.UseHttpsRedirection();
+else
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseCors("AllowAngularClient");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

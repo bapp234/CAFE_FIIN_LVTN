@@ -1,0 +1,167 @@
+<!-- THANH ĐIỀU KHIỂN TRUNG TÂM (SUB-HEADER TOOLBAR) -->
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <!-- Ô CHỌN NHÂN SỰ CẦN XEM BẢNG CÔNG -->
+    <app-admin-combo-box
+      class="combo-employee"
+      [options]="employeeOptions()"
+      [value]="selectedEmployeeCode()"
+      (valueChange)="onEmployeeSelectChange($event)"
+      ariaLabel="Chọn nhân sự"
+    />
+
+    <!-- 2 Ô CHỌN VÙNG LỌC: TỪ NGÀY VÀ ĐẾN NGÀY -->
+    <div class="date-filter-item">
+      <label for="filter-from-date" class="date-filter-label">Từ ngày</label>
+      <input
+        id="filter-from-date"
+        type="date"
+        class="admin-date-input"
+        [value]="fromDate()"
+        (change)="onFromDateChange($event)"
+        aria-label="Chọn ngày bắt đầu lọc"
+      />
+    </div>
+
+    <div class="date-filter-item">
+      <label for="filter-to-date" class="date-filter-label">Đến ngày</label>
+      <input
+        id="filter-to-date"
+        type="date"
+        class="admin-date-input"
+        [value]="toDate()"
+        (change)="onToDateChange($event)"
+        aria-label="Chọn ngày kết thúc lọc"
+      />
+    </div>
+
+    <!-- Ô LỌC TRẠNG THÁI CHẤM CÔNG -->
+    <app-admin-combo-box
+      class="combo-status"
+      [options]="statusFilterOptions"
+      [value]="statusFilter()"
+      (valueChange)="onStatusFilterChange($event)"
+      ariaLabel="Lọc trạng thái chấm công"
+    />
+
+    <app-admin-button title="Làm mới bảng công cá nhân" (clicked)="refreshTab()">
+      <svg lucideRotateCcw [class.animate-spin]="isLoading()" aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+
+  <div class="stripe-right">
+    <app-admin-button
+      title="Xuất bảng công cá nhân ra tệp Excel (.xlsx)"
+      bgColor="var(--color-xanh-dam)"
+      textColor="var(--color-trang)"
+      (clicked)="openExportConfirm()"
+    >
+      <svg lucideDownload aria-hidden="true"></svg>
+      <span>Xuất Excel</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<!-- BẢNG LƯỚI CÔNG CÁ NHÂN DÙNG ADMIN-GRID-TABLE TRÀN VIỀN -->
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng danh sách công cá nhân"
+    [columns]="personalColumns"
+    [rows]="personalRows()"
+    rowKey="dateIso"
+    [loading]="isLoading()"
+    [sortBy]="sortBy()"
+    [sortOrder]="sortOrder()"
+    [clientSort]="true"
+    [showSummary]="true"
+    actionsLabel="Sửa giờ"
+    actionsWidth="6rem"
+    loadingText="Đang tải nhật ký chấm công của nhân sự..."
+    emptyTitle="Không có dữ liệu chấm công trong khoảng thời gian này"
+    emptyDescription="Vui lòng chọn nhân sự hoặc thay đổi khoảng ngày lọc."
+    (sortChange)="onSortChange($event)"
+  >
+    <ng-template #actions let-row>
+      <button
+        type="button"
+        class="row-action-btn"
+        (click)="openAdjustModal(row)"
+        title="Điều chỉnh giờ chấm công thủ công (Audit Trail)"
+      >
+        <svg lucideEdit aria-hidden="true"></svg>
+        <span>Sửa</span>
+      </button>
+    </ng-template>
+  </app-admin-grid-table>
+</div>
+
+<!-- DRAWER ĐIỀU CHỈNH GIỜ CHẤM CÔNG THỦ CÔNG (AUDIT TRAIL) -->
+<app-admin-drawer
+  [isOpen]="isAdjustDrawerOpen()"
+  [title]="'Điều chỉnh giờ chấm công ngày ' + (adjustingRow()?.['displayDate'] || '')"
+  [subtitle]="selectedEmployee() ? selectedEmployee()!.code + ' · ' + selectedEmployee()!.fullName : ''"
+  width="28rem"
+  (close)="isAdjustDrawerOpen.set(false)"
+>
+  <form class="drawer-form" [formGroup]="adjustForm" (ngSubmit)="saveAdjust()">
+    <div class="form-row-2">
+      <app-admin-form-field label="Giờ vào thực tế (HH:mm)" htmlFor="adj-in" [required]="true">
+        <input id="adj-in" type="time" formControlName="checkIn" />
+      </app-admin-form-field>
+
+      <app-admin-form-field label="Giờ ra thực tế (HH:mm)" htmlFor="adj-out" [required]="true">
+        <input id="adj-out" type="time" formControlName="checkOut" />
+      </app-admin-form-field>
+    </div>
+
+    <app-admin-form-field label="Chọn nhanh lý do phổ biến" htmlFor="adj-quick">
+      <select id="adj-quick" formControlName="quickReason" (change)="onQuickReasonSelect($event)">
+        <option value="">-- Chọn lý do mẫu hoặc tự nhập bên dưới --</option>
+        <option value="Máy chấm công mất điện hoặc lỗi kết nối mạng">Máy chấm công mất điện hoặc lỗi kết nối mạng</option>
+        <option value="Mắt đọc vân tay không nhận diện được">Mắt đọc vân tay không nhận diện được</option>
+        <option value="Quên bấm vân tay lúc vào ca (Đã xác minh camera)">Quên bấm vân tay lúc vào ca (Đã xác minh camera)</option>
+        <option value="Đi tăng cường chi nhánh theo điều động Quản lý">Đi tăng cường chi nhánh theo điều động Quản lý</option>
+      </select>
+    </app-admin-form-field>
+
+    <app-admin-form-field
+      label="Lý do chi tiết & Căn cứ kiểm toán"
+      htmlFor="adj-reason"
+      [required]="true"
+    >
+      <textarea
+        id="adj-reason"
+        rows="3"
+        formControlName="reason"
+        placeholder="Nhập lý do điều chỉnh..."
+      ></textarea>
+    </app-admin-form-field>
+  </form>
+
+  <div footer class="drawer-actions">
+    <button
+      type="button"
+      class="btn-cancel-action"
+      (click)="isAdjustDrawerOpen.set(false)"
+    >
+      Hủy bỏ
+    </button>
+    <button type="button" class="btn-save" (click)="saveAdjust()">
+      Lưu giờ chấm công
+    </button>
+  </div>
+</app-admin-drawer>
+
+<!-- MODAL XÁC NHẬN XUẤT EXCEL -->
+<app-admin-modal
+  [isOpen]="isExportConfirmOpen()"
+  title="Xuất bảng công cá nhân"
+  [message]="'Hệ thống sẽ xuất bảng công cá nhân của ' + (selectedEmployee()?.fullName || '') + ' (' + personalRows().length + ' ngày) ra tệp Excel (.xlsx) theo mẫu chuẩn Café Sài Gòn Vintage. Bạn có muốn tiếp tục?'"
+  confirmText="Xuất tệp Excel"
+  cancelText="Hủy bỏ"
+  variant="primary"
+  [isLoading]="isExporting()"
+  (confirm)="confirmExportPersonalExcel()"
+  (cancel)="isExportConfirmOpen.set(false)"
+/>

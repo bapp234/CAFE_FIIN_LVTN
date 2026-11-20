@@ -1,0 +1,72 @@
+/* ==========================================================================
+   ADMIN BUTTON - dùng chung cho toàn bộ trang admin
+   Phong cách Cafe Saigon Vintage (cao 2rem, khớp với toolbar)
+   Màu được điều khiển bằng 4 biến CSS: --ab-color, --ab-bg, --ab-border, --ab-hover-bg
+   (component tự gán từ các input textColor / bgColor / borderColor / hoverBgColor)
+   ========================================================================== */
+
+:host {
+  display: inline-block;
+}
+
+.ab {
+  /* Kiểu mặc định */
+  --ab-color: var(--color-chu-yeu, #433422);
+  --ab-bg: var(--color-trang, #ffffff);
+  --ab-border: var(--color-vien-co, #d8ceba);
+  --ab-hover-bg: #ebe5d8;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  height: 2rem;
+  padding: 0 0.625rem;
+  font-family: var(--font-ui, system-ui, sans-serif);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--ab-color);
+  background-color: var(--ab-bg);
+  border: 1px solid var(--ab-border);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+/* Kiểu dựng sẵn (style inline từ input sẽ ghi đè các biến này) */
+.ab-primary {
+  --ab-color: #ffffff;
+  --ab-bg: var(--color-nau-dam, #3c2619);
+  --ab-border: var(--color-nau-dam, #3c2619);
+  --ab-hover-bg: #56392a;
+}
+
+.ab-danger {
+  --ab-color: #a8321d;
+  --ab-bg: #fbeae5;
+  --ab-border: #f2bdb2;
+  --ab-hover-bg: #f6d6cd;
+}
+
+.ab:hover:not(:disabled) {
+  background-color: var(--ab-hover-bg);
+}
+
+.ab:focus-visible {
+  outline: 2px solid var(--color-nau-dam, #3c2619);
+  outline-offset: 1px;
+}
+
+.ab:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Icon được truyền vào từ bên ngoài: cùng kích thước, màu theo chữ của nút */
+.ab ::ng-deep svg {
+  flex-shrink: 0;
+  width: 0.875rem;
+  height: 0.875rem;
+  color: currentColor;
+}

@@ -5,8 +5,9 @@ import { AdminTopbarComponent } from '../../components/admin_topbar/admin_topbar
 import { AdminNav } from '../../core/admin_nav';
 import { AdminSession } from '../../core/admin_session';
 import { AdminToast } from '../../shared/admin_toast/admin_toast';
+import { AdminBranchService } from '../../shared/services/admin_branch_service';
 
-/** Khung chung của trang admin: thanh trên, menu trái theo module, vùng nội dung */
+/** Khung chung của trang quản trị (/admin) và cổng nhân viên (/staff) */
 @Component({
   selector: 'app-admin-layout',
   imports: [RouterOutlet, AdminTopbarComponent, AdminSidebarComponent, AdminToast],
@@ -17,20 +18,25 @@ import { AdminToast } from '../../shared/admin_toast/admin_toast';
 export class AdminLayout {
   private readonly session = inject(AdminSession);
   private readonly nav = inject(AdminNav);
+  private readonly branchService = inject(AdminBranchService);
 
   protected readonly modules = this.session.allowedModules;
   protected readonly user = this.session.user;
   protected readonly activeModule = this.nav.activeModule;
+  protected readonly isStaffPortal = this.session.isStaffPortal;
 
   /** Ngăn kéo menu trên màn hình nhỏ */
   protected readonly isMenuOpen = signal(false);
 
   constructor() {
-    // Rời module (ví dụ sang trang báo không có quyền) thì đóng ngăn kéo
     effect(() => {
       if (!this.activeModule()) {
         this.isMenuOpen.set(false);
       }
+    });
+
+    effect(() => {
+      this.branchService.syncWithUser(this.session.user());
     });
   }
 

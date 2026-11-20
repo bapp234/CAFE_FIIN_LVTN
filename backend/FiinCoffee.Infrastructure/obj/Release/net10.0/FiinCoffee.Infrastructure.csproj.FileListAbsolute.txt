@@ -1,0 +1,16 @@
+e:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Infrastructure\bin\Release\net10.0\FiinCoffee.Infrastructure.deps.json
+e:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Infrastructure\bin\Release\net10.0\FiinCoffee.Infrastructure.dll
+e:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Infrastructure\bin\Release\net10.0\FiinCoffee.Infrastructure.pdb
+e:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Infrastructure\bin\Release\net10.0\FiinCoffee.Core.dll
+e:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Infrastructure\bin\Release\net10.0\FiinCoffee.Core.pdb
+e:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Infrastructure\obj\Release\net10.0\FiinCoffee.Infrastructure.csproj.AssemblyReference.cache
+e:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Infrastructure\obj\Release\net10.0\FiinCoffee.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+e:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Infrastructure\obj\Release\net10.0\FiinCoffee.Infrastructure.AssemblyInfoInputs.cache
+e:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Infrastructure\obj\Release\net10.0\FiinCoffee.Infrastructure.AssemblyInfo.cs
+e:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Infrastructure\obj\Release\net10.0\FiinCoffee.Infrastructure.csproj.CoreCompileInputs.cache
+e:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Infrastructure\obj\Release\net10.0\FiinCoffee.Infrastructure.sourcelink.json
+e:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Infrastructure\obj\Release\net10.0\FiinCoff.F157C4ED.Up2Date
+e:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Infrastructure\obj\Release\net10.0\FiinCoffee.Infrastructure.dll
+e:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Infrastructure\obj\Release\net10.0\refint\FiinCoffee.Infrastructure.dll
+e:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Infrastructure\obj\Release\net10.0\FiinCoffee.Infrastructure.pdb
+e:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Infrastructure\obj\Release\net10.0\ref\FiinCoffee.Infrastructure.dll

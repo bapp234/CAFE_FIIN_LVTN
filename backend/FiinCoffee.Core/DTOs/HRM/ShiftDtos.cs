@@ -54,3 +54,72 @@ public class WeeklyScheduleMatrixRowDto
     public int TotalShiftsScheduled { get; set; }
     public decimal TotalScheduledHours { get; set; }
 }
+
+/// <summary>
+/// DTO trạng thái khóa lịch ca tuần của chi nhánh
+/// </summary>
+public class ShiftScheduleWeekStatusDto
+{
+    public int WeekId { get; set; }
+    public int BranchId { get; set; }
+    public int Year { get; set; }
+    public int WeekNumber { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+    public bool IsLocked { get; set; }
+    public string? LockedBy { get; set; }
+    public DateTime? LockedAt { get; set; }
+}
+
+/// <summary>
+/// Yêu cầu khóa lịch ca làm việc tuần
+/// </summary>
+public class LockShiftScheduleRequest
+{
+    public int BranchId { get; set; }
+    public DateTime StartDate { get; set; }
+    public string? LockedBy { get; set; }
+    public string? Password { get; set; }
+}
+
+/// <summary>
+/// Yêu cầu mở khóa lịch ca làm việc tuần
+/// </summary>
+public class UnlockShiftScheduleRequest
+{
+    public int BranchId { get; set; }
+    public DateTime StartDate { get; set; }
+    public string? Password { get; set; }
+    public string? UnlockReason { get; set; }
+    public string? UnlockedBy { get; set; }
+}
+
+public class ShiftAssignmentDto
+{
+    public int Id { get; set; }
+    public int EmployeeId { get; set; }
+    public string EmployeeCode { get; set; } = string.Empty;
+    public string EmployeeName { get; set; } = string.Empty;
+    public int BranchId { get; set; }
+    public string Date { get; set; } = string.Empty;
+    public int ShiftId { get; set; }
+    public string ShiftCode { get; set; } = string.Empty;
+    public string ShiftName { get; set; } = string.Empty;
+    public string StartTime { get; set; } = string.Empty;
+    public string EndTime { get; set; } = string.Empty;
+    public string RegisteredBy { get; set; } = "manager";
+    public string Status { get; set; } = "scheduled";
+    public string? Note { get; set; }
+}
+
+public class SaveShiftAssignmentRequest
+{
+    public int EmployeeId { get; set; }
+    public DateTime WorkDate { get; set; }
+    public string? ShiftCode { get; set; }
+    public int? TemplateId { get; set; }
+    public int? BranchId { get; set; }
+    public string? RegisteredBy { get; set; } = "manager";
+    public string? Status { get; set; } = "scheduled";
+    public string? Note { get; set; }
+}

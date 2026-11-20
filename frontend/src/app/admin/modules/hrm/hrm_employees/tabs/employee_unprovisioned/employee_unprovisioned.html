@@ -1,0 +1,240 @@
+<!-- THANH ĐIỀU KHIỂN TRUNG TÂM (SUB-HEADER TOOLBAR) -->
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        [placeholder]="'Tìm theo mã, tên, chức vụ...'"
+        [ariaLabel]="'Tìm kiếm nhân sự chưa có tài khoản'"
+        (searched)="onSearchChange($event)"
+      />
+    </div>
+
+    <app-admin-combo-box
+      class="combo-branch"
+      [options]="branchOptions()"
+      [value]="branchService.selectedBranchId()"
+      (valueChange)="onBranchFilterChange($event)"
+      ariaLabel="Chọn chi nhánh"
+    />
+
+    <app-admin-combo-box
+      class="combo-position"
+      [options]="positionOptions()"
+      [value]="positionFilter()"
+      (valueChange)="onPositionFilterChange($event)"
+      ariaLabel="Lọc chức vụ"
+    />
+
+    <app-admin-button
+      title="Làm mới lại dữ liệu danh sách"
+      (clicked)="loadData()"
+    >
+      <svg lucideRotateCcw [class.animate-spin]="isLoading()" aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+
+    <button
+      type="button"
+      class="btn-select-all-toolbar"
+      [title]="isAllSelected() ? 'Bỏ chọn tất cả nhân sự' : 'Chọn tất cả nhân sự đang hiển thị'"
+      (click)="toggleSelectAll()"
+    >
+      {{ isAllSelected() ? 'Bỏ chọn tất cả' : 'Chọn tất cả' }}
+    </button>
+  </div>
+
+  <div class="stripe-right">
+    <app-admin-button
+      title="Tải xuống danh sách nhân sự chưa cấp tài khoản (.xlsx)"
+      bgColor="var(--color-xanh-dam)"
+      textColor="var(--color-trang)"
+      (clicked)="openExportConfirm()"
+    >
+      <svg lucideDownload aria-hidden="true"></svg>
+      <span>Xuất Excel</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<!-- BẢNG LƯỚI NHÂN SỰ CHƯA CẤP TÀI KHOẢN QUA ADMIN GRID TABLE -->
+<div class="unprovisioned-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng danh sách tài khoản chưa thiết lập"
+    [columns]="columns()"
+    [rows]="tableRows()"
+    rowKey="employeeId"
+    [loading]="isLoading()"
+    [loadingMore]="isLoadingMore()"
+    [hasMore]="hasMore()"
+    loadingMoreText="Đang tải thêm 50 nhân sự chưa thiết lập tiếp theo..."
+    [selectedKeys]="selectedEmployeeIds()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [clientSort]="true"
+    loadingText="Đang nạp danh sách tài khoản chưa thiết lập từ hệ thống..."
+    emptyTitle="Toàn bộ nhân sự đã có tài khoản!"
+    emptyDescription="Tất cả nhân viên trong hệ thống đã được cấp tài khoản và phân quyền đăng nhập đầy đủ."
+    [cellTemplates]="{
+      username: usernameTpl,
+      password: passwordTpl,
+      actions: actionsTpl
+    }"
+    (rowClick)="onGridRowClick($event)"
+    (scrolledToBottom)="onScrollToBottom()"
+  />
+
+  <!-- THANH HÀNH ĐỘNG NỔI Ở ĐÁY BẢNG (FLOATING ACTION BAR) -->
+  @if (selectedEmployeeIds().length > 0 || hasUnsavedChanges()) {
+    <div class="floating-action-bar" role="region" aria-label="Thanh thao tác nhanh tài khoản">
+      <div class="fab-left">
+        @if (selectedEmployeeIds().length > 0) {
+          <span class="fab-count-text">
+            Đã chọn <b>{{ selectedEmployeeIds().length }}</b> nhân sự
+          </span>
+        }
+        @if (hasUnsavedChanges()) {
+          <span class="fab-pill fab-pill-dirty">
+            Đã chỉnh sửa <b>{{ modifiedEmployeeIds().length }}</b> dòng
+          </span>
+        }
+      </div>
+
+      <div class="fab-right">
+        @if (hasUnsavedChanges()) {
+          <app-admin-button
+            title="Hủy bỏ các chỉnh sửa trên bảng và khôi phục mặc định"
+            (clicked)="revertChanges()"
+          >
+            <svg lucideRotateCcw aria-hidden="true"></svg>
+            <span>Hoàn tác ({{ modifiedEmployeeIds().length }})</span>
+          </app-admin-button>
+
+          <app-admin-button
+            title="Cấp tài khoản cho các nhân sự vừa chỉnh sửa trên bảng"
+            [bgColor]="selectedEmployeeIds().length > 0 ? 'var(--color-be-card)' : 'var(--color-xanh-dam)'"
+            [textColor]="selectedEmployeeIds().length > 0 ? 'var(--color-nau-dam)' : 'var(--color-trang)'"
+            [disabled]="isSavingChanges()"
+            (clicked)="saveAllChanges()"
+          >
+            <svg lucideCheck [class.animate-spin]="isSavingChanges()" aria-hidden="true"></svg>
+            <span>{{ isSavingChanges() ? 'Đang lưu...' : 'Lưu & Cấp (' + modifiedEmployeeIds().length + ')' }}</span>
+          </app-admin-button>
+        }
+
+        @if (selectedEmployeeIds().length > 0) {
+          @if (!isAllSelected()) {
+            <button type="button" class="btn-fab-secondary" (click)="toggleSelectAll()">
+              Chọn tất cả ({{ filteredEmployees().length }})
+            </button>
+          }
+
+          <button type="button" class="btn-clear-selection" (click)="clearSelection()">
+            Bỏ chọn
+          </button>
+
+          <app-admin-button
+            title="Cấp tài khoản hàng loạt cho các nhân sự đã tích chọn"
+            bgColor="var(--color-xanh-dam)"
+            textColor="var(--color-trang)"
+            (clicked)="openBulkCreateModal()"
+          >
+            <svg lucideUserPlus aria-hidden="true"></svg>
+            <span>Cấp tài khoản đã chọn ({{ selectedEmployeeIds().length }})</span>
+          </app-admin-button>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+<!-- TEMPLATES Ô NHẬP LIỆU TINH GỌN (GHOST INPUTS) -->
+<ng-template #usernameTpl let-row="row">
+  @let draft = getDraft(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <input
+      type="text"
+      class="cell-ghost-input"
+      [class.input-modified]="isUsernameModified(row)"
+      [value]="draft.username"
+      (input)="updateUsername(row.employeeId, $any($event.target).value)"
+      placeholder="nv_..."
+      title="Nhấp để sửa tên tài khoản"
+    />
+  </div>
+</ng-template>
+
+<ng-template #passwordTpl let-row="row">
+  @let draft = getDraft(row);
+  <div class="cell-excel-wrap cell-password-wrap" (click)="$event.stopPropagation()">
+    <input
+      [type]="draft.showPassword ? 'text' : 'password'"
+      class="cell-ghost-input cell-password-input"
+      [class.input-modified]="isPasswordModified(row)"
+      [value]="draft.password"
+      (input)="updatePassword(row.employeeId, $any($event.target).value)"
+      placeholder="Mật khẩu..."
+      title="Nhấp để sửa mật khẩu"
+    />
+    <button
+      type="button"
+      class="btn-cell-eye"
+      [title]="draft.showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
+      (click)="toggleShowPassword(row.employeeId)"
+    >
+      @if (draft.showPassword) {
+        <svg lucideEyeOff class="w-3.5 h-3.5" aria-hidden="true"></svg>
+      } @else {
+        <svg lucideEye class="w-3.5 h-3.5" aria-hidden="true"></svg>
+      }
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #actionsTpl let-row="row">
+  @let draft = getDraft(row);
+  <div class="cell-actions-wrap" (click)="$event.stopPropagation()">
+    <button
+      type="button"
+      class="btn-row-provision"
+      [disabled]="draft.isSubmitting"
+      title="Cấp tài khoản ngay cho nhân sự này"
+      (click)="submitInlineAccount(row._raw || row)"
+    >
+      @if (draft.isSubmitting) {
+        <svg lucideRotateCcw class="w-3.5 h-3.5 animate-spin" aria-hidden="true"></svg>
+        <span>Đang cấp</span>
+      } @else {
+        <svg lucideCheck class="w-3.5 h-3.5" aria-hidden="true"></svg>
+        <span>Cấp</span>
+      }
+    </button>
+  </div>
+</ng-template>
+
+<!-- ========================================================================= -->
+<!-- MODAL: XÁC NHẬN CẤP TÀI KHOẢN CHO CÁC NHÂN SỰ ĐÃ CHỌN -->
+<!-- ========================================================================= -->
+<app-admin-modal
+  [isOpen]="isBulkModalOpen()"
+  title="Xác nhận cấp tài khoản"
+  [message]="'Bạn có chắc chắn muốn cấp tài khoản cho ' + selectedEmployeeIds().length + ' nhân sự đã chọn theo đúng tên tài khoản và mật khẩu đang thiết lập trên bảng không?'"
+  confirmText="Xác nhận cấp tài khoản"
+  cancelText="Hủy bỏ"
+  variant="primary"
+  [isLoading]="isBulkProcessing()"
+  (confirm)="confirmBulkCreate()"
+  (cancel)="isBulkModalOpen.set(false)"
+/>
+
+<!-- MODAL XÁC NHẬN XUẤT EXCEL -->
+<app-admin-modal
+  [isOpen]="isExportConfirmOpen()"
+  title="Xuất danh sách tài khoản chưa thiết lập"
+  [message]="'Hệ thống sẽ xuất ' + filteredEmployees().length + ' nhân sự chưa thiết lập tài khoản ra tệp Excel (.xlsx) theo mẫu chuẩn Café Sài Gòn Vintage. Bạn có muốn tiếp tục?'"
+  confirmText="Xuất tệp Excel"
+  cancelText="Hủy bỏ"
+  variant="primary"
+  [isLoading]="isExporting()"
+  (confirm)="confirmExportUnprovisionedExcel()"
+  (cancel)="isExportConfirmOpen.set(false)"
+/>

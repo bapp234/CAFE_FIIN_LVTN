@@ -1,0 +1,711 @@
+@reference "../../../../../../../styles.css";
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+/* ==========================================================================
+   THANH ĐIỀU KHIỂN TRUNG TÂM (SUB-HEADER TOOLBAR)
+   ========================================================================== */
+.sub-header-stripe {
+  background-color: var(--color-be-card);
+  border-bottom: 1px solid var(--color-vien-co);
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-height: 3.25rem;
+}
+
+@media (min-width: 1024px) {
+  .sub-header-stripe {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    flex-wrap: nowrap;
+  }
+}
+
+.stripe-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0.375rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.filter-controls-group,
+.week-nav-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+.stripe-right {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0.375rem;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.selection-pill-group,
+.lock-action-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1140px) {
+  .stripe-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .stripe-right .selection-pill-group {
+    margin-right: auto;
+  }
+}
+
+.combo-branch {
+  --combo-width: 7.75rem;
+  width: 7.75rem;
+  flex-shrink: 0;
+}
+
+.sub-search-wrap {
+  width: 8rem;
+  flex-shrink: 0;
+}
+
+.month-picker-compact {
+  max-width: 8.75rem;
+  flex-shrink: 0;
+}
+
+.combo-week {
+  --combo-width: 8.75rem;
+  width: 8.75rem;
+  flex-shrink: 0;
+}
+
+
+.month-picker-compact {
+  height: 2.125rem;
+  padding: 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-nau-dam, #3c2619);
+  background-color: var(--color-trang, #ffffff);
+  border: 1px solid var(--color-vien-co, #d8ceba);
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.month-picker-compact:focus {
+  border-color: var(--color-xanh-dam, #2f5d58);
+}
+
+.btn-icon-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.125rem;
+  height: 2.125rem;
+  background-color: var(--color-trang, #ffffff);
+  border: 1px solid var(--color-vien-co, #d8ceba);
+  border-radius: 4px;
+  color: var(--color-nau-dam, #3c2619);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.btn-icon-refresh:hover {
+  background-color: var(--color-be, #ede7de);
+  border-color: var(--color-nau-xam, #78716c);
+}
+
+.combo-bulk-day {
+  --combo-width: 10.5rem;
+}
+
+.combo-bulk-shift {
+  --combo-width: 14rem;
+}
+
+.combo-week {
+  --combo-width: 10.5rem;
+  width: 10.5rem;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   CỤM ĐIỀU KHIỂN CHUYỂN TUẦN TỚI / LÙI (WEEK STEPPER)
+   ========================================================================== */
+.week-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.btn-week-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--color-vien-co);
+  background-color: var(--color-trang);
+  color: var(--color-nau-dam);
+  border-radius: var(--radius-sm, 3px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.btn-week-nav:hover {
+  background-color: var(--color-be);
+  border-color: var(--color-xanh-dam);
+  color: var(--color-xanh-dam);
+}
+
+.btn-week-nav:active {
+  transform: scale(0.96);
+}
+
+.selection-count-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: 2rem;
+  padding: 0 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-nau-dam);
+  background-color: var(--color-be);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm, 3px);
+  white-space: nowrap;
+}
+
+.selection-count-badge b {
+  font-weight: 700;
+  color: var(--color-xanh-dam);
+}
+
+/* ==========================================================================
+   VÙNG DỮ LIỆU BẢNG LƯỚI TRÀN VIỀN (ADMIN GRID TABLE)
+   ========================================================================== */
+.employee-grid-container {
+  flex: 1;
+  min-height: 0;
+  padding: 0;
+  background-color: var(--color-trang);
+  display: flex;
+  flex-direction: column;
+}
+
+.employee-grid-container app-admin-grid-table {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.employee-grid-container ::ng-deep .gt-card {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.employee-grid-container ::ng-deep .gt-viewport {
+  flex: 1;
+  min-height: 0;
+  max-height: none !important;
+  overflow: auto;
+}
+
+/* ==========================================================================
+   NÚT THAO TÁC TRONG CỘT ACTIONS & DRAWER XẾP CA
+   ========================================================================== */
+.row-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-xanh-dam);
+  background-color: var(--color-be-card);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm, 2px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.row-action-btn:hover {
+  background-color: var(--color-xanh-dam);
+  color: var(--color-trang);
+  border-color: var(--color-xanh-dam);
+}
+
+.btn-cancel-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  padding: 0 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm, 3px);
+  border: 1px solid var(--color-vien-co);
+  background-color: var(--color-trang);
+  color: var(--color-nau-xam);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.btn-cancel-action:hover {
+  border-color: var(--color-do) !important;
+  color: var(--color-do) !important;
+  background-color: color-mix(in srgb, var(--color-do) 8%, transparent) !important;
+}
+
+.day-assign-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.day-assign-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  background-color: var(--color-be-card);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm, 2px);
+}
+
+.day-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.day-title {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-nau-dam);
+}
+
+.day-date {
+  font-size: 0.6875rem;
+  color: var(--color-nau-xam);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.day-select {
+  min-width: 13.5rem;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8125rem;
+  color: var(--color-den);
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: 3px;
+}
+
+/* ==========================================================================
+   NÚT BẤM CHỌN CA TRỰC TIẾP TRONG TỪNG Ô THỨ / NGÀY CỦA BẢNG
+   ========================================================================== */
+.shift-cell-badge-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3125rem;
+  width: 100%;
+  min-height: 1.875rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.shift-cell-badge-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  filter: brightness(0.96);
+}
+
+.shift-clock-hint {
+  width: 0.75rem;
+  height: 0.75rem;
+  opacity: 0.5;
+  flex-shrink: 0;
+  transition: opacity 0.15s ease;
+}
+
+.shift-cell-badge-btn:hover .shift-clock-hint {
+  opacity: 1;
+}
+
+/* Color Variants */
+.shift-btn-emerald {
+  background-color: #E6F4EA;
+  color: #137333;
+  border-color: #CEEAD6;
+}
+
+.shift-btn-amber {
+  background-color: #FEF7E0;
+  color: #B06000;
+  border-color: #FEEFC3;
+}
+
+.shift-btn-indigo {
+  background-color: #E8EAF6;
+  color: #283593;
+  border-color: #C5CAE9;
+}
+
+.shift-btn-sky {
+  background-color: #E1F5FE;
+  color: #0277BD;
+  border-color: #B3E5FC;
+}
+
+.shift-btn-rose {
+  background-color: #FCE8E6;
+  color: #C5221F;
+  border-color: #FAD2CF;
+}
+
+.shift-btn-neutral {
+  background-color: #F1F3F4;
+  color: #5F6368;
+  border-color: #DADCE0;
+}
+
+/* ==========================================================================
+   MODAL CHỌN CA LÀM VIỆC NHANH CHO Ô NGÀY
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+}
+
+.modal-wrapper {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1001;
+}
+
+.shift-picker-card {
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-md, 6px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 32rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: popIn 0.15s ease-out;
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.picker-header {
+  padding: 1rem 1.25rem;
+  background-color: var(--color-be-card);
+  border-bottom: 1px solid var(--color-vien-co);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.picker-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.picker-icon-wrap {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background-color: var(--color-be);
+  border: 1px solid var(--color-vien-co);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.picker-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-nau-dam);
+  margin: 0;
+}
+
+.picker-subtitle {
+  font-size: 0.75rem;
+  color: var(--color-nau-xam);
+  margin: 0.125rem 0 0 0;
+}
+
+.picker-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--color-nau-xam);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.picker-close-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--color-nau-dam);
+}
+
+.picker-target-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background-color: #F5EFEB;
+  border-bottom: 1px solid var(--color-vien-co);
+  font-size: 0.8125rem;
+  color: var(--color-nau-dam);
+}
+
+.picker-options-list {
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  max-height: 24rem;
+  overflow-y: auto;
+}
+
+.picker-section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-nau-xam);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.125rem;
+}
+
+.shift-option-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: 4px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.shift-option-card:hover {
+  border-color: var(--color-xanh-dam);
+  background-color: #FAF8F5;
+  transform: translateX(2px);
+}
+
+.shift-option-card.is-active {
+  border-color: var(--color-xanh-dam);
+  background-color: #F0F7F4;
+  box-shadow: 0 0 0 1px var(--color-xanh-dam);
+}
+
+.option-color-bar {
+  width: 4px;
+  align-self: stretch;
+  border-radius: 2px;
+}
+
+.bar-emerald {
+  background-color: #10B981;
+}
+
+.bar-amber {
+  background-color: #F59E0B;
+}
+
+.bar-indigo {
+  background-color: #6366F1;
+}
+
+.bar-sky {
+  background-color: #0EA5E9;
+}
+
+.bar-gray {
+  background-color: #9CA3AF;
+}
+
+.option-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.option-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.option-code {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-nau-dam);
+}
+
+.option-name {
+  font-size: 0.8125rem;
+  color: var(--color-den);
+}
+
+.option-current-tag {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  background-color: #D1FAE5;
+  color: #065F46;
+}
+
+.option-time-row {
+  font-size: 0.75rem;
+  color: var(--color-nau-xam);
+  margin-top: 0.125rem;
+  display: flex;
+  gap: 0.375rem;
+}
+
+.option-time {
+  font-weight: 600;
+}
+
+.picker-footer {
+  padding: 0.75rem 1.25rem;
+  background-color: var(--color-be-card);
+  border-top: 1px solid var(--color-vien-co);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-cancel-picker {
+  padding: 0.375rem 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 3px;
+  border: 1px solid var(--color-vien-co);
+  background-color: var(--color-trang);
+  color: var(--color-nau-dam);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-cancel-picker:hover {
+  background-color: var(--color-be);
+  border-color: var(--color-nau-xam);
+}
+
+/* ==========================================================================
+   BADGE TRẠNG THÁI KHÓA CA TUẦN (CẤP 1 TRONG 3 CẤP KHÓA)
+   ========================================================================== */
+.week-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 2rem;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-sm, 3px);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.week-status-badge .badge-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+}
+
+.badge-open {
+  background-color: #E6F4EA;
+  color: #137333;
+  border: 1px solid #A8DAB5;
+}
+
+.badge-locked {
+  background-color: #FCE8E6;
+  color: #C5221F;
+  border: 1px solid #F6AEA9;
+}
+
+.shift-cell-badge-btn.is-locked {
+  cursor: not-allowed !important;
+  opacity: 0.85;
+}
+
+.shift-cell-badge-btn.is-locked:hover {
+  transform: none !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  filter: none !important;
+}

@@ -10,3 +10,15 @@ E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Core\obj\Debug\net10.0\FiinCo
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Core\obj\Debug\net10.0\refint\FiinCoffee.Core.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Core\obj\Debug\net10.0\FiinCoffee.Core.pdb
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Core\obj\Debug\net10.0\ref\FiinCoffee.Core.dll
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api_check\FiinCoffee.Core.deps.json
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api_check\FiinCoffee.Core.dll
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api_check\FiinCoffee.Core.pdb
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api-build-check\FiinCoffee.Core.deps.json
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api-build-check\FiinCoffee.Core.dll
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api-build-check\FiinCoffee.Core.pdb
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\FiinCoffee.Core.deps.json
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\FiinCoffee.Core.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\FiinCoffee.Core.pdb
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\FiinCoffee.Core.deps.json
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\FiinCoffee.Core.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\FiinCoffee.Core.pdb

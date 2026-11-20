@@ -20,6 +20,9 @@ public class HierarchyEmployeeDto
     public string? PhoneNumber { get; set; }
     public string? Email { get; set; }
     public string? CitizenId { get; set; }
+    public string? BankName { get; set; }
+    public string? BankAccountNumber { get; set; }
+    public string? BankAccountName { get; set; }
     public DateTime HireDate { get; set; }
     public string? AvatarInitial { get; set; }
     public int TotalCount { get; set; }

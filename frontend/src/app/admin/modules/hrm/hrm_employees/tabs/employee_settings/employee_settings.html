@@ -1,0 +1,291 @@
+<!-- THANH ĐIỀU KHIỂN TRUNG TÂM (SUB-HEADER TOOLBAR) -->
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        [placeholder]="'Tìm theo mã, tên, chức danh, vai trò...'"
+        [ariaLabel]="'Tìm kiếm phân quyền & cấp duyệt'"
+        (searched)="onSearchChange($event)"
+      />
+    </div>
+
+    <!-- Lọc chi nhánh -->
+    <app-admin-combo-box
+      class="combo-branch"
+      [options]="branchOptions()"
+      [value]="branchService.selectedBranchId()"
+      (valueChange)="onBranchFilterChange($event)"
+      ariaLabel="Chọn chi nhánh"
+    />
+
+    <!-- Lọc cấp duyệt -->
+    <app-admin-combo-box
+      class="combo-level"
+      [options]="approvalLevelFilterOptions"
+      [value]="levelFilter()"
+      (valueChange)="onLevelFilterChange($event)"
+      ariaLabel="Lọc cấp duyệt"
+    />
+
+    <!-- Nút làm mới -->
+    <app-admin-button
+      title="Làm mới lại dữ liệu ma trận phân quyền"
+      (clicked)="refreshTab()"
+    >
+      <svg lucideRotateCcw [class.spin-icon]="isLoading()" aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+
+    <button
+      type="button"
+      class="hrm-fab-btn"
+      [title]="isAllSelected() ? 'Bỏ chọn tất cả nhân sự' : 'Chọn tất cả nhân sự đang hiển thị'"
+      (click)="toggleSelectAll()"
+    >
+      {{ isAllSelected() ? 'Bỏ chọn tất cả' : 'Chọn tất cả' }}
+    </button>
+  </div>
+
+  <div class="stripe-right">
+    <span class="count-badge">
+      Tổng số: <b>{{ filteredEmployees().length }}</b> nhân sự
+    </span>
+  </div>
+</div>
+
+<!-- BẢNG LƯỚI MA TRẬN PHÂN QUYỀN & CẤP DUYỆT (ADMIN GRID TABLE ĐỒNG BỘ) -->
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng ma trận phân quyền và cấp duyệt nhân sự"
+    [columns]="columns()"
+    [rows]="tableRows()"
+    rowKey="employeeId"
+    [loading]="isLoading()"
+    [selectedKeys]="selectedEmployeeIds()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [clientSort]="true"
+    loadingText="Đang nạp ma trận phân quyền & cấp duyệt từ hệ thống..."
+    emptyTitle="Không tìm thấy nhân viên nào"
+    emptyDescription="Vui lòng thay đổi từ khóa tìm kiếm hoặc điều chỉnh bộ lọc chi nhánh/cấp duyệt."
+    [cellTemplates]="{
+      roles: rolesTpl,
+      approvalLevel: approvalLevelTpl
+    }"
+    (rowClick)="onGridRowClick($event)"
+  />
+
+  @if (selectedEmployeeIds().length > 0) {
+    <div class="hrm-floating-action-bar" role="region" aria-label="Thanh gán cấp duyệt hàng loạt">
+      <div class="hrm-fab-left">
+        <span class="hrm-fab-count">
+          Đã chọn <b>{{ selectedEmployeeIds().length }}</b> nhân sự
+        </span>
+      </div>
+
+      <div class="hrm-fab-right">
+        @if (!isAllSelected()) {
+          <button type="button" class="hrm-fab-btn" (click)="toggleSelectAll()">
+            Chọn tất cả ({{ filteredEmployees().length }})
+          </button>
+        }
+        <button type="button" class="hrm-fab-btn-clear" (click)="clearSelection()">
+          Bỏ chọn
+        </button>
+
+        <app-admin-combo-box
+          class="combo-bulk-level"
+          placement="top"
+          [options]="bulkLevelOptions"
+          [value]="bulkApprovalLevel()"
+          (valueChange)="onBulkApprovalLevelChange($event)"
+          ariaLabel="Chọn cấp duyệt áp dụng hàng loạt"
+        />
+
+        <app-admin-button
+          title="Áp dụng cấp duyệt đã chọn cho toàn bộ nhân sự đang tích chọn"
+          bgColor="var(--color-xanh-dam)"
+          textColor="var(--color-trang)"
+          [disabled]="isBulkUpdatingLevel()"
+          (clicked)="applyBulkApprovalLevel()"
+        >
+          <svg lucideCheck [class.animate-spin]="isBulkUpdatingLevel()" aria-hidden="true"></svg>
+          <span>{{ isBulkUpdatingLevel() ? 'Đang áp dụng...' : 'Áp dụng cấp duyệt (' + selectedEmployeeIds().length + ')' }}</span>
+        </app-admin-button>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- ========================================================================= -->
+<!-- CELL TEMPLATES CHO CÁC CỘT EDITABLE / TÙY BIẾN TRÊN GRID TABLE -->
+<!-- ========================================================================= -->
+
+<!-- 1. TEMPLATE CỘT VAI TRÒ: HIỂN THỊ CÁC BADGE VAI TRÒ + NÚT DẤU + MỞ MODAL -->
+<ng-template #rolesTpl let-row="row">
+  <div class="roles-cell-content">
+    <div class="roles-pill-list">
+      @if (row['roleNames']) {
+        @for (role of getRoleList(row['roleNames']); track role) {
+          <span class="role-pill" [class]="getRoleBadgeClass(role)" [title]="role">
+            {{ getRoleDisplayLabel(role) }}
+          </span>
+        }
+      } @else {
+        <span class="role-empty-text">(Chưa phân quyền)</span>
+      }
+    </div>
+    <button
+      type="button"
+      class="btn-add-role"
+      [title]="'Chỉnh sửa hoặc thêm vai trò quyền hạn cho ' + row['fullName']"
+      (click)="openRoleModal(row['_raw'] || row, $event)"
+    >
+      <svg lucidePlus class="w-3.5 h-3.5" aria-hidden="true"></svg>
+    </button>
+  </div>
+</ng-template>
+
+<!-- 2. TEMPLATE CỘT CẤP DUYỆT: COMBOBOX CHỌN CẤP DUYỆT TRỰC TIẾP TRÊN DÒNG -->
+<ng-template #approvalLevelTpl let-row="row">
+  <div class="level-select-wrapper" (click)="$event.stopPropagation()">
+    <select
+      class="approval-level-select"
+      [class]="getLevelBadgeClass(row['approvalLevel'])"
+      [value]="row['approvalLevel']"
+      [disabled]="updatingEmployeeIds()[row['employeeId']]"
+      (change)="onApprovalLevelChange(row['_raw'] || row, $event)"
+      [title]="'Cấp duyệt hiện tại: ' + row['approvalLevelName']"
+    >
+      @for (opt of rowApprovalOptions; track opt.value) {
+        <option [value]="opt.value" [selected]="opt.value === row['approvalLevel']">{{ opt.label }}</option>
+      }
+    </select>
+    @if (updatingEmployeeIds()[row['employeeId']]) {
+      <div class="select-loading-spinner" title="Đang lưu cấp duyệt..."></div>
+    }
+  </div>
+</ng-template>
+
+<!-- ========================================================================= -->
+<!-- MODAL CHỌN QUYỀN (VAI TRÒ / ROLES) KHI NHẤN DẤU + -->
+<!-- ========================================================================= -->
+@if (isRoleModalOpen(); as isOpen) {
+  <div class="role-modal-backdrop" (click)="closeRoleModal()">
+    <div class="role-modal-container" (click)="$event.stopPropagation()">
+      <!-- HEADER -->
+      <div class="role-modal-header">
+        <div class="header-left">
+          <div class="modal-icon-wrap">
+            <svg lucideShieldCheck class="w-5 h-5" aria-hidden="true"></svg>
+          </div>
+          <div>
+            <h3 class="modal-title">Phân quyền vai trò hệ thống</h3>
+            <p class="modal-subtitle">
+              Nhân sự: <b>{{ targetEmployee()?.fullName }}</b> ({{ targetEmployee()?.employeeCode }})
+            </p>
+          </div>
+        </div>
+        <button type="button" class="btn-close-modal" (click)="closeRoleModal()" aria-label="Đóng hộp thoại">
+          <svg lucideX class="w-4 h-4" aria-hidden="true"></svg>
+        </button>
+      </div>
+
+      <!-- BODY: 1. CHỌN VAI TRÒ + 2. XEM TRƯỚC MA TRẬN 15 QUYỀN THỰC TẾ -->
+      <div class="role-modal-body">
+        @if (isModalLoading()) {
+          <div class="modal-loading-box">
+            <div class="spinner"></div>
+            <span>Đang nạp danh sách vai trò hệ thống...</span>
+          </div>
+        } @else {
+          <div class="modal-section-label">1. Chọn vai trò (Gói quyền)</div>
+          <div class="role-items-grid">
+            @for (role of modalRoles(); track role.roleId) {
+              <label
+                class="role-checkbox-item"
+                [class.is-checked]="isRoleSelected(role.roleId)"
+              >
+                <div class="item-left">
+                  <input
+                    type="checkbox"
+                    class="role-checkbox"
+                    [checked]="isRoleSelected(role.roleId)"
+                    (change)="toggleRoleSelection(role.roleId)"
+                  />
+                  <div class="role-text-content">
+                    <div class="role-title-row">
+                      <span class="role-name">{{ getRoleDisplayLabel(role.roleName) }}</span>
+                      <span class="role-pill-inline" [class]="getRoleBadgeClass(role.roleName)">
+                        {{ role.roleName }}
+                      </span>
+                    </div>
+                    @if (role.description) {
+                      <p class="role-desc">{{ role.description }}</p>
+                    }
+                  </div>
+                </div>
+              </label>
+            }
+          </div>
+
+          @if (permissionModuleGroups().length > 0) {
+            <div class="perm-preview-section">
+              <div class="perm-preview-header">
+                <span class="modal-section-label mb-0">2. Quyền hạn thực tế nhân sự sẽ có</span>
+                <span class="perm-preview-count">
+                  {{ effectivePermissionCodes().size }} / {{ allPermissions().length }} quyền
+                </span>
+              </div>
+
+              <div class="perm-groups-grid">
+                @for (grp of permissionModuleGroups(); track grp.moduleName) {
+                  <div class="perm-group-card">
+                    <div class="perm-group-title">{{ grp.moduleName }}</div>
+                    <div class="perm-group-list">
+                      @for (p of grp.items; track p.permissionCode) {
+                        @let granted = effectivePermissionCodes().has(p.permissionCode);
+                        <div class="perm-item-row" [class.is-granted]="granted" [title]="p.description || ''">
+                          <span class="perm-dot" [class.is-granted]="granted">
+                            @if (granted) {
+                              <svg lucideCheck class="w-2.5 h-2.5" aria-hidden="true"></svg>
+                            }
+                          </span>
+                          <span class="perm-item-name">{{ p.permissionName }}</span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- FOOTER -->
+      <div class="role-modal-footer">
+        <div class="footer-left-note">
+          <span>Đã chọn: <b>{{ selectedRoleIds().length }}</b> vai trò</span>
+        </div>
+        <div class="footer-actions">
+          <app-admin-button
+            [disabled]="isSavingRoles()"
+            (clicked)="closeRoleModal()"
+          >
+            <span>Hủy bỏ</span>
+          </app-admin-button>
+          <app-admin-button
+            bgColor="var(--color-xanh-dam)"
+            textColor="var(--color-trang)"
+            [disabled]="isSavingRoles() || isModalLoading()"
+            (clicked)="saveRoles()"
+          >
+            <svg lucideCheck [class.animate-spin]="isSavingRoles()" aria-hidden="true"></svg>
+            <span>{{ isSavingRoles() ? 'Đang lưu quyền...' : 'Lưu quyền hạn' }}</span>
+          </app-admin-button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

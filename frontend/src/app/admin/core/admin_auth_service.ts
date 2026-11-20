@@ -1,153 +1,143 @@
-import { Injectable } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
-import { delay, tap } from 'rxjs/operators';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { Observable, catchError, map, of, throwError } from 'rxjs';
 import { AdminModuleKey } from './admin_modules';
-import { AdminUser } from './admin_session';
+import { AdminPortal, AdminUser } from './admin_session';
 
-export interface AdminDemoAccount {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-  role: string;
-  modules: AdminModuleKey[];
-  badge: string;
-  description: string;
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+  errors?: string[];
 }
 
-export const DEMO_ADMIN_ACCOUNTS: readonly AdminDemoAccount[] = [
-  {
-    id: 'u-super-admin',
-    name: 'Nguyễn Văn An',
-    email: 'admin@fiin.vn',
-    password: 'admin',
-    role: 'Quản trị viên toàn hệ thống',
-    modules: ['cms', 'crm', 'hrm', 'erp'],
-    badge: 'Toàn quyền',
-    description: 'Truy cập đầy đủ 4 phân hệ: CMS, CRM, HRM, ERP.',
-  },
-  {
-    id: 'u-hrm-manager',
-    name: 'Trần Thị Mai',
-    email: 'hr@fiin.vn',
-    password: 'admin',
-    role: 'Trưởng phòng Nhân sự',
-    modules: ['hrm'],
-    badge: 'Chỉ HRM',
-    description: 'Quản lý nhân viên, lịch làm việc, dữ liệu chấm công và tính lương.',
-  },
-  {
-    id: 'u-business-manager',
-    name: 'Lê Hoàng Nam',
-    email: 'kinhdoanh@fiin.vn',
-    password: 'admin',
-    role: 'Quản lý Bán hàng & Marketing',
-    modules: ['cms', 'crm'],
-    badge: 'CMS + CRM',
-    description: 'Quản lý bài viết, banner, danh mục, khách hàng và voucher.',
-  },
-  {
-    id: 'u-erp-manager',
-    name: 'Võ Minh Quân',
-    email: 'kho@fiin.vn',
-    password: 'admin',
-    role: 'Quản lý Chuỗi & Kho vận',
-    modules: ['erp'],
-    badge: 'Chỉ ERP',
-    description: 'Quản lý nguyên vật liệu kho chuỗi, nhà cung cấp và nhập mua.',
-  },
-  {
-    id: 'u-guest',
-    name: 'Phạm Thu Hà',
-    email: 'guest@fiin.vn',
-    password: 'admin',
-    role: 'Nhân viên tập sự',
-    modules: [],
-    badge: 'Chưa cấp quyền',
-    description: 'Tài khoản thử nghiệm chưa được cấp quyền module nào.',
-  },
-];
+export interface AuthUserApiDto {
+  userId: number;
+  username: string;
+  fullName: string;
+  email: string;
+  phoneNumber?: string | null;
+  mustChangePassword: boolean;
+  employeeId?: number | null;
+  employeeCode?: string | null;
+  position: string;
+  branchId?: number | null;
+  branchCode?: string | null;
+  branchName?: string | null;
+  hierarchyLevel: number;
+  approvalLevel: number;
+  portal: AdminPortal;
+  sessionToken: string;
+  roleDisplay: string;
+  roles: string[];
+  permissions: string[];
+  modules: AdminModuleKey[];
+}
 
-/**
- * Khóa lưu trữ phiên giả lập HttpOnly Cookie trong browser sessionStorage.
- * Trong môi trường có backend thật, cookie được server gắn tự động với cờ HttpOnly,
- * client chỉ cần gọi API với `withCredentials: true`.
- */
-const MOCK_COOKIE_SESSION_KEY = 'fiin_admin_mock_httponly_session';
+export interface AuthLoginError {
+  message: string;
+  code?: string;
+  redirectUrl?: string;
+  expectedPortal?: AdminPortal;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AdminAuthService {
-  /**
-   * Đọc phiên người dùng hiện tại từ bộ nhớ (mô phỏng gọi GET /api/admin/me với HttpOnly Cookie)
-   */
-  getInitialUser(): AdminUser | null {
-    if (typeof window === 'undefined' || !window.sessionStorage) {
-      // Mặc định server-side hoặc môi trường kiểm thử
-      return DEMO_ADMIN_ACCOUNTS[0];
-    }
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = 'http://localhost:5107/api/v1/auth';
 
-    const savedId = window.sessionStorage.getItem(MOCK_COOKIE_SESSION_KEY);
-    if (!savedId) {
-      // Mặc định nạp tài khoản admin demo nếu chưa đăng xuất
-      return DEMO_ADMIN_ACCOUNTS[0];
-    }
-
-    if (savedId === 'UNAUTHENTICATED') {
-      return null;
-    }
-
-    const account = DEMO_ADMIN_ACCOUNTS.find((a) => a.id === savedId);
-    return account ? this.toAdminUser(account) : null;
+  login(identifier: string, password: string, portal: AdminPortal): Observable<AdminUser> {
+    return this.http
+      .post<ApiResponse<AuthUserApiDto>>(
+        `${this.baseUrl}/login`,
+        { identifier: identifier.trim(), password, portal },
+        { withCredentials: true }
+      )
+      .pipe(
+        map((res) => this.mapDtoToUser(res.data)),
+        catchError((err: HttpErrorResponse) => {
+          const body = err.error as Record<string, unknown> | null;
+          const loginErr: AuthLoginError = {
+            message:
+              (typeof body?.['message'] === 'string' && body['message']) ||
+              (err.status === 0
+                ? 'Không thể kết nối máy chủ Backend API (http://localhost:5107).'
+                : 'Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin.'),
+            code: typeof body?.['code'] === 'string' ? body['code'] : undefined,
+            redirectUrl: typeof body?.['redirectUrl'] === 'string' ? body['redirectUrl'] : undefined,
+            expectedPortal:
+              body?.['expectedPortal'] === 'staff' || body?.['expectedPortal'] === 'admin'
+                ? (body['expectedPortal'] as AdminPortal)
+                : undefined,
+          };
+          return throwError(() => loginErr);
+        })
+      );
   }
 
-  /**
-   * Mô phỏng POST /api/admin/auth/login
-   * Backend thật sẽ kiểm tra credentials và gắn HttpOnly Cookie trong Set-Cookie header.
-   */
-  login(email: string, password: string): Observable<AdminUser> {
-    const trimmedEmail = email.trim().toLowerCase();
-    const account = DEMO_ADMIN_ACCOUNTS.find(
-      (a) => a.email.toLowerCase() === trimmedEmail && a.password === password
-    );
-
-    if (!account) {
-      return throwError(() => new Error('Email hoặc mật khẩu không chính xác.')).pipe(delay(250));
-    }
-
-    const user = this.toAdminUser(account);
-
-    return of(user).pipe(
-      delay(300),
-      tap(() => {
-        if (typeof window !== 'undefined' && window.sessionStorage) {
-          window.sessionStorage.setItem(MOCK_COOKIE_SESSION_KEY, account.id);
-        }
-      })
-    );
+  me(): Observable<AdminUser | null> {
+    return this.http
+      .get<ApiResponse<AuthUserApiDto>>(`${this.baseUrl}/me`, { withCredentials: true })
+      .pipe(
+        map((res) => (res?.success && res.data ? this.mapDtoToUser(res.data) : null)),
+        catchError((err: HttpErrorResponse) => {
+          // Chỉ coi là mất phiên khi server trả 401/403 thật sự; lỗi mạng (0) hoặc 5xx lúc backend đang build/restart thì giữ phiên
+          if (err.status === 401 || err.status === 403) {
+            return of(null);
+          }
+          return throwError(() => err);
+        })
+      );
   }
 
-  /**
-   * Mô phỏng POST /api/admin/auth/logout
-   * Backend thật sẽ gửi header Set-Cookie xóa session cookie.
-   */
   logout(): Observable<void> {
-    return of(void 0).pipe(
-      delay(150),
-      tap(() => {
-        if (typeof window !== 'undefined' && window.sessionStorage) {
-          window.sessionStorage.setItem(MOCK_COOKIE_SESSION_KEY, 'UNAUTHENTICATED');
-        }
-      })
-    );
+    return this.http
+      .post<ApiResponse<boolean>>(`${this.baseUrl}/logout`, {}, { withCredentials: true })
+      .pipe(
+        map(() => void 0),
+        catchError(() => of(void 0))
+      );
   }
 
-  private toAdminUser(account: AdminDemoAccount): AdminUser {
+  changePassword(currentPassword: string, newPassword: string): Observable<boolean> {
+    return this.http
+      .post<ApiResponse<boolean>>(
+        `${this.baseUrl}/change-password`,
+        { currentPassword, newPassword },
+        { withCredentials: true }
+      )
+      .pipe(
+        map((res) => !!res?.success),
+        catchError((err: HttpErrorResponse) => {
+          const msg = err.error?.message || 'Không thể đổi mật khẩu.';
+          return throwError(() => new Error(msg));
+        })
+      );
+  }
+
+  private mapDtoToUser(dto: AuthUserApiDto): AdminUser {
     return {
-      id: account.id,
-      name: account.name,
-      email: account.email,
-      role: account.role,
-      modules: [...account.modules],
+      id: String(dto.userId),
+      userId: dto.userId,
+      username: dto.username,
+      name: dto.fullName,
+      email: dto.email || `${dto.username}@fiin.vn`,
+      phoneNumber: dto.phoneNumber ?? undefined,
+      role: dto.roleDisplay || dto.position || dto.roles[0] || 'Nhân viên',
+      position: dto.position || '',
+      employeeId: dto.employeeId ?? undefined,
+      employeeCode: dto.employeeCode ?? undefined,
+      branchId: dto.branchId ?? undefined,
+      branchCode: dto.branchCode ?? undefined,
+      branchName: dto.branchName ?? undefined,
+      hierarchyLevel: dto.hierarchyLevel || 1,
+      approvalLevel: dto.approvalLevel || 0,
+      portal: dto.portal || (dto.hierarchyLevel >= 3 ? 'admin' : 'staff'),
+      sessionToken: dto.sessionToken || '',
+      roles: dto.roles ?? [],
+      permissions: dto.permissions ?? [],
+      modules: dto.modules ?? [],
+      mustChangePassword: !!dto.mustChangePassword,
     };
   }
 }

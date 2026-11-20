@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   LucideAlertCircle,
   LucideArrowRight,
@@ -9,11 +9,10 @@ import {
   LucideLock,
   LucideMail,
   LucideShieldCheck,
-  LucideSparkles,
 } from '@lucide/angular';
 import { BrandLogoComponent } from '../../../components/brand_logo/brand_logo';
-import { AdminAuthService, AdminDemoAccount, DEMO_ADMIN_ACCOUNTS } from '../../core/admin_auth_service';
-import { AdminSession } from '../../core/admin_session';
+import { AuthLoginError } from '../../core/admin_auth_service';
+import { AdminPortal, AdminSession } from '../../core/admin_session';
 
 @Component({
   selector: 'app-admin-login',
@@ -32,54 +31,62 @@ import { AdminSession } from '../../core/admin_session';
     LucideArrowRight,
     LucideShieldCheck,
     LucideAlertCircle,
-    LucideSparkles,
   ],
 })
 export class AdminLogin {
   private readonly session = inject(AdminSession);
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  readonly email = signal('admin@fiin.vn');
-  readonly password = signal('admin');
+  readonly portal = signal<AdminPortal>(
+    this.route.snapshot.data?.['portal'] === 'staff' ? 'staff' : 'admin'
+  );
+
+  readonly isStaffPortal = computed(() => this.portal() === 'staff');
+
+  readonly identifier = signal('');
+  readonly password = signal('');
   readonly showPassword = signal(false);
   readonly isLoading = signal(false);
-  readonly errorMessage = signal<string | null>(null);
-
-  readonly demoAccounts = DEMO_ADMIN_ACCOUNTS;
+  readonly errorMessage = signal<string | null>(
+    this.route.snapshot.queryParamMap.get('reason') === 'replaced'
+      ? 'Tài khoản vừa được đăng nhập tại một cửa sổ khác. Phiên hiện tại đã tự động đăng xuất.'
+      : null
+  );
+  readonly wrongPortalRedirect = signal<string | null>(null);
 
   toggleShowPassword(): void {
     this.showPassword.update((val) => !val);
   }
 
-  selectDemoAccount(acc: AdminDemoAccount, autoSubmit = false): void {
-    this.email.set(acc.email);
-    this.password.set(acc.password);
-    this.errorMessage.set(null);
-
-    if (autoSubmit) {
-      this.onSubmit();
-    }
+  goToSuggestedPortal(): void {
+    const target = this.wrongPortalRedirect() || (this.isStaffPortal() ? '/admin/login' : '/staff/login');
+    void this.router.navigateByUrl(target);
   }
 
   onSubmit(): void {
-    const mail = this.email().trim();
+    const id = this.identifier().trim();
     const pass = this.password();
 
-    if (!mail || !pass) {
-      this.errorMessage.set('Vui lòng nhập đầy đủ email và mật khẩu.');
+    if (!id || !pass) {
+      this.errorMessage.set('Vui lòng nhập đầy đủ tên đăng nhập / email và mật khẩu.');
       return;
     }
 
     this.isLoading.set(true);
     this.errorMessage.set(null);
+    this.wrongPortalRedirect.set(null);
 
-    this.session.login(mail, pass).subscribe({
+    this.session.login(id, pass, this.portal()).subscribe({
       next: () => {
         this.isLoading.set(false);
       },
-      error: (err: Error) => {
+      error: (err: AuthLoginError | Error) => {
         this.isLoading.set(false);
         this.errorMessage.set(err.message || 'Đăng nhập không thành công. Vui lòng thử lại.');
+        if ('code' in err && err.code === 'WRONG_PORTAL' && err.redirectUrl) {
+          this.wrongPortalRedirect.set(err.redirectUrl);
+        }
       },
     });
   }

@@ -1,17 +1,22 @@
 import { Routes } from '@angular/router';
-import { adminAuthGuard, adminGuestGuard, adminHomeGuard, adminModuleGuard } from './core/admin_guards';
+import {
+  adminAuthGuard,
+  adminGuestGuard,
+  adminHomeGuard,
+  adminModuleGuard,
+} from './core/admin_guards';
 import { AdminLayout } from './layout/admin_layout/admin_layout';
 import { AdminForbidden } from './pages/admin_forbidden/admin_forbidden';
 
 /**
- * Gắn vào app.routes.ts bằng lazy load để mã admin không nằm trong bundle trang bán hàng:
- *   { path: 'admin', loadChildren: () => import('./admin/admin.routes').then(m => m.ADMIN_ROUTES) },
+ * Cổng Quản trị (/admin) — Dành cho Quản lý & Quản trị viên (Cấp 3–5).
  */
 export const ADMIN_ROUTES: Routes = [
   {
     path: 'login',
     loadComponent: () => import('./pages/admin_login/admin_login').then((m) => m.AdminLogin),
     canActivate: [adminGuestGuard],
+    data: { portal: 'admin' },
     title: 'Đăng nhập Quản trị · Cà Phê Fiin',
   },
   {
@@ -19,7 +24,6 @@ export const ADMIN_ROUTES: Routes = [
     component: AdminLayout,
     canActivate: [adminAuthGuard],
     children: [
-      // /admin -> module đầu tiên tài khoản được phép
       { path: '', pathMatch: 'full', canActivate: [adminHomeGuard], children: [] },
       {
         path: '_demo',

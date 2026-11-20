@@ -17,11 +17,11 @@
       </button>
     }
 
-    <a class="tb-brand" routerLink="/admin" aria-label="Trang quản trị Cà Phê Fiin">
+    <a class="tb-brand" [routerLink]="user()?.portal === 'staff' ? '/staff' : '/admin'" aria-label="Trang làm việc Cà Phê Fiin">
       <app-brand-logo></app-brand-logo>
       <span class="tb-brand-text">
         <span class="tb-brand-name">Cà Phê Fiin</span>
-        <span class="tb-brand-tag">Quản trị</span>
+        <span class="tb-brand-tag">{{ user()?.portal === 'staff' ? 'Cổng nhân viên' : 'Quản trị' }}</span>
       </span>
     </a>
   </div>

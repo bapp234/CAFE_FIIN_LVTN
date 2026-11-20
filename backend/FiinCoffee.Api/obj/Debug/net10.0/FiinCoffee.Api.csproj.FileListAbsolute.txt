@@ -1,12 +1,3 @@
-E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\FiinCoffee.Api.csproj.AssemblyReference.cache
-E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\rpswa.dswa.cache.json
-E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\FiinCoffee.Api.GeneratedMSBuildEditorConfig.editorconfig
-E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\FiinCoffee.Api.AssemblyInfoInputs.cache
-E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\FiinCoffee.Api.AssemblyInfo.cs
-E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\FiinCoffee.Api.csproj.CoreCompileInputs.cache
-E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\FiinCoffee.Api.MvcApplicationPartsAssemblyInfo.cs
-E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\FiinCoffee.Api.MvcApplicationPartsAssemblyInfo.cache
-E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\FiinCoffee.Api.sourcelink.json
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\appsettings.Development.json
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\appsettings.json
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\FiinCoffee.Api.staticwebassets.endpoints.json
@@ -16,7 +7,12 @@ E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\FiinCof
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\FiinCoffee.Api.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\FiinCoffee.Api.pdb
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\BCrypt-Net-Next.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\ClosedXML.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\ClosedXML.Parser.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\Dapper.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\DocumentFormat.OpenXml.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\DocumentFormat.OpenXml.Framework.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\ExcelNumberFormat.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\Microsoft.Bcl.Cryptography.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\Microsoft.Data.SqlClient.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\Microsoft.Data.SqlClient.Extensions.Abstractions.dll
@@ -32,11 +28,14 @@ E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\Microso
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\Microsoft.IdentityModel.Tokens.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\Microsoft.OpenApi.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\Microsoft.SqlServer.Server.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\RBush.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\SixLabors.Fonts.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\System.Configuration.ConfigurationManager.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\System.IdentityModel.Tokens.Jwt.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\System.IO.Packaging.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\System.Security.Cryptography.ProtectedData.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\cs\Microsoft.Data.SqlClient.resources.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\de\Microsoft.Data.SqlClient.resources.dll
@@ -60,6 +59,15 @@ E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\FiinCof
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\FiinCoffee.Infrastructure.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\FiinCoffee.Core.pdb
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\bin\Debug\net10.0\FiinCoffee.Infrastructure.pdb
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\FiinCoffee.Api.csproj.AssemblyReference.cache
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\rpswa.dswa.cache.json
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\FiinCoffee.Api.GeneratedMSBuildEditorConfig.editorconfig
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\FiinCoffee.Api.AssemblyInfoInputs.cache
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\FiinCoffee.Api.AssemblyInfo.cs
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\FiinCoffee.Api.csproj.CoreCompileInputs.cache
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\FiinCoffee.Api.MvcApplicationPartsAssemblyInfo.cs
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\FiinCoffee.Api.MvcApplicationPartsAssemblyInfo.cache
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\FiinCoffee.Api.sourcelink.json
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\rjimswa.dswa.cache.json
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\rjsmrazor.dswa.cache.json
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
@@ -75,3 +83,137 @@ E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\refint\
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\FiinCoffee.Api.pdb
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\FiinCoffee.Api.genruntimeconfig.cache
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\Debug\net10.0\ref\FiinCoffee.Api.dll
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api_check\appsettings.Development.json
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api_check\appsettings.json
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api_check\FiinCoffee.Api.staticwebassets.endpoints.json
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api_check\FiinCoffee.Api.exe
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api_check\FiinCoffee.Api.deps.json
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api_check\FiinCoffee.Api.runtimeconfig.json
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api_check\FiinCoffee.Api.dll
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api_check\FiinCoffee.Api.pdb
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api-build-check\appsettings.Development.json
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api-build-check\appsettings.json
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api-build-check\FiinCoffee.Api.staticwebassets.endpoints.json
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api-build-check\FiinCoffee.Api.exe
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api-build-check\FiinCoffee.Api.deps.json
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api-build-check\FiinCoffee.Api.runtimeconfig.json
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api-build-check\FiinCoffee.Api.dll
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity\brain\96d7a8d6-90c2-40fb-8da5-1b66bfa0ee3d\scratch\api-build-check\FiinCoffee.Api.pdb
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\appsettings.Development.json
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\appsettings.json
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\FiinCoffee.Api.staticwebassets.endpoints.json
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\FiinCoffee.Api.exe
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\FiinCoffee.Api.deps.json
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\FiinCoffee.Api.runtimeconfig.json
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\FiinCoffee.Api.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\FiinCoffee.Api.pdb
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\BCrypt-Net-Next.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\ClosedXML.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\ClosedXML.Parser.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Dapper.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\DocumentFormat.OpenXml.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\DocumentFormat.OpenXml.Framework.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\ExcelNumberFormat.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Microsoft.Bcl.Cryptography.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Microsoft.Data.SqlClient.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Microsoft.Data.SqlClient.Extensions.Abstractions.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Microsoft.Data.SqlClient.Internal.Logging.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Microsoft.Extensions.Configuration.Abstractions.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Microsoft.Extensions.Primitives.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Microsoft.IdentityModel.Abstractions.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Microsoft.IdentityModel.JsonWebTokens.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Microsoft.IdentityModel.Logging.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Microsoft.IdentityModel.Protocols.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Microsoft.IdentityModel.Tokens.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Microsoft.OpenApi.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Microsoft.SqlServer.Server.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\RBush.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\SixLabors.Fonts.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Swashbuckle.AspNetCore.Swagger.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Swashbuckle.AspNetCore.SwaggerGen.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\Swashbuckle.AspNetCore.SwaggerUI.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\System.Configuration.ConfigurationManager.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\System.IdentityModel.Tokens.Jwt.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\System.IO.Packaging.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\System.Security.Cryptography.ProtectedData.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\cs\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\de\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\es\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\fr\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\it\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\ja\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\ko\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\pl\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\pt-BR\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\ru\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\tr\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\zh-Hans\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\zh-Hant\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\runtimes\unix\lib\net9.0\Microsoft.Data.SqlClient.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\runtimes\win\lib\net9.0\Microsoft.Data.SqlClient.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\FiinCoffee.Core.pdb
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\FiinCoffee.Infrastructure.pdb
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\appsettings.Development.json
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\appsettings.json
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\FiinCoffee.Api.staticwebassets.endpoints.json
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\FiinCoffee.Api.exe
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\FiinCoffee.Api.deps.json
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\FiinCoffee.Api.runtimeconfig.json
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\FiinCoffee.Api.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\FiinCoffee.Api.pdb
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\BCrypt-Net-Next.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\ClosedXML.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\ClosedXML.Parser.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Dapper.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\DocumentFormat.OpenXml.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\DocumentFormat.OpenXml.Framework.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\ExcelNumberFormat.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Microsoft.Bcl.Cryptography.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Microsoft.Data.SqlClient.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Microsoft.Data.SqlClient.Extensions.Abstractions.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Microsoft.Data.SqlClient.Internal.Logging.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Microsoft.Extensions.Configuration.Abstractions.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Microsoft.Extensions.Primitives.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Microsoft.IdentityModel.Abstractions.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Microsoft.IdentityModel.JsonWebTokens.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Microsoft.IdentityModel.Logging.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Microsoft.IdentityModel.Protocols.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Microsoft.IdentityModel.Tokens.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Microsoft.OpenApi.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Microsoft.SqlServer.Server.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\RBush.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\SixLabors.Fonts.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Swashbuckle.AspNetCore.Swagger.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Swashbuckle.AspNetCore.SwaggerGen.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\Swashbuckle.AspNetCore.SwaggerUI.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\System.Configuration.ConfigurationManager.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\System.IdentityModel.Tokens.Jwt.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\System.IO.Packaging.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\System.Security.Cryptography.ProtectedData.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\cs\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\de\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\es\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\fr\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\it\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\ja\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\ko\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\pl\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\pt-BR\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\ru\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\tr\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\zh-Hans\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\zh-Hant\Microsoft.Data.SqlClient.resources.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\runtimes\unix\lib\net9.0\Microsoft.Data.SqlClient.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\runtimes\win\lib\net9.0\Microsoft.Data.SqlClient.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\FiinCoffee.Core.pdb
+E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\FiinCoffee.Infrastructure.pdb

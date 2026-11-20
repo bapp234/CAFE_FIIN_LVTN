@@ -50,6 +50,7 @@ export interface Employee {
 
   // Phân quyền cây phả hệ
   hierarchyLevel?: number;
+  roleId?: number;
   roleName?: string;
   roleDescription?: string;
   avatarInitial?: string;
@@ -123,6 +124,25 @@ export interface CreateEmployeeDto {
   roleId?: number | null;
 }
 
+export interface UpdateEmployeeProfileDto {
+  fullName?: string;
+  phoneNumber?: string;
+  email?: string;
+  dateOfBirth?: string | null;
+  gender?: string;
+  citizenId?: string;
+  bankName?: string;
+  bankAccountNumber?: string;
+  bankAccountName?: string;
+  contractTypeId?: number;
+  hourlyRate?: number;
+  allowance?: number;
+  note?: string;
+  status?: string;
+  position?: string;
+  branchId?: number;
+}
+
 export interface EmployeeFilterQuery {
   page: number;
   size: number;
@@ -132,4 +152,51 @@ export interface EmployeeFilterQuery {
   status?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+}
+
+export interface EmployeeImportItem {
+  rowIndex: number;
+  employeeCode?: string | null;
+  fullName: string;
+  citizenId: string;
+  phoneNumber?: string | null;
+  branchInput?: string | null;
+  position?: string | null;
+  contractTypeInput?: string | null;
+  hourlyRate?: number | null;
+  allowance?: number | null;
+  status: string;
+  isValid: boolean;
+  errorMessage?: string | null;
+}
+
+export interface EmployeeImportPreviewResult {
+  totalRows: number;
+  validRows: number;
+  errorRows: number;
+  items: EmployeeImportItem[];
+}
+
+export interface EmployeeImportSaveRequest {
+  employees: EmployeeImportItem[];
+  createAccounts: boolean;
+  defaultPassword?: string;
+}
+
+export interface EmployeeImportSaveResult {
+  totalReceived: number;
+  totalImported: number;
+  totalSkipped: number;
+  accountsCreated: number;
+  importedEmployees: {
+    employeeId: number;
+    employeeCode: string;
+    fullName: string;
+    citizenId: string;
+    branchName: string;
+    position: string;
+    contractName: string;
+    hourlyRate: number;
+    hasAccount: boolean;
+  }[];
 }

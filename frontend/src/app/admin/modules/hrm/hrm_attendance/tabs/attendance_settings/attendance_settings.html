@@ -1,0 +1,420 @@
+<!-- THANH ĐIỀU KHIỂN TRUNG TÂM -->
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="segmented-switch" role="tablist" aria-label="Loại danh mục thiết lập">
+      <button
+        type="button"
+        role="tab"
+        class="seg-btn"
+        [class.is-active]="activeSection() === 'ot'"
+        [attr.aria-selected]="activeSection() === 'ot'"
+        (click)="activeSection.set('ot')"
+      >
+        Mã Tăng ca (OT)
+        <span class="seg-count">{{ otRows().length }}</span>
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="seg-btn"
+        [class.is-active]="activeSection() === 'leave'"
+        [attr.aria-selected]="activeSection() === 'leave'"
+        (click)="activeSection.set('leave')"
+      >
+        Mã Nghỉ phép (LV)
+        <span class="seg-count">{{ leaveRows().length }}</span>
+      </button>
+    </div>
+
+    <app-admin-combo-box
+      [options]="scopeOptions"
+      [value]="selectedScope()"
+      width="10.5rem"
+      (valueChange)="selectedScope.set($event)"
+    ></app-admin-combo-box>
+
+    <app-admin-search-box
+      placeholder="Tìm theo mã hoặc tên loại..."
+      ariaLabel="Tìm kiếm mã tăng ca hoặc nghỉ phép"
+      (searched)="searchQuery.set($event)"
+    ></app-admin-search-box>
+  </div>
+
+  <div class="stripe-right">
+    <app-admin-button title="Tải lại dữ liệu từ máy chủ" (clicked)="refresh()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+
+    <app-admin-button
+      [title]="activeSection() === 'ot' ? 'Thêm dòng mã tăng ca mới trên bảng' : 'Thêm dòng mã nghỉ phép mới trên bảng'"
+      bgColor="var(--color-xanh-dam)"
+      textColor="var(--color-trang)"
+      (clicked)="addNewRow()"
+    >
+      <svg lucidePlus aria-hidden="true"></svg>
+      <span>{{ activeSection() === 'ot' ? 'Thêm mã OT' : 'Thêm mã LV' }}</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<!-- NỘI DUNG BẢNG CHỈNH SỬA TRỰC TIẾP -->
+<div class="settings-body">
+  @if (activeSection() === 'ot') {
+    <!-- BẢNG MÃ TĂNG CA (OT) -->
+    <section class="catalog-card" aria-labelledby="ot-catalog-title">
+      <header class="card-head">
+        <div>
+          <h2 id="ot-catalog-title" class="card-title">Bảng thiết lập Mã Tăng ca (OT) — Chỉnh sửa trực tiếp</h2>
+          <p class="card-desc">
+            Sửa trực tiếp hệ số lương, phụ cấp đêm, giới hạn giờ hoặc quy tắc ngay trên từng ô của bảng rồi bấm Lưu thay đổi.
+          </p>
+        </div>
+      </header>
+
+      <div class="table-wrap">
+        <table class="catalog-table">
+          <thead>
+            <tr>
+              <th style="width: 8.5rem;">Mã OT</th>
+              <th style="min-width: 14rem;">Tên loại tăng ca</th>
+              <th style="width: 8.25rem;">Phân loại</th>
+              <th style="width: 9.25rem;">Khối áp dụng</th>
+              <th style="width: 6.25rem; text-align: right;">Hệ số (%)</th>
+              <th style="width: 6.25rem; text-align: right;">Đêm (+%)</th>
+              <th style="width: 5.5rem; text-align: right;">Max/ngày</th>
+              <th style="width: 6rem; text-align: right;">Max/tháng</th>
+              <th style="width: 5.5rem; text-align: center;">Duyệt</th>
+              <th style="width: 5.5rem; text-align: center;">Nghỉ bù</th>
+              <th style="width: 5.5rem; text-align: center;">Áp dụng</th>
+              <th style="width: 3.5rem; text-align: center;">Xóa</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (isLoading() && filteredOtRows().length === 0) {
+              <tr>
+                <td colspan="12" class="empty-cell">Đang tải bảng thiết lập tăng ca...</td>
+              </tr>
+            } @else if (filteredOtRows().length === 0) {
+              <tr>
+                <td colspan="12" class="empty-cell">Không có mã tăng ca phù hợp bộ lọc.</td>
+              </tr>
+            } @else {
+              @for (row of filteredOtRows(); track row._localKey) {
+                <tr [class.row-dirty]="row._isDirty" [class.row-new]="row._isNew">
+                  <td>
+                    <input
+                      type="text"
+                      class="ghost-input is-code"
+                      placeholder="OT-..."
+                      [(ngModel)]="row.otCode"
+                      (ngModelChange)="markOtDirty(row)"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      class="ghost-input is-name"
+                      placeholder="Nhập tên loại tăng ca..."
+                      [(ngModel)]="row.otName"
+                      (ngModelChange)="markOtDirty(row)"
+                    />
+                  </td>
+                  <td>
+                    <select class="ghost-select" [(ngModel)]="row.otCategory" (ngModelChange)="markOtDirty(row)">
+                      <option value="normal">Ngày thường</option>
+                      <option value="weekend">Nghỉ tuần</option>
+                      <option value="holiday">Ngày lễ</option>
+                      <option value="night">Ca đêm</option>
+                    </select>
+                  </td>
+                  <td>
+                    <select class="ghost-select" [(ngModel)]="row.scope" (ngModelChange)="markOtDirty(row)">
+                      <option value="all">Toàn hệ thống</option>
+                      <option value="store">Quán cà phê</option>
+                      <option value="office">Khối văn phòng</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      step="10"
+                      class="ghost-input is-num"
+                      [(ngModel)]="row.payMultiplier"
+                      (ngModelChange)="markOtDirty(row)"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      step="5"
+                      class="ghost-input is-num"
+                      [(ngModel)]="row.nightExtraRate"
+                      (ngModelChange)="markOtDirty(row)"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      step="0.5"
+                      class="ghost-input is-num"
+                      [(ngModel)]="row.maxHoursPerDay"
+                      (ngModelChange)="markOtDirty(row)"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      step="1"
+                      class="ghost-input is-num"
+                      [(ngModel)]="row.maxHoursPerMonth"
+                      (ngModelChange)="markOtDirty(row)"
+                    />
+                  </td>
+                  <td class="check-cell">
+                    <input
+                      type="checkbox"
+                      aria-label="Yêu cầu duyệt trước"
+                      [(ngModel)]="row.requireApproval"
+                      (ngModelChange)="markOtDirty(row)"
+                    />
+                  </td>
+                  <td class="check-cell">
+                    <input
+                      type="checkbox"
+                      aria-label="Quy đổi nghỉ bù"
+                      [(ngModel)]="row.allowCompensatoryLeave"
+                      (ngModelChange)="markOtDirty(row)"
+                    />
+                  </td>
+                  <td class="check-cell">
+                    <input
+                      type="checkbox"
+                      aria-label="Đang áp dụng"
+                      [(ngModel)]="row.isActive"
+                      (ngModelChange)="markOtDirty(row)"
+                    />
+                  </td>
+                  <td class="action-cell">
+                    <button type="button" class="icon-btn is-danger" title="Xóa dòng" (click)="confirmDeleteOt(row)">
+                      <svg lucideTrash2 aria-hidden="true"></svg>
+                    </button>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- DANH SÁCH NGÀY LỄ NĂM HIỆN TẠI TỪ dbo.Holidays -->
+    <section class="catalog-card holiday-card" aria-labelledby="holiday-title">
+      <header class="card-head">
+        <div class="holiday-head-left">
+          <svg lucideCalendarDays aria-hidden="true"></svg>
+          <div>
+            <h3 id="holiday-title" class="card-title-sm">Ngày lễ áp dụng hệ số OT-HOLIDAY (Năm {{ holidayYear }})</h3>
+            <p class="card-desc">Dữ liệu đồng bộ trực tiếp từ bảng Holidays trong cơ sở dữ liệu.</p>
+          </div>
+        </div>
+      </header>
+      <div class="holiday-grid">
+        @for (h of holidays(); track h.holidayId) {
+          <div class="holiday-chip">
+            <span class="h-date">{{ h.holidayDate | date: 'dd/MM' }}</span>
+            <span class="h-name">{{ h.holidayName }}</span>
+            <span class="h-rate">x{{ h.payMultiplier }}</span>
+          </div>
+        } @empty {
+          <span class="cell-sub">Chưa có dữ liệu ngày lễ năm {{ holidayYear }}.</span>
+        }
+      </div>
+    </section>
+  } @else {
+    <!-- BẢNG MÃ NGHỈ PHÉP (LV) -->
+    <section class="catalog-card" aria-labelledby="leave-catalog-title">
+      <header class="card-head">
+        <div>
+          <h2 id="leave-catalog-title" class="card-title">Bảng thiết lập Mã Nghỉ phép (LV) — Chỉnh sửa trực tiếp</h2>
+          <p class="card-desc">
+            Chỉnh sửa trực tiếp tỷ lệ hưởng lương, trừ phép năm, số ngày chuẩn và quy tắc xin nghỉ ngay trên bảng rồi bấm Lưu thay đổi.
+          </p>
+        </div>
+      </header>
+
+      <div class="table-wrap">
+        <table class="catalog-table">
+          <thead>
+            <tr>
+              <th style="width: 9.5rem;">Mã phép (LV)</th>
+              <th style="min-width: 14rem;">Tên loại nghỉ phép</th>
+              <th style="width: 9.25rem;">Khối áp dụng</th>
+              <th style="width: 5.5rem; text-align: center;">Hưởng lương</th>
+              <th style="width: 6rem; text-align: right;">Tỷ lệ (%)</th>
+              <th style="width: 5.5rem; text-align: center;">Trừ phép</th>
+              <th style="width: 6.25rem; text-align: right;">Ngày/năm</th>
+              <th style="width: 6rem; text-align: right;">Báo trước</th>
+              <th style="width: 5.5rem; text-align: center;">Cộng dồn</th>
+              <th style="width: 5.5rem; text-align: center;">Thử việc</th>
+              <th style="width: 5.5rem; text-align: center;">Áp dụng</th>
+              <th style="width: 3.5rem; text-align: center;">Xóa</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (isLoading() && filteredLeaveRows().length === 0) {
+              <tr>
+                <td colspan="12" class="empty-cell">Đang tải bảng thiết lập nghỉ phép...</td>
+              </tr>
+            } @else if (filteredLeaveRows().length === 0) {
+              <tr>
+                <td colspan="12" class="empty-cell">Không có mã nghỉ phép phù hợp bộ lọc.</td>
+              </tr>
+            } @else {
+              @for (row of filteredLeaveRows(); track row._localKey) {
+                <tr [class.row-dirty]="row._isDirty" [class.row-new]="row._isNew">
+                  <td>
+                    <input
+                      type="text"
+                      class="ghost-input is-code is-leave"
+                      placeholder="LV-..."
+                      [(ngModel)]="row.leaveCode"
+                      (ngModelChange)="markLeaveDirty(row)"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      class="ghost-input is-name"
+                      placeholder="Nhập tên loại nghỉ phép..."
+                      [(ngModel)]="row.leaveName"
+                      (ngModelChange)="markLeaveDirty(row)"
+                    />
+                  </td>
+                  <td>
+                    <select class="ghost-select" [(ngModel)]="row.scope" (ngModelChange)="markLeaveDirty(row)">
+                      <option value="all">Toàn hệ thống</option>
+                      <option value="store">Quán cà phê</option>
+                      <option value="office">Khối văn phòng</option>
+                    </select>
+                  </td>
+                  <td class="check-cell">
+                    <input
+                      type="checkbox"
+                      aria-label="Hưởng lương"
+                      [(ngModel)]="row.isPaid"
+                      (ngModelChange)="markLeaveDirty(row)"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      step="5"
+                      [disabled]="!row.isPaid"
+                      class="ghost-input is-num"
+                      [(ngModel)]="row.paidPercent"
+                      (ngModelChange)="markLeaveDirty(row)"
+                    />
+                  </td>
+                  <td class="check-cell">
+                    <input
+                      type="checkbox"
+                      aria-label="Trừ phép năm"
+                      [(ngModel)]="row.deductAnnualLeave"
+                      (ngModelChange)="markLeaveDirty(row)"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      step="0.5"
+                      class="ghost-input is-num"
+                      [(ngModel)]="row.standardDaysPerYear"
+                      (ngModelChange)="markLeaveDirty(row)"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      step="1"
+                      class="ghost-input is-num"
+                      [(ngModel)]="row.minNoticeDays"
+                      (ngModelChange)="markLeaveDirty(row)"
+                    />
+                  </td>
+                  <td class="check-cell">
+                    <input
+                      type="checkbox"
+                      aria-label="Cộng dồn tháng"
+                      [(ngModel)]="row.monthlyAccrual"
+                      (ngModelChange)="markLeaveDirty(row)"
+                    />
+                  </td>
+                  <td class="check-cell">
+                    <input
+                      type="checkbox"
+                      aria-label="Thử việc được hưởng"
+                      [(ngModel)]="row.probationEligible"
+                      (ngModelChange)="markLeaveDirty(row)"
+                    />
+                  </td>
+                  <td class="check-cell">
+                    <input
+                      type="checkbox"
+                      aria-label="Đang áp dụng"
+                      [(ngModel)]="row.isActive"
+                      (ngModelChange)="markLeaveDirty(row)"
+                    />
+                  </td>
+                  <td class="action-cell">
+                    <button type="button" class="icon-btn is-danger" title="Xóa dòng" (click)="confirmDeleteLeave(row)">
+                      <svg lucideTrash2 aria-hidden="true"></svg>
+                    </button>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+</div>
+
+<!-- THANH LƯU THAY ĐỔI NỔI (FLOATING ACTION BAR) -->
+@if (totalDirtyCount() > 0) {
+  <div class="hrm-floating-action-bar" role="region" aria-label="Lưu thay đổi thiết lập">
+    <div class="fab-summary">
+      Đang có <strong>{{ totalDirtyCount() }}</strong> dòng thay đổi chưa lưu
+    </div>
+    <div class="fab-actions">
+      <app-admin-button [disabled]="isSaving()" (clicked)="discardChanges()">
+        <svg lucideX aria-hidden="true"></svg>
+        <span>Hủy thay đổi</span>
+      </app-admin-button>
+
+      <app-admin-button
+        bgColor="var(--color-xanh-dam)"
+        textColor="var(--color-trang)"
+        [disabled]="isSaving()"
+        (clicked)="saveAllChanges()"
+      >
+        <svg lucideCheck aria-hidden="true"></svg>
+        <span>{{ isSaving() ? 'Đang lưu...' : 'Lưu thay đổi (' + totalDirtyCount() + ')' }}</span>
+      </app-admin-button>
+    </div>
+  </div>
+}
+
+<!-- MODAL XÁC NHẬN XÓA -->
+<app-admin-modal
+  [isOpen]="deleteTarget() !== null"
+  title="Xác nhận xóa mã thiết lập"
+  [message]="'Bạn có chắc chắn muốn xóa mã ' + (deleteTarget()?.code ?? '') + ' (' + (deleteTarget()?.name ?? '') + ') khỏi danh mục không?'"
+  confirmText="Xóa mã"
+  cancelText="Hủy"
+  variant="danger"
+  [isLoading]="isSaving()"
+  (confirm)="executeDelete()"
+  (cancel)="deleteTarget.set(null)"
+></app-admin-modal>

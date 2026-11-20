@@ -10,34 +10,32 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   LucideAlertCircle,
-  LucideArrowLeft,
   LucideAward,
   LucideBuilding,
-  LucideCheck,
   LucideChevronDown,
   LucideChevronUp,
   LucideCreditCard,
-  LucideDownload,
   LucideEye,
   LucideEyeOff,
   LucideFileText,
   LucideLock,
   LucideMail,
+  LucidePencil,
   LucidePhone,
   LucidePlus,
+  LucideSave,
   LucideSearch,
-  LucideShield,
-  LucideUpload,
   LucideUser,
   LucideUserCheck,
+  LucideX,
 } from '@lucide/angular';
 import { AdminSession } from '../../../core/admin_session';
 import { AdminToastService } from '../../../shared/services/admin_toast_service';
 import { AdminBranchService } from '../../../shared/services/admin_branch_service';
-import { AdminStatusBadge, BadgeVariant } from '../../../shared/admin_status_badge/admin_status_badge';
+import { BadgeVariant } from '../../../shared/admin_status_badge/admin_status_badge';
 import { AdminFormField } from '../../../shared/admin_form_field/admin_form_field';
-import { ContractType, CreateEmployeeDto, Employee, EmployeeFullProfile } from '../models/employee';
-import { FALLBACK_CONTRACT_TYPES, HrmEmployeeApi, getPositionLevel } from '../services/hrm_employee_api';
+import { ContractType, CreateEmployeeDto, Employee, EmployeeFullProfile, UpdateEmployeeProfileDto } from '../models/employee';
+import { HrmEmployeeApi, getPositionLevel } from '../services/hrm_employee_api';
 
 @Component({
   selector: 'app-hrm-profile',
@@ -52,11 +50,11 @@ import { FALLBACK_CONTRACT_TYPES, HrmEmployeeApi, getPositionLevel } from '../se
     LucideBuilding,
     LucideCreditCard,
     LucideFileText,
-    LucideShield,
     LucideLock,
     LucidePlus,
-    LucideArrowLeft,
-    LucideCheck,
+    LucideSave,
+    LucideX,
+    LucidePencil,
     LucideAlertCircle,
     LucidePhone,
     LucideMail,
@@ -64,12 +62,9 @@ import { FALLBACK_CONTRACT_TYPES, HrmEmployeeApi, getPositionLevel } from '../se
     LucideEye,
     LucideEyeOff,
     LucideSearch,
-    LucideUpload,
-    LucideDownload,
     LucideChevronDown,
     LucideChevronUp,
     LucideUserCheck,
-    AdminStatusBadge,
     AdminFormField,
   ],
 })
@@ -85,14 +80,11 @@ export class HrmProfile {
   readonly fullProfile = signal<EmployeeFullProfile | null>(null);
   readonly isLoading = signal(false);
   readonly isCreateMode = signal(false);
+  readonly isEditing = signal(false);
   readonly isSubmitting = signal(false);
   readonly showPassword = signal(false);
   readonly accessDenied = signal(false);
   readonly accessDeniedMessage = signal('');
-
-  // Danh mục Hợp đồng lao động
-  readonly contractTypes = signal<ContractType[]>([]);
-  readonly selectedContract = signal<ContractType | null>(null);
 
   // Danh sách nhân sự để tra cứu nhanh trên Combobox (Phân quyền cây phả hệ & Phân trang lười)
   readonly accessibleEmployees = signal<Employee[]>([]);
@@ -111,12 +103,15 @@ export class HrmProfile {
     note: true,
   });
 
-  // Quyền tạo nhân viên mới: Phải từ cấp 3 trở lên (StoreManager, HRM, Admin)
-  readonly canCreateEmployee = computed(() => {
+  // Quyền xem/chuyển đổi hồ sơ nhân viên khác (chỉ khi có quyền HRM_EMPLOYEE và cấp >= 3)
+  readonly canViewOthers = computed(() => {
     const user = this.adminSession.user();
     if (!user) return false;
-    return getPositionLevel(user.role) >= 3;
+    return this.adminSession.hasPermission('HRM_EMPLOYEE') && this.currentUserLevel() >= 3;
   });
+
+  // Quyền tạo nhân viên mới: Phải từ cấp 3 trở lên và có quyền HRM_EMPLOYEE
+  readonly canCreateEmployee = computed(() => this.canViewOthers());
 
   // Cấp bậc phân quyền của nhân viên đang xem (1 -> 5)
   readonly employeeLevel = computed(() => {
@@ -129,7 +124,10 @@ export class HrmProfile {
   // Cấp bậc phân quyền của người đang đăng nhập (1 -> 5)
   readonly currentUserLevel = computed(() => {
     const user = this.adminSession.user();
-    return user ? getPositionLevel(user.role) : 1;
+    if (!user) return 1;
+    return user.hierarchyLevel && user.hierarchyLevel > 0
+      ? user.hierarchyLevel
+      : getPositionLevel(user.role);
   });
 
   // Danh sách nhân viên trong combobox (đã được lọc từ server hoặc fallback)
@@ -148,29 +146,50 @@ export class HrmProfile {
     );
   });
 
-  // Form tạo nhân viên mới
+  // Form tạo nhân viên mới (chỉ Họ tên + SĐT bắt buộc; chi nhánh/chức vụ/hợp đồng thiết lập ở mục khác)
   readonly employeeForm = new FormGroup({
     fullName: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3)] }),
     phone: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.pattern(/^[0-9\s]{9,12}$/)] }),
     email: new FormControl('', { nonNullable: true, validators: [Validators.email] }),
     dateOfBirth: new FormControl('2001-01-01', { nonNullable: true }),
     gender: new FormControl<'male' | 'female' | 'other'>('male', { nonNullable: true }),
-    username: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3)] }),
-    password: new FormControl('Fiin@2026', { nonNullable: true, validators: [Validators.required, Validators.minLength(6)] }),
-    citizenId: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.pattern(/^[0-9]{12}$/)] }),
-    bankName: new FormControl('Vietcombank', { nonNullable: true }),
+    username: new FormControl('', { nonNullable: true, validators: [Validators.minLength(3)] }),
+    password: new FormControl('', { nonNullable: true, validators: [Validators.minLength(6)] }),
+    citizenId: new FormControl('', { nonNullable: true, validators: [Validators.pattern(/^[0-9]{12}$/)] }),
+    bankName: new FormControl('', { nonNullable: true }),
     bankAccountNumber: new FormControl('', { nonNullable: true }),
     bankAccountName: new FormControl('', { nonNullable: true }),
-    branchId: new FormControl('cn-q1', { nonNullable: true, validators: [Validators.required] }),
-    position: new FormControl('Barista Chuyên nghiệp', { nonNullable: true, validators: [Validators.required] }),
-    contractTypeId: new FormControl(3, { nonNullable: true, validators: [Validators.required] }),
-    hourlyRate: new FormControl(28000, { nonNullable: true, validators: [Validators.required, Validators.min(20000)] }),
     note: new FormControl('', { nonNullable: true }),
   });
 
+  // Form chỉnh sửa thông tin nhân viên tại chỗ (in-place)
+  readonly editForm = new FormGroup({
+    fullName: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3)] }),
+    phone: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.pattern(/^[0-9\s]{9,12}$/)] }),
+    email: new FormControl('', { nonNullable: true, validators: [Validators.email] }),
+    dateOfBirth: new FormControl('2001-01-01', { nonNullable: true }),
+    gender: new FormControl<'male' | 'female' | 'other'>('male', { nonNullable: true }),
+    citizenId: new FormControl('', { nonNullable: true, validators: [Validators.pattern(/^[0-9]{12}$/)] }),
+    status: new FormControl('active', { nonNullable: true }),
+    position: new FormControl('', { nonNullable: true }),
+    branchId: new FormControl<number>(0, { nonNullable: true }),
+    bankName: new FormControl('', { nonNullable: true }),
+    bankAccountNumber: new FormControl('', { nonNullable: true }),
+    bankAccountName: new FormControl('', { nonNullable: true }),
+    contractTypeId: new FormControl<number>(0, { nonNullable: true }),
+    hourlyRate: new FormControl<number>(0, { nonNullable: true }),
+    allowance: new FormControl<number>(0, { nonNullable: true }),
+    note: new FormControl('', { nonNullable: true }),
+  });
+
+  readonly contractTypes = signal<ContractType[]>([]);
+  readonly branches = signal<Array<{ branchId: number; branchCode?: string; branchName: string }>>([]);
+  readonly monthlySalaryInput = signal<number>(0);
+
   constructor() {
-    this.loadContractTypes();
     this.loadAccessibleEmployees(true);
+    this.employeeApi.getContractTypes().subscribe((types) => this.contractTypes.set(types));
+    this.employeeApi.getBranches().subscribe((list) => this.branches.set(list));
 
     this.route.queryParamMap.subscribe((params) => {
       const mode = params.get('mode');
@@ -195,6 +214,12 @@ export class HrmProfile {
    * Phân trang lười Combobox: Tải 50 nhân viên đầu tiên, khi cuộn xuống đáy tải tiếp 10 nhân viên
    */
   loadAccessibleEmployees(reset = true): void {
+    if (!this.canViewOthers()) {
+      this.accessibleEmployees.set([]);
+      this.comboboxTotal.set(0);
+      return;
+    }
+
     if (reset) {
       this.comboboxPage.set(1);
     }
@@ -202,7 +227,7 @@ export class HrmProfile {
     const page = this.comboboxPage();
     const pageSize = page === 1 ? 50 : 10;
     const currentUser = this.adminSession.user();
-    const currentUsername = currentUser?.email ? currentUser.email.split('@')[0] : (currentUser?.name || 'admin');
+    const currentUsername = currentUser?.username || (currentUser?.email ? currentUser.email.split('@')[0] : (currentUser?.name || 'admin'));
 
     this.isComboboxLoadingMore.set(true);
     this.employeeApi
@@ -245,22 +270,35 @@ export class HrmProfile {
     this.loadAccessibleEmployees(true);
   }
 
-  loadContractTypes(): void {
-    this.employeeApi.getContractTypes().subscribe({
-      next: (types) => {
-        this.contractTypes.set(types);
-        if (types.length > 0 && !this.selectedContract()) {
-          const defaultContract = types.find((t) => t.contractTypeId === 3) || types[0];
-          this.selectedContract.set(defaultContract);
-        }
-      },
-    });
-  }
-
   loadEmployeeProfile(targetId: string | null): void {
+    this.isEditing.set(false);
     this.isLoading.set(true);
     this.accessDenied.set(false);
     this.accessDeniedMessage.set('');
+
+    const currentUser = this.adminSession.user();
+    const myEmpId = currentUser?.employeeId;
+
+    // Nếu không có quyền xem nhân viên khác -> luôn mở thẳng hồ sơ cá nhân của chính mình
+    if (!this.canViewOthers()) {
+      if (myEmpId) {
+        this.employeeApi.getFullProfile(myEmpId).subscribe({
+          next: (profile) => {
+            if (profile) {
+              this.fullProfile.set(profile);
+              this.employee.set(this.profileToEmployee(profile));
+              this.isLoading.set(false);
+            } else {
+              this.loadDefaultProfile();
+            }
+          },
+          error: () => this.loadDefaultProfile(),
+        });
+      } else {
+        this.loadDefaultProfile();
+      }
+      return;
+    }
 
     const resolveProfile = (empId: string | number) => {
       this.employeeApi.getFullProfile(empId).subscribe({
@@ -274,14 +312,10 @@ export class HrmProfile {
           const targetLevel = profile.hierarchyLevel || getPositionLevel(profile.position || '');
 
           if (targetLevel > myLevel) {
-            this.accessDenied.set(true);
-            this.accessDeniedMessage.set(
-              `Theo phân quyền cây phả hệ, bạn (${this.adminSession.user()?.role || 'Nhân viên'} - Cấp ${myLevel}) không được phép xem hồ sơ nhân sự cấp cao hơn: "${profile.fullName}" (Cấp ${targetLevel}).`
+            this.toastService.warning(
+              `Bạn không có quyền xem hồ sơ cấp cao hơn ("${profile.fullName}" - Cấp ${targetLevel}). Đã chuyển về hồ sơ của bạn.`
             );
-            const fallbackEmp = this.profileToEmployee(profile);
-            this.employee.set(fallbackEmp);
-            this.fullProfile.set(profile);
-            this.isLoading.set(false);
+            this.loadDefaultProfile();
             return;
           }
 
@@ -295,8 +329,9 @@ export class HrmProfile {
 
     if (targetId) {
       resolveProfile(targetId);
+    } else if (myEmpId) {
+      resolveProfile(myEmpId);
     } else {
-      const currentUser = this.adminSession.user();
       this.employeeApi.getProfileForUser(currentUser).subscribe({
         next: (emp) => {
           const id = emp.employeeId || emp.code || 1;
@@ -309,6 +344,24 @@ export class HrmProfile {
 
   loadDefaultProfile(): void {
     const currentUser = this.adminSession.user();
+    if (currentUser?.employeeId) {
+      this.employeeApi.getFullProfile(currentUser.employeeId).subscribe({
+        next: (profile) => {
+          if (profile) {
+            this.fullProfile.set(profile);
+            this.employee.set(this.profileToEmployee(profile));
+          }
+          this.accessDenied.set(false);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.accessDenied.set(false);
+          this.isLoading.set(false);
+        },
+      });
+      return;
+    }
+
     this.employeeApi.getProfileForUser(currentUser).subscribe({
       next: (emp) => {
         const id = emp.employeeId || emp.code || 1;
@@ -389,6 +442,7 @@ export class HrmProfile {
   }
 
   selectEmployee(emp: Employee): void {
+    this.isEditing.set(false);
     this.isComboboxOpen.set(false);
     this.comboboxSearch.set('');
     const id = emp.employeeCode || emp.code || emp.employeeId;
@@ -396,6 +450,7 @@ export class HrmProfile {
   }
 
   viewMyOwnProfile(): void {
+    this.isEditing.set(false);
     this.isComboboxOpen.set(false);
     this.comboboxSearch.set('');
     void this.router.navigate([], { queryParams: {} });
@@ -443,17 +498,147 @@ export class HrmProfile {
   }
 
   // ==========================================
+  // IN-PLACE EDIT PROFILE ACTIONS
+  // ==========================================
+  startEditingSection(sectionKey: string, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    const emp = this.employee();
+    if (!emp) return;
+
+    // Tự động mở rộng khối cần chỉnh sửa nếu đang đóng
+    this.openSections.update((curr) => ({
+      ...curr,
+      [sectionKey]: true,
+    }));
+
+    // Nạp dữ liệu hiện tại của nhân sự vào editForm
+    this.editForm.patchValue({
+      fullName: emp.fullName || '',
+      phone: emp.phoneNumber || emp.phone || '',
+      email: emp.email || '',
+      dateOfBirth: emp.dateOfBirth ? emp.dateOfBirth.split('T')[0] : '2001-01-01',
+      gender: (emp.gender as 'male' | 'female' | 'other') || 'male',
+      citizenId: emp.citizenId || '',
+      status: emp.status || 'active',
+      position: emp.position || '',
+      branchId: emp.numericBranchId || Number(emp.branchId) || 0,
+      bankName: emp.bankName || '',
+      bankAccountNumber: emp.bankAccountNumber || '',
+      bankAccountName: emp.bankAccountName || emp.fullName || '',
+      contractTypeId: emp.contractTypeId || 0,
+      hourlyRate: emp.hourlyRate || 0,
+      allowance: emp.allowance || 0,
+      note: emp.note || '',
+    });
+    this.monthlySalaryInput.set(Math.round((emp.hourlyRate || 0) * 208));
+
+    this.isEditing.set(true);
+  }
+
+  isMonthlyContract(contractCode?: string, contractName?: string): boolean {
+    const text = `${contractCode || ''} ${contractName || ''}`.toUpperCase();
+    if (!text.trim()) return false;
+    return !(
+      text.includes('PART') ||
+      text.includes('BÁN THỜI GIAN') ||
+      text.includes('THỜI VỤ') ||
+      text.includes('THEO GIỜ') ||
+      text.includes('THANH LÝ') ||
+      text.includes('THÔI VIỆC')
+    );
+  }
+
+  isEditingMonthlyContract(): boolean {
+    const typeId = Number(this.editForm.controls.contractTypeId.value);
+    const found = this.contractTypes().find((t) => t.contractTypeId === typeId);
+    if (!found) return false;
+    return this.isMonthlyContract(found.contractCode, found.contractName);
+  }
+
+  onEditContractTypeChange(): void {
+    const typeId = Number(this.editForm.controls.contractTypeId.value);
+    const found = this.contractTypes().find((t) => t.contractTypeId === typeId);
+    if (!found) return;
+    if (found.standardHourlyRate > 0) {
+      this.editForm.controls.hourlyRate.setValue(found.standardHourlyRate);
+      this.monthlySalaryInput.set(Math.round(found.standardHourlyRate * 208));
+    }
+    this.editForm.controls.allowance.setValue(found.allowance || 0);
+  }
+
+  onMonthlySalaryInput(val: number): void {
+    const monthly = Math.max(0, Number(val) || 0);
+    this.monthlySalaryInput.set(monthly);
+    this.editForm.controls.hourlyRate.setValue(Math.round(monthly / 208));
+  }
+
+  cancelEdit(): void {
+    this.isEditing.set(false);
+    this.editForm.reset();
+  }
+
+  saveEdit(): void {
+    if (this.editForm.invalid) {
+      this.editForm.markAllAsTouched();
+      this.toastService.error('Vui lòng kiểm tra lại thông tin: Họ tên và SĐT là bắt buộc, CCCD (nếu có) phải đủ 12 số.');
+      return;
+    }
+
+    const emp = this.employee();
+    if (!emp) return;
+
+    const empId = emp.employeeId || parseInt(String(emp.code).replace(/\D/g, ''), 10) || 1;
+    const raw = this.editForm.getRawValue();
+
+    this.isSubmitting.set(true);
+    const payload: UpdateEmployeeProfileDto = {
+      fullName: raw.fullName.trim(),
+      phoneNumber: raw.phone.trim() || undefined,
+      email: raw.email.trim() || undefined,
+      dateOfBirth: raw.dateOfBirth ? raw.dateOfBirth : null,
+      gender: raw.gender,
+      citizenId: raw.citizenId.trim() || undefined,
+      status: raw.status,
+      position: raw.position.trim() || undefined,
+      branchId: raw.branchId > 0 ? raw.branchId : undefined,
+      bankName: raw.bankName.trim() || undefined,
+      bankAccountNumber: raw.bankAccountNumber.trim() || undefined,
+      bankAccountName: raw.bankAccountNumber.trim()
+        ? (raw.bankAccountName.trim() || raw.fullName.trim()).toUpperCase()
+        : undefined,
+      contractTypeId: raw.contractTypeId > 0 ? raw.contractTypeId : undefined,
+      hourlyRate: raw.hourlyRate,
+      allowance: raw.allowance,
+      note: raw.note.trim() || undefined,
+    };
+
+    this.employeeApi.updateEmployeeProfile(empId, payload).subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        this.isEditing.set(false);
+        this.toastService.success(`Đã cập nhật thông tin hồ sơ nhân sự "${raw.fullName.trim()}" thành công!`);
+
+        // Tải lại dữ liệu hồ sơ mới nhất
+        this.loadEmployeeProfile(emp.employeeCode || emp.code || String(empId));
+        this.loadAccessibleEmployees(false);
+      },
+      error: (err) => {
+        this.isSubmitting.set(false);
+        this.toastService.error(err.message || 'Lỗi khi cập nhật thông tin nhân viên');
+      },
+    });
+  }
+
+  // ==========================================
   // CREATE EMPLOYEE FORM ACTIONS
   // ==========================================
   openCreateMode(): void {
+    this.isEditing.set(false);
     this.isCreateMode.set(true);
     this.accessDenied.set(false);
     this.isComboboxOpen.set(false);
-
-    const defaultBranch =
-      this.branchService.selectedBranchId() === 'all' ? 'cn-q1' : this.branchService.selectedBranchId();
-    const defaultContract = this.contractTypes().find((t) => t.contractTypeId === 3) || this.contractTypes()[0];
-    this.selectedContract.set(defaultContract || null);
 
     this.employeeForm.reset({
       fullName: '',
@@ -462,15 +647,11 @@ export class HrmProfile {
       dateOfBirth: '2001-01-01',
       gender: 'male',
       username: '',
-      password: 'Fiin@2026',
+      password: '',
       citizenId: '',
-      bankName: 'Vietcombank',
+      bankName: '',
       bankAccountNumber: '',
       bankAccountName: '',
-      branchId: defaultBranch,
-      position: 'Barista Chuyên nghiệp',
-      contractTypeId: defaultContract ? defaultContract.contractTypeId : 3,
-      hourlyRate: defaultContract ? Number(defaultContract.standardHourlyRate) : 28000,
       note: '',
     });
   }
@@ -482,54 +663,34 @@ export class HrmProfile {
     });
   }
 
-  onContractTypeChange(event: Event): void {
-    const id = Number((event.target as HTMLSelectElement).value);
-    const contract = this.contractTypes().find((c) => c.contractTypeId === id) ?? null;
-    this.selectedContract.set(contract);
-
-    if (contract && contract.standardHourlyRate) {
-      this.employeeForm.patchValue({
-        contractTypeId: contract.contractTypeId,
-        hourlyRate: Number(contract.standardHourlyRate),
-      });
-    }
-  }
-
   saveEmployee(): void {
     if (this.employeeForm.invalid) {
       this.employeeForm.markAllAsTouched();
-      this.toastService.error('Vui lòng điền đầy đủ các thông tin bắt buộc (Họ tên, SĐT, Username, Mật khẩu, CCCD 12 số)!');
+      this.toastService.error('Vui lòng kiểm tra lại thông tin: Họ tên và SĐT là bắt buộc, các trường còn lại phải đúng định dạng nếu có nhập.');
       return;
     }
 
     this.isSubmitting.set(true);
     const val = this.employeeForm.getRawValue();
+    const hasBankAccount = !!val.bankAccountNumber.trim();
 
-    let numericBranchId = 1;
-    if (val.branchId === 'cn-q3') numericBranchId = 2;
-    else if (val.branchId === 'cn-td') numericBranchId = 3;
-    else if (val.branchId === 'cn-bt') numericBranchId = 4;
-    else if (!isNaN(Number(val.branchId))) numericBranchId = Number(val.branchId);
-
-    const payload: CreateEmployeeDto = {
-      username: val.username.trim(),
-      password: val.password,
+    // Chi nhánh, chức vụ, hợp đồng, mức lương không gửi từ form này (thiết lập ở mục khác)
+    const payload = {
+      username: val.username.trim() || undefined,
+      password: val.password || undefined,
       fullName: val.fullName.trim(),
       phoneNumber: val.phone.trim() || undefined,
       email: val.email.trim() || undefined,
       dateOfBirth: val.dateOfBirth ? val.dateOfBirth : null,
       gender: val.gender,
-      citizenId: val.citizenId.trim(),
+      citizenId: val.citizenId.trim() || undefined,
       bankName: val.bankName.trim() || undefined,
       bankAccountNumber: val.bankAccountNumber.trim() || undefined,
-      bankAccountName: val.bankAccountName ? val.bankAccountName.trim().toUpperCase() : val.fullName.trim().toUpperCase(),
-      branchId: numericBranchId,
-      position: val.position,
-      contractTypeId: Number(val.contractTypeId),
-      hourlyRate: Number(val.hourlyRate),
+      bankAccountName: hasBankAccount
+        ? (val.bankAccountName.trim() || val.fullName.trim()).toUpperCase()
+        : undefined,
       note: val.note.trim() || undefined,
-      roleId: this.getRoleIdByPosition(val.position),
-    };
+    } as CreateEmployeeDto;
 
     this.employeeApi.createEmployee(payload).subscribe({
       next: (created) => {
@@ -604,20 +765,6 @@ export class HrmProfile {
           variant: 'neutral',
           desc: 'Nhân viên thực hiện nghiệp vụ quầy pha chế, thu ngân và phục vụ.',
         };
-    }
-  }
-
-  private getRoleIdByPosition(pos: string): number {
-    switch (pos) {
-      case 'Quản lý Cửa hàng':
-        return 3;
-      case 'Trưởng ca Pha chế':
-      case 'Trưởng ca Cửa hàng':
-        return 6;
-      case 'Nhân viên Thu ngân':
-        return 4;
-      default:
-        return 5;
     }
   }
 }

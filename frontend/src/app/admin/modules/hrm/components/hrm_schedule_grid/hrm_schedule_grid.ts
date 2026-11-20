@@ -17,6 +17,7 @@ import {
 } from '@lucide/angular';
 import { ShiftAssignment, ShiftTemplate } from '../../models/shift';
 import { Employee } from '../../models/employee';
+import { getTodayIsoDate } from '../../utils/hrm_date_helpers';
 
 export interface DayColumn {
   dayName: string; // 'Thứ 2', 'Thứ 3', ...
@@ -58,7 +59,7 @@ export class HrmScheduleGrid {
   readonly daysOfWeek = computed<DayColumn[]>(() => {
     const start = new Date(this.weekStart());
     const dayLabels = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ Nhật'];
-    const todayStr = '2026-11-15';
+    const todayStr = getTodayIsoDate();
 
     return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(start);

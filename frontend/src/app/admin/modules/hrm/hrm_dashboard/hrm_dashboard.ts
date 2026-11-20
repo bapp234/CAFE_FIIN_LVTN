@@ -7,22 +7,28 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import {
-  LucideCalendar,
   LucideClock,
-  LucideDollarSign,
-  LucideFileText,
   LucidePieChart,
+  LucideRotateCcw,
   LucideTrendingUp,
   LucideUserPlus,
-  LucideUsers,
 } from '@lucide/angular';
 import { AdminBranchService } from '../../../shared/services/admin_branch_service';
-import { AdminPageHeader } from '../../../shared/admin_page_header/admin_page_header';
 import { AdminStatCard } from '../../../shared/admin_stat_card/admin_stat_card';
-import { HrmEmployeeApi } from '../services/hrm_employee_api';
-import { Employee } from '../models/employee';
+import { AdminButtonComponent } from '../../../components/admin_button/admin_button';
+import {
+  AdminComboBoxComponent,
+  ComboOption,
+} from '../../../components/admin_combo_box/admin_combo_box';
+import { HrmSalaryTrendChart } from '../components/hrm_salary_trend_chart/hrm_salary_trend_chart';
+import {
+  HrmEmployeeApi,
+  HrmDashboardSummary,
+  DashboardPositionItem,
+  DashboardMonthlyStat,
+  DashboardAttendanceSummary,
+} from '../services/hrm_employee_api';
 
 export interface MonthTrendPoint {
   month: number;
@@ -33,19 +39,51 @@ export interface MonthTrendPoint {
   y: number;
 }
 
-export interface AgeGroupStat {
-  range: string;
+export interface ChartAxisTick {
+  val: number;
+  label: string;
+  y: number;
+}
+
+export interface TurnoverPoint {
+  month: number;
+  label: string;
+  hired: number;
+  resigned: number;
+  net: number;
+}
+
+export interface DonutSegment {
+  id: string;
   label: string;
   count: number;
   percentage: number;
-  heightPercent: number;
+  color: string;
+  dashArray: string;
+  dashOffset: number;
 }
 
-export interface ContractStat {
-  code: string;
-  name: string;
-  count: number;
-  percentage: number;
+function computeNiceScale(
+  maxVal: number,
+  tickCount = 4
+): { max: number; ticks: number[] } {
+  const safeMax = Math.max(maxVal, 4);
+  const rawStep = safeMax / tickCount;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
+  const normalized = rawStep / magnitude;
+
+  let niceStep: number;
+  if (normalized <= 1.2) niceStep = 1 * magnitude;
+  else if (normalized <= 2.5) niceStep = 2 * magnitude;
+  else if (normalized <= 5) niceStep = 5 * magnitude;
+  else niceStep = 10 * magnitude;
+
+  const niceMax = niceStep * tickCount;
+  const ticks: number[] = [];
+  for (let i = tickCount; i >= 0; i--) {
+    ticks.push(Number((i * niceStep).toFixed(1)));
+  }
+  return { max: Math.max(niceMax, safeMax), ticks };
 }
 
 @Component({
@@ -56,17 +94,15 @@ export interface ContractStat {
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
-    LucideUsers,
-    LucideClock,
-    LucideCalendar,
-    LucideDollarSign,
     LucideUserPlus,
     LucideTrendingUp,
     LucidePieChart,
-    LucideFileText,
-    AdminPageHeader,
+    LucideRotateCcw,
+    LucideClock,
     AdminStatCard,
+    AdminButtonComponent,
+    AdminComboBoxComponent,
+    HrmSalaryTrendChart,
   ],
 })
 export class HrmDashboard {
@@ -74,25 +110,76 @@ export class HrmDashboard {
   private readonly employeeApi = inject(HrmEmployeeApi);
 
   readonly isLoading = signal(true);
-  readonly employees = signal<Employee[]>([]);
+  readonly summary = signal<HrmDashboardSummary | null>(null);
 
-  // 4 Chỉ số KPI Nhân sự chuẩn
+  // ---- 1. Bộ lọc Chi nhánh & Tùy chọn năm ----
+  readonly branchOptions = computed<ComboOption[]>(() => [
+    { value: 'all', label: 'Tất cả chi nhánh' },
+    ...this.branchService.branches().map((b) => ({ value: String(b.id), label: b.name })),
+  ]);
+
+  readonly selectedMonth = signal<number>(11);
+  readonly selectedYear = signal<string>('2026');
+  readonly selectedMonthString = computed(() => String(this.selectedMonth()));
+
+  readonly monthOptions: ComboOption[] = [
+    { value: '1', label: 'Tháng 1' },
+    { value: '2', label: 'Tháng 2' },
+    { value: '3', label: 'Tháng 3' },
+    { value: '4', label: 'Tháng 4' },
+    { value: '5', label: 'Tháng 5' },
+    { value: '6', label: 'Tháng 6' },
+    { value: '7', label: 'Tháng 7' },
+    { value: '8', label: 'Tháng 8' },
+    { value: '9', label: 'Tháng 9' },
+    { value: '10', label: 'Tháng 10' },
+    { value: '11', label: 'Tháng 11' },
+    { value: '12', label: 'Tháng 12' },
+  ];
+
+  readonly yearOptions: ComboOption[] = [
+    { value: '2026', label: 'Năm 2026' },
+    { value: '2025', label: 'Năm 2025' },
+    { value: '2024', label: 'Năm 2024' },
+  ];
+
+  readonly attendanceTotalShifts = computed<number>(() => {
+    const segs = this.attendanceDonutSegments();
+    return segs.reduce((sum, s) => sum + s.count, 0);
+  });
+
+  readonly punctualComplianceRate = computed<string>(() => {
+    const segs = this.attendanceDonutSegments();
+    const onTime = segs.find((s) => s.id === 'on_time')?.count ?? 0;
+    const total = this.attendanceTotalShifts();
+    if (total === 0) return '0.0';
+    return ((onTime / total) * 100).toFixed(1);
+  });
+
+  // ---- 2. 4 Chỉ số KPI Chuẩn hóa ----
   readonly totalEmployees = signal(0);
   readonly workingEmployees = signal(0);
-  readonly newEmployeesThisMonth = signal(2); // Nhân sự tiếp nhận mới trong tháng 11
-  readonly resignedEmployeesThisMonth = signal(0); // Nhân sự đã nghỉ trong tháng
+  readonly resignedEmployees = signal(0);
+  readonly probationEmployees = signal(0);
 
-  // Dữ liệu biểu đồ biến động theo năm (12 tháng 2026)
+  // ---- 3. Biểu đồ đường biến động nhân sự 12 tháng ----
   readonly monthlyTrends = signal<MonthTrendPoint[]>([]);
+  readonly trendTicks = signal<ChartAxisTick[]>([]);
   readonly hoveredPoint = signal<MonthTrendPoint | null>(null);
 
-  // Dữ liệu biểu đồ cơ cấu theo độ tuổi
-  readonly ageGroups = signal<AgeGroupStat[]>([]);
+  // ---- 4. Biểu đồ cột kép Tuyển mới vs Nghỉ việc ----
+  readonly turnoverStats = signal<TurnoverPoint[]>([]);
+  readonly turnoverTicks = signal<ChartAxisTick[]>([]);
+  readonly hoveredTurnover = signal<TurnoverPoint | null>(null);
 
-  // Dữ liệu biểu đồ phân bổ hợp đồng lao động
-  readonly contractStats = signal<ContractStat[]>([]);
+  // ---- 5. Cặp biểu đồ đôi: Cơ cấu Chức vụ & Tỷ lệ Chấm công ----
+  readonly positionDonutSegments = signal<DonutSegment[]>([]);
+  readonly attendanceDonutSegments = signal<DonutSegment[]>([]);
+  readonly hoveredDonutSegment = signal<DonutSegment | null>(null);
 
-  // SVG Cubic Bézier Spline Path (DevExtreme-like ultra-smooth curve)
+  // =========================================================================
+  // TOÁN TỬ VẼ ĐƯỜNG CONG SPLINE BÉZIER (THOÁNG, MƯỢT MÀ, KHÔNG GÃY KHÚC)
+  // =========================================================================
   readonly svgSplinePath = computed(() => {
     const pts = this.monthlyTrends();
     if (pts.length < 2) return '';
@@ -113,203 +200,272 @@ export class HrmDashboard {
     return d;
   });
 
-  // SVG Area Under Spline with smooth bottom closure
   readonly svgAreaPath = computed(() => {
     const pts = this.monthlyTrends();
     if (pts.length < 2) return '';
     const spline = this.svgSplinePath();
     const firstX = pts[0].x;
     const lastX = pts[pts.length - 1].x;
-    const baseBottom = 230;
+    const baseBottom = 310;
     return `${spline} L ${lastX} ${baseBottom} L ${firstX} ${baseBottom} Z`;
   });
 
   constructor() {
     effect(() => {
       const branchId = this.branchService.selectedBranchId();
-      this.loadDashboardData(branchId);
+      const month = this.selectedMonth();
+      const year = this.selectedYear();
+      this.loadDashboardData(branchId, month, year);
     });
   }
 
-  loadDashboardData(branchId: string): void {
+  loadDashboardData(branchId?: string, month?: number, year?: string): void {
     this.isLoading.set(true);
 
-    this.employeeApi.getEmployees({ page: 1, size: 100, branchId }).subscribe({
-      next: (page) => {
-        const list = page.items || [];
-        this.employees.set(list);
+    const bId = branchId && branchId !== 'all' ? Number(branchId) : null;
+    const m = month ?? this.selectedMonth();
+    const y = parseInt(year ?? this.selectedYear(), 10);
 
-        // 1. Thống kê 4 thẻ chỉ số
-        const total = list.length;
-        const active = list.filter((e) => e.status === 'active' || e.status === 'working').length;
-        const resigned = list.filter((e) => e.status === 'resigned').length;
+    this.employeeApi
+      .getDashboardSummary({
+        branchId: bId,
+        year: y,
+        month: m,
+      })
+      .subscribe({
+        next: (summaryData) => {
+          this.summary.set(summaryData);
+          if (summaryData) {
+            this.applyDashboardSummary(summaryData);
+          }
+          this.isLoading.set(false);
+        },
+        error: () => this.isLoading.set(false),
+      });
+  }
 
-        // Nhân viên mới trong tháng 11/2026
-        const newThisMonth = list.filter((e) => {
-          const sd = e.startDate || '';
-          const hd = e.hireDate || '';
-          return (
-            sd.includes('/11/2026') ||
-            sd.includes('11/2026') ||
-            hd.includes('2026-11') ||
-            e.code === 'NV012' ||
-            e.code === 'NV013'
-          );
-        }).length;
+  onBranchFilterChange(branchId: string): void {
+    this.branchService.selectBranch(branchId);
+  }
 
-        this.totalEmployees.set(total);
-        this.workingEmployees.set(active);
-        this.newEmployeesThisMonth.set(Math.max(1, newThisMonth));
-        this.resignedEmployeesThisMonth.set(resigned);
+  onMonthFilterChange(monthStr: string): void {
+    const m = parseInt(monthStr, 10);
+    if (!isNaN(m) && m >= 1 && m <= 12) {
+      this.selectedMonth.set(m);
+    }
+  }
 
-        // 2. Tính toán Biểu đồ biến động nhân sự theo năm (Năm 2026, 12 tháng)
-        this.computeMonthlyTrends(total);
+  onYearFilterChange(year: string): void {
+    this.selectedYear.set(year);
+  }
 
-        // 3. Tính toán Cơ cấu nhân sự theo độ tuổi (18-25, 26-35, 36-45, 46-55, 56+)
-        this.computeAgeGroups(list);
-
-        // 4. Tính toán Phân bổ hợp đồng
-        this.computeContractStats(list);
-
-        this.isLoading.set(false);
-      },
-      error: () => this.isLoading.set(false),
-    });
+  refreshDashboard(): void {
+    this.loadDashboardData(
+      this.branchService.selectedBranchId(),
+      this.selectedMonth(),
+      this.selectedYear()
+    );
   }
 
   setHoveredPoint(pt: MonthTrendPoint | null): void {
     this.hoveredPoint.set(pt);
   }
 
-  private computeMonthlyTrends(currentTotal: number): void {
-    const base = Math.max(8, currentTotal);
-    // Dữ liệu tăng trưởng sống động theo 12 tháng 2026
-    const monthsData = [
-      { m: 1, val: Math.round(base * 0.4), growth: 'Giai đoạn mở quán' },
-      { m: 2, val: Math.round(base * 0.46), growth: '+1 nhân sự' },
-      { m: 3, val: Math.round(base * 0.52), growth: '+1 nhân sự' },
-      { m: 4, val: Math.round(base * 0.58), growth: '+1 nhân sự' },
-      { m: 5, val: Math.round(base * 0.65), growth: '+1 nhân sự' },
-      { m: 6, val: Math.round(base * 0.74), growth: 'Mở rộng CN2' },
-      { m: 7, val: Math.round(base * 0.8), growth: '+1 nhân sự' },
-      { m: 8, val: Math.round(base * 0.88), growth: 'Mùa cao điểm hè' },
-      { m: 9, val: Math.round(base * 0.88), growth: 'Duy trì ổn định' },
-      { m: 10, val: Math.round(base * 0.94), growth: '+1 nhân sự' },
-      { m: 11, val: base, growth: 'Hiện tại (+2 mới)' },
-      { m: 12, val: base + 1, growth: 'Dự kiến Tết 2027' },
-    ];
+  setHoveredTurnover(tp: TurnoverPoint | null): void {
+    this.hoveredTurnover.set(tp);
+  }
 
-    const maxVal = Math.max(...monthsData.map((d) => d.val), 16);
-    const chartHeight = 195;
-    const topPadding = 35;
-    const bottomY = 230;
+  setHoveredDonut(seg: DonutSegment | null): void {
+    this.hoveredDonutSegment.set(seg);
+  }
 
-    const points: MonthTrendPoint[] = monthsData.map((d, idx) => {
-      // Chiều rộng viewBox = 920, lề trái 60, lề phải 40, chia 11 khoảng (bước nhảy ~74.5px)
-      const x = 60 + idx * 74.5;
-      const normalizedRatio = d.val / maxVal;
-      const y = bottomY - normalizedRatio * chartHeight + topPadding;
+  // =========================================================================
+  // ÁP DỤNG TOÀN BỘ SỐ LIỆU TỔNG HỢP TỪ SP dbo.sp_HRM_GetDashboardSummary
+  // =========================================================================
+  private applyDashboardSummary(data: HrmDashboardSummary): void {
+    this.totalEmployees.set(data.totalEmployees ?? 0);
+    this.workingEmployees.set(data.workingEmployees ?? 0);
+    this.resignedEmployees.set(data.resignedEmployees ?? 0);
+    this.probationEmployees.set(data.probationEmployees ?? 0);
+
+    const monthly = data.monthlyStats ?? [];
+    this.buildMonthlyTrends(monthly);
+    this.buildTurnoverStats(monthly);
+    this.buildPositionDonut(data.positionBreakdown ?? []);
+    this.buildAttendanceDonut(data.attendanceSummary);
+  }
+
+  // =========================================================================
+  // BIỂU ĐỒ ĐƯỜNG BIẾN ĐỘNG QUY MÔ NHÂN SỰ 12 THÁNG (DỮ LIỆU THẬT TỪ DB)
+  // =========================================================================
+  private buildMonthlyTrends(monthlyStats: DashboardMonthlyStat[]): void {
+    const normalized: DashboardMonthlyStat[] =
+      monthlyStats.length === 12
+        ? monthlyStats
+        : Array.from({ length: 12 }, (_, idx) => {
+            const m = idx + 1;
+            return (
+              monthlyStats.find((s) => s.month === m) ?? {
+                month: m,
+                headcount: 0,
+                hiredCount: 0,
+                resignedCount: 0,
+              }
+            );
+          });
+
+    const rawMax = Math.max(...normalized.map((d) => d.headcount), 4);
+    const scale = computeNiceScale(rawMax, 4);
+
+    const chartHeight = 260;
+    const bottomY = 310;
+
+    const ticks: ChartAxisTick[] = scale.ticks.map((v) => {
+      const ratio = v / scale.max;
+      const y = Math.round(bottomY - ratio * chartHeight);
+      return { val: v, label: String(v), y };
+    });
+    this.trendTicks.set(ticks);
+
+    const points: MonthTrendPoint[] = normalized.map((d, idx) => {
+      const x = 65 + idx * 73.5;
+      const normalizedRatio = d.headcount / scale.max;
+      const y = Math.round(bottomY - normalizedRatio * chartHeight);
+      const prevCount = idx > 0 ? normalized[idx - 1].headcount : d.headcount;
+      const delta = d.headcount - prevCount;
+      const growth =
+        idx === 0
+          ? `Đầu năm (${d.hiredCount > 0 ? `+${d.hiredCount} mới` : 'ổn định'})`
+          : delta > 0
+            ? `+${delta} nhân sự so với tháng trước`
+            : delta < 0
+              ? `${delta} nhân sự so với tháng trước`
+              : 'Duy trì biên chế ổn định';
 
       return {
-        month: d.m,
-        label: `Tháng ${d.m}`,
-        count: d.val,
-        growth: d.growth,
-        x: Math.round(x),
-        y: Math.round(y),
+        month: d.month,
+        label: `Tháng ${d.month}`,
+        count: d.headcount,
+        growth,
+        x,
+        y,
       };
     });
 
     this.monthlyTrends.set(points);
   }
 
-  private computeAgeGroups(list: Employee[]): void {
-    const currentYear = 2026;
-    let g18_25 = 0;
-    let g26_35 = 0;
-    let g36_45 = 0;
-    let g46_55 = 0;
-    let g56_plus = 0;
+  // =========================================================================
+  // BIỂU ĐỒ CỘT KÉP TUYỂN MỚI VS NGHỈ VIỆC 12 THÁNG (DỮ LIỆU THẬT TỪ DB)
+  // =========================================================================
+  private buildTurnoverStats(monthlyStats: DashboardMonthlyStat[]): void {
+    const normalized: DashboardMonthlyStat[] =
+      monthlyStats.length === 12
+        ? monthlyStats
+        : Array.from({ length: 12 }, (_, idx) => {
+            const m = idx + 1;
+            return (
+              monthlyStats.find((s) => s.month === m) ?? {
+                month: m,
+                headcount: 0,
+                hiredCount: 0,
+                resignedCount: 0,
+              }
+            );
+          });
 
-    list.forEach((emp) => {
-      let birthYear = 2000;
-      if (emp.dateOfBirth) {
-        const parts = emp.dateOfBirth.split('-');
-        if (parts.length === 3) {
-          birthYear = parseInt(parts[0], 10) || 2000;
-        }
-      }
-      const age = currentYear - birthYear;
+    const data: TurnoverPoint[] = normalized.map((s) => ({
+      month: s.month,
+      label: `Tháng ${s.month}`,
+      hired: s.hiredCount,
+      resigned: s.resignedCount,
+      net: s.hiredCount - s.resignedCount,
+    }));
 
-      if (age < 26) g18_25++;
-      else if (age <= 35) g26_35++;
-      else if (age <= 45) g36_45++;
-      else if (age <= 55) g46_55++;
-      else g56_plus++;
+    const maxVal = Math.max(
+      ...data.map((d) => Math.max(d.hired, d.resigned)),
+      4
+    );
+    const scale = computeNiceScale(maxVal, 4);
+    const chartHeight = 250;
+    const bottomY = 310;
+
+    const ticks: ChartAxisTick[] = scale.ticks.map((v) => {
+      const ratio = v / scale.max;
+      const y = Math.round(bottomY - ratio * chartHeight);
+      return { val: v, label: String(v), y };
     });
+    this.turnoverTicks.set(ticks);
 
-    if (g18_25 === 0 && g26_35 === 0) {
-      g18_25 = 9;
-      g26_35 = 4;
-    }
-
-    const total = list.length || 13;
-    const maxGroupCount = Math.max(g18_25, g26_35, g36_45, g46_55, g56_plus, 1);
-
-    const groups: AgeGroupStat[] = [
-      {
-        range: '18-25',
-        label: '18-25 tuổi (Barista / Thu ngân)',
-        count: g18_25,
-        percentage: Math.round((g18_25 / total) * 100),
-        heightPercent: Math.round((g18_25 / maxGroupCount) * 100),
-      },
-      {
-        range: '26-35',
-        label: '26-35 tuổi (Trưởng ca / Quản lý)',
-        count: g26_35,
-        percentage: Math.round((g26_35 / total) * 100),
-        heightPercent: Math.round((g26_35 / maxGroupCount) * 100),
-      },
-      {
-        range: '36-45',
-        label: '36-45 tuổi (Khối Giám sát / Điều hành)',
-        count: g36_45,
-        percentage: Math.round((g36_45 / total) * 100),
-        heightPercent: Math.round((g36_45 / maxGroupCount) * 100),
-      },
-      {
-        range: '46-55',
-        label: '46-55 tuổi',
-        count: g46_55,
-        percentage: Math.round((g46_55 / total) * 100),
-        heightPercent: Math.round((g46_55 / maxGroupCount) * 100),
-      },
-      {
-        range: '56+',
-        label: '56 tuổi trở lên',
-        count: g56_plus,
-        percentage: Math.round((g56_plus / total) * 100),
-        heightPercent: Math.round((g56_plus / maxGroupCount) * 100),
-      },
-    ];
-
-    this.ageGroups.set(groups);
+    this.turnoverStats.set(data);
   }
 
-  private computeContractStats(list: Employee[]): void {
-    const fullTime = list.filter((e) => e.contractType === 'full_time' || (e.contractCode && e.contractCode.includes('CHINH-THUC'))).length || 7;
-    const partTime = list.filter((e) => e.contractType === 'part_time' || (e.contractCode && e.contractCode.includes('PART-TIME'))).length || 4;
-    const management = list.filter((e) => e.contractCode && e.contractCode.includes('QUAN-LY')).length || 1;
-    const probation = list.filter((e) => e.contractCode && (e.contractCode.includes('THU-VIEC') || e.contractCode.includes('HOC-VIEC'))).length || 1;
+  // =========================================================================
+  // DONUT CƠ CẤU CHỨC VỤ (DỮ LIỆU THẬT TỪ DB)
+  // =========================================================================
+  private buildPositionDonut(items: DashboardPositionItem[]): void {
+    const total = items.reduce((acc, it) => acc + it.count, 0);
+    const safeTotal = total || 1;
+    const circumference = 2 * Math.PI * 72; // r = 72 -> C ~ 452.389
+    let accumulated = 0;
 
-    const total = fullTime + partTime + management + probation;
+    const segments: DonutSegment[] = items.map((it) => {
+      const ratio = total > 0 ? it.count / safeTotal : 0;
+      const percentage = Math.round(ratio * 100);
+      const dashLen = ratio * circumference;
+      const dashArray = `${dashLen.toFixed(1)} ${circumference.toFixed(1)}`;
+      const dashOffset = -accumulated;
+      accumulated += dashLen;
 
-    this.contractStats.set([
-      { code: 'HD-CHINH-THUC', name: 'Lao động Chính thức', count: fullTime, percentage: Math.round((fullTime / total) * 100) },
-      { code: 'HD-PART-TIME', name: 'Bán thời gian (Part-time)', count: partTime, percentage: Math.round((partTime / total) * 100) },
-      { code: 'HD-QUAN-LY', name: 'Quản lý / Trưởng ca', count: management, percentage: Math.round((management / total) * 100) },
-      { code: 'HD-THU-VIEC', name: 'Thử việc & Đào tạo', count: probation, percentage: Math.round((probation / total) * 100) },
-    ]);
+      return {
+        id: it.groupId,
+        label: it.label,
+        count: it.count,
+        percentage,
+        color: it.color,
+        dashArray,
+        dashOffset: Number(dashOffset.toFixed(1)),
+      };
+    });
+
+    this.positionDonutSegments.set(segments);
+  }
+
+  // =========================================================================
+  // DONUT KỶ LUẬT CHẤM CÔNG THÁNG (DỮ LIỆU THẬT TỪ dbo.Attendances)
+  // =========================================================================
+  private buildAttendanceDonut(att?: DashboardAttendanceSummary): void {
+    const items = [
+      { id: 'on_time', label: 'Đúng giờ (Chuẩn ca)', count: att?.onTimeCount ?? 0, color: '#15803d' },
+      { id: 'late', label: 'Đi muộn', count: att?.lateCount ?? 0, color: '#d97706' },
+      { id: 'early_leave', label: 'Về sớm', count: att?.earlyLeaveCount ?? 0, color: '#0284c7' },
+      { id: 'missing_punch', label: 'Quên chấm công', count: att?.missingPunchCount ?? 0, color: '#a8a29e' },
+    ];
+
+    const total = items.reduce((acc, it) => acc + it.count, 0);
+    const safeTotal = total || 1;
+    const circumference = 2 * Math.PI * 72;
+    let accumulated = 0;
+
+    const segments: DonutSegment[] = items.map((it) => {
+      const ratio = total > 0 ? it.count / safeTotal : 0;
+      const percentage = Math.round(ratio * 100);
+      const dashLen = ratio * circumference;
+      const dashArray = `${dashLen.toFixed(1)} ${circumference.toFixed(1)}`;
+      const dashOffset = -accumulated;
+      accumulated += dashLen;
+
+      return {
+        id: it.id,
+        label: it.label,
+        count: it.count,
+        percentage,
+        color: it.color,
+        dashArray,
+        dashOffset: Number(dashOffset.toFixed(1)),
+      };
+    });
+
+    this.attendanceDonutSegments.set(segments);
   }
 }

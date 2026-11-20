@@ -13,11 +13,22 @@ public class EmployeesController : ControllerBase
 {
     private readonly IEmployeeRepository _employeeRepository;
     private readonly ILogger<EmployeesController> _logger;
+    private readonly IExcelExportEngine _excelExportEngine;
+    private readonly IExcelImportEngine _excelImportEngine;
+    private readonly IWebHostEnvironment _env;
 
-    public EmployeesController(IEmployeeRepository employeeRepository, ILogger<EmployeesController> logger)
+    public EmployeesController(
+        IEmployeeRepository employeeRepository, 
+        ILogger<EmployeesController> logger, 
+        IExcelExportEngine excelExportEngine,
+        IExcelImportEngine excelImportEngine,
+        IWebHostEnvironment env)
     {
         _employeeRepository = employeeRepository;
         _logger = logger;
+        _excelExportEngine = excelExportEngine;
+        _excelImportEngine = excelImportEngine;
+        _env = env;
     }
 
     /// <summary>
@@ -26,8 +37,8 @@ public class EmployeesController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<IEnumerable<EmployeeDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(
-        [FromQuery] int? branchId, 
-        [FromQuery] string? status, 
+        [FromQuery] int? branchId,
+        [FromQuery] string? status,
         [FromQuery] string? search)
     {
         var employees = await _employeeRepository.GetAllAsync(branchId, status, search);
@@ -72,12 +83,12 @@ public class EmployeesController : ControllerBase
         {
             var createdEmployee = await _employeeRepository.CreateEmployeeAsync(request);
 
-            _logger.LogInformation("Đã tạo mới nhân viên {EmployeeCode} ({FullName}) thành công", 
+            _logger.LogInformation("Đã tạo mới nhân viên {EmployeeCode} ({FullName}) thành công",
                 createdEmployee.EmployeeCode, createdEmployee.FullName);
 
             return CreatedAtAction(
-                nameof(GetById), 
-                new { id = createdEmployee.EmployeeId }, 
+                nameof(GetById),
+                new { id = createdEmployee.EmployeeId },
                 ApiResponse<EmployeeDto>.Ok(createdEmployee, "Tạo mới nhân viên thành công")
             );
         }
@@ -89,7 +100,7 @@ public class EmployeesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi hệ thống khi tạo nhân viên mới");
-            return StatusCode(StatusCodes.Status500InternalServerError, 
+            return StatusCode(StatusCodes.Status500InternalServerError,
                 ApiResponse.Fail("Đã xảy ra lỗi máy chủ trong quá trình xử lý tạo mới nhân viên."));
         }
     }
@@ -215,7 +226,7 @@ public class EmployeesController : ControllerBase
         try
         {
             await _employeeRepository.AssignApprovalAuthorityAsync(id, request, grantedBy);
-            _logger.LogInformation("Đã phân cấp thẩm quyền Level {ApprovalLevel} cho nhân viên ID = {EmployeeId} bởi {GrantedBy}", 
+            _logger.LogInformation("Đã phân cấp thẩm quyền Level {ApprovalLevel} cho nhân viên ID = {EmployeeId} bởi {GrantedBy}",
                 request.ApprovalLevel, id, grantedBy);
 
             return Ok(ApiResponse<object>.Ok(new { employeeId = id, request.ApprovalLevel }, "Phân cấp thẩm quyền thành công"));
@@ -228,6 +239,193 @@ public class EmployeesController : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, ApiResponse.Fail(ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// Lấy danh sách nhân viên tinh gọn hỗ trợ công tắc @AccountStatus: 1 (có TK), 0 (chưa có TK), -1 (tất cả)
+    /// Hỗ trợ phân trang: mặc định nạp 50 nhân viên đầu tiên (pageIndex = 1, pageSize = 50)
+    /// </summary>
+    [HttpGet("simple")]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<EmployeeSimpleDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetSimple(
+        [FromQuery] int accountStatus = -1,
+        [FromQuery] DateTime? viewDate = null,
+        [FromQuery] int? branchId = null,
+        [FromQuery] string? search = null,
+        [FromQuery] int loginId = -1,
+        [FromQuery] int pageIndex = 1,
+        [FromQuery] int pageSize = 50)
+    {
+        var list = await _employeeRepository.GetEmployeesSimpleAsync(
+            accountStatus, viewDate, branchId, search, loginId, pageIndex, pageSize);
+
+        return Ok(ApiResponse<IEnumerable<EmployeeSimpleDto>>.Ok(list, "Lấy danh sách nhân sự thành công"));
+    }
+
+    /// <summary>
+    /// Lấy số liệu tổng hợp KPI & biểu đồ chuyên biệt cho HRM Dashboard (tính trực tiếp trên SQL Server)
+    /// </summary>
+    [HttpGet("dashboard-summary")]
+    [ProducesResponseType(typeof(ApiResponse<HrmDashboardSummaryDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDashboardSummary(
+        [FromQuery] int? branchId = null,
+        [FromQuery] int? year = null,
+        [FromQuery] int? month = null,
+        [FromQuery] int loginId = -1)
+    {
+        var summary = await _employeeRepository.GetDashboardSummaryAsync(branchId, year, month, loginId);
+        return Ok(ApiResponse<HrmDashboardSummaryDto>.Ok(summary, "Lấy dữ liệu tổng hợp Dashboard HRM thành công"));
+    }
+
+    /// <summary>
+    /// Lấy bộ dữ liệu lưới động (Metadata Cột + Dữ liệu Dòng) cho AdminGridTable
+    /// </summary>
+    [HttpGet("grid-dataset")]
+    [ProducesResponseType(typeof(ApiResponse<GridDatasetDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetGridDataset(
+        [FromQuery] string? currentUsername = null,
+        [FromQuery] int? branchId = null,
+        [FromQuery] string? position = null,
+        [FromQuery] string? status = null,
+        [FromQuery] DateTime? targetDate = null,
+        [FromQuery] string? search = null,
+        [FromQuery] int pageIndex = 1,
+        [FromQuery] int pageSize = 50)
+    {
+        var dataset = await _employeeRepository.GetEmployeesGridDatasetAsync(
+            currentUsername, branchId, position, status, targetDate, search, pageIndex, pageSize
+        );
+        return Ok(ApiResponse<GridDatasetDto>.Ok(dataset, "Lấy dataset lưới nhân sự thành công"));
+    }
+    /// <summary>
+    /// Xuất danh sách nhân sự ra file Excel dựa trên mẫu Template người dùng thiết kế (Kiến trúc ParadiseHR)
+    /// </summary>
+    [HttpGet("export-excel")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ExportExcel(
+        [FromQuery] int? branchId,
+        [FromQuery] string? position,
+        [FromQuery] string? status,
+        [FromQuery] string? search,
+        [FromQuery] string? employeeCodes,
+        [FromQuery] int accountStatus = -1)
+    {
+        try
+        {
+            // 1. Xác định đường dẫn file mẫu template trên server
+            var templatePath = Path.Combine(_env.ContentRootPath, "Templates", "Fiin_HRM_Employees_Template.xlsx");
+            if (!System.IO.File.Exists(templatePath))
+            {
+                return NotFound(ApiResponse<string>.Fail($"Không tìm thấy file mẫu Excel tại: {templatePath}"));
+            }
+            // 2. Lấy DataSet gồm dữ liệu nhân viên và cấu hình xuất từ Stored Procedure
+            var dataSet = await _employeeRepository.GetEmployeesExportDataSetAsync(
+                currentUsername: User?.Identity?.Name ?? "admin",
+                branchId: branchId,
+                position: position,
+                status: status,
+                searchText: search,
+                employeeCodes: employeeCodes,
+                accountStatus: accountStatus);
+            // 3. Đổ dữ liệu vào template qua Engine ParadiseHR
+            byte[] fileBytes = await _excelExportEngine.ExportFromTemplateAsync(templatePath, dataSet);
+            // 4. Trả về file nhị phân đính kèm tên file tải về
+            string fileName = $"Fiin_HRM_NhanSu_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+            const string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            return File(fileBytes, contentType, fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi trong quá trình xuất Excel danh sách nhân sự");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                ApiResponse<string>.Fail($"Xuất file Excel thất bại: {ex.Message}"));
+        }
+    }
+
+    /// <summary>
+    /// Lấy toàn bộ tùy chọn cho các combobox bộ lọc (Chi nhánh, Chức vụ, Trạng thái, Loại HĐ)
+    /// </summary>
+    [HttpGet("filter-options")]
+    [ProducesResponseType(typeof(ApiResponse<EmployeeFilterOptionsDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetFilterOptions()
+    {
+        var options = await _employeeRepository.GetEmployeesFilterOptionsAsync();
+        return Ok(ApiResponse<EmployeeFilterOptionsDto>.Ok(options, "Lấy danh sách tùy chọn bộ lọc thành công"));
+    }
+
+    /// <summary>
+    /// Tải file Excel mẫu biểu chuẩn (.xlsx) để người dùng điền dữ liệu nhân sự nhập nhanh
+    /// </summary>
+    [HttpGet("import-template")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    public IActionResult DownloadImportTemplate()
+    {
+        var templateBytes = _excelImportEngine.GenerateImportTemplate();
+        return File(
+            templateBytes,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "Fiin_HRM_NhanSu_MauNhapNhanh.xlsx"
+        );
+    }
+
+    /// <summary>
+    /// Tải lên file Excel để đọc trước và kiểm tra lỗi dữ liệu (Preview & Validate)
+    /// </summary>
+    [HttpPost("import-preview")]
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(ApiResponse<EmployeeImportPreviewResultDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> PreviewImportExcel(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest(ApiResponse<object>.Fail("Vui lòng chọn file Excel (.xlsx) hợp lệ."));
+        }
+
+        try
+        {
+            var existingCitizenIds = await _employeeRepository.GetExistingCitizenIdsAsync();
+            using var stream = file.OpenReadStream();
+            var previewResult = await _excelImportEngine.ParseAndValidateExcelAsync(stream, existingCitizenIds);
+
+            return Ok(ApiResponse<EmployeeImportPreviewResultDto>.Ok(
+                previewResult,
+                $"Đọc thành công {previewResult.TotalRows} dòng dữ liệu ({previewResult.ValidRows} hợp lệ, {previewResult.ErrorRows} dòng lỗi)."
+            ));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi đọc file Excel nhập nhân sự");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                ApiResponse<string>.Fail($"Không thể xử lý file Excel: {ex.Message}"));
+        }
+    }
+
+    /// <summary>
+    /// Xác nhận lưu hàng loạt (100+ nhân viên) vào CSDL qua Stored Procedure Batch
+    /// </summary>
+    [HttpPost("import-save")]
+    [ProducesResponseType(typeof(ApiResponse<EmployeeImportSaveResultDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> SaveImportedEmployees([FromBody] EmployeeImportSaveRequestDto request)
+    {
+        if (request == null || request.Employees == null || request.Employees.Count == 0)
+        {
+            return BadRequest(ApiResponse<object>.Fail("Không có dữ liệu nhân viên hợp lệ để lưu."));
+        }
+
+        try
+        {
+            var result = await _employeeRepository.ImportEmployeesBatchAsync(request, User?.Identity?.Name ?? "admin");
+            return Ok(ApiResponse<EmployeeImportSaveResultDto>.Ok(
+                result,
+                $"Đã nạp thành công {result.TotalImported}/{result.TotalReceived} hồ sơ nhân sự vào hệ thống."
+            ));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi lưu hàng loạt nhân sự vào CSDL");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                ApiResponse<string>.Fail($"Lưu nhân sự thất bại: {ex.Message}"));
         }
     }
 }

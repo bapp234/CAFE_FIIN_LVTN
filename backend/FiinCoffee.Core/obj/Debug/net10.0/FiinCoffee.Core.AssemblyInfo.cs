@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FiinCoffee.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+81a58391e62e1dd01c931578aa1e435b76ea9845")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4d29e897ab5e2bab14dea09de0ac4ff58d80a9dd")]
 [assembly: System.Reflection.AssemblyProductAttribute("FiinCoffee.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FiinCoffee.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

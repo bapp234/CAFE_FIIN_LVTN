@@ -1,8 +1,15 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import {
+  ApplicationConfig,
+  inject,
+  provideAppInitializer,
+  provideBrowserGlobalErrorListeners,
+} from '@angular/core';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 
 import { routes } from './app.routes';
+import { adminAuthInterceptor } from './admin/core/admin_auth_interceptor';
+import { AdminSession } from './admin/core/admin_session';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -14,6 +21,7 @@ export const appConfig: ApplicationConfig = {
         scrollPositionRestoration: 'enabled',
       })
     ),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch(), withInterceptors([adminAuthInterceptor])),
+    provideAppInitializer(() => inject(AdminSession).restoreSession()),
   ],
 };

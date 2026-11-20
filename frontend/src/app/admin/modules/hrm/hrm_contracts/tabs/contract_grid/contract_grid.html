@@ -1,0 +1,385 @@
+<!-- 4 THẺ KPI TÓM TẮT -->
+<div class="kpi-strip">
+  <div class="kpi-card">
+    <span class="kpi-label">Đang hiệu lực</span>
+    <strong class="kpi-val is-success">{{ summary().activeCount }}</strong>
+  </div>
+  <div class="kpi-card">
+    <span class="kpi-label">Đến hạn ký ({{ expiringDaysFilter() }} ngày)</span>
+    <strong class="kpi-val is-warn">{{ summary().expiringSoonCount }}</strong>
+  </div>
+  <div class="kpi-card">
+    <span class="kpi-label">Chờ phê duyệt</span>
+    <strong class="kpi-val is-info">{{ summary().pendingApprovalCount }}</strong>
+  </div>
+  <div class="kpi-card">
+    <span class="kpi-label">Hết hạn / Thanh lý</span>
+    <strong class="kpi-val">{{ summary().closedCount }}</strong>
+  </div>
+</div>
+
+<!-- THANH CÔNG CỤ GỌN 1 HÀNG -->
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        placeholder="Tìm mã HĐ, mã NV, họ tên, chức vụ..."
+        ariaLabel="Tìm kiếm hợp đồng"
+        (searched)="searchQuery.set($event)"
+      />
+    </div>
+
+    <app-admin-combo-box
+      class="combo-emp"
+      [options]="employeeFilterOptions()"
+      [value]="selectedEmployeeFilter()"
+      placeholder="Lọc nhân sự..."
+      searchPlaceholder="Tìm mã NV, họ tên..."
+      (valueChange)="selectedEmployeeFilter.set($event)"
+    />
+
+    <app-admin-combo-box
+      class="combo-type"
+      [options]="contractTypeFilterOptions()"
+      [value]="selectedTypeFilter()"
+      placeholder="Loại hợp đồng..."
+      (valueChange)="selectedTypeFilter.set($event)"
+    />
+
+    @if (tabMode() === 'expiring') {
+      <app-admin-combo-box
+        class="combo-status"
+        [options]="expiringDaysOptions"
+        [value]="expiringDaysFilter()"
+        (valueChange)="expiringDaysFilter.set($event)"
+      />
+    } @else {
+      <app-admin-combo-box
+        class="combo-status"
+        [options]="statusOptions"
+        [value]="selectedStatusFilter()"
+        (valueChange)="selectedStatusFilter.set($event)"
+      />
+    }
+
+    <app-admin-button title="Làm mới danh sách hợp đồng" (clicked)="refresh()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+
+  <div class="stripe-right">
+    <!-- NÚT XUẤT EXCEL: NỀN XANH, CHỮ TRẮNG -->
+    <app-admin-button
+      [title]="isExporting() ? 'Đang tạo tệp Excel...' : 'Tải xuống tệp Excel (.xlsx)'"
+      [disabled]="isExporting()"
+      bgColor="var(--color-xanh-dam)"
+      textColor="var(--color-trang)"
+      (clicked)="openExportConfirm()"
+    >
+      <svg lucideDownload aria-hidden="true"></svg>
+      <span>{{ isExporting() ? 'Đang xuất...' : 'Xuất Excel' }}</span>
+    </app-admin-button>
+
+    @if (canProposeChange()) {
+      <app-admin-button
+        title="Ký hợp đồng lao động mới"
+        bgColor="var(--color-nau-dat)"
+        textColor="var(--color-trang)"
+        (clicked)="openCreateDrawer()"
+      >
+        <svg lucideFilePlus2 aria-hidden="true"></svg>
+        <span>{{ isDirectApprover() ? 'Ký hợp đồng mới' : 'Đề xuất ký mới' }}</span>
+      </app-admin-button>
+    }
+  </div>
+</div>
+
+<!-- BẢNG DỮ LIỆU EXCEL SỬA TRỰC TIẾP TRÊN TỪNG Ô (ADMIN_GRID_TABLE) -->
+<div class="contract-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng quản lý hợp đồng lao động"
+    [columns]="columns()"
+    [rows]="gridRows()"
+    rowKey="contractId"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [cellTemplates]="cellTemplates()"
+    actionsLabel="Lưu / Duyệt"
+    actionsWidth="10.5rem"
+    [stickyActions]="true"
+    emptyTitle="Không có hợp đồng phù hợp"
+    emptyDescription="Thử đổi bộ lọc chi nhánh, nhân sự hoặc nhấn nút ký hợp đồng mới."
+  >
+    <!-- Ô SỬA TRỰC TIẾP: LOẠI HỢP ĐỒNG -->
+    <ng-template #tplContractType let-val let-row="row">
+      @if (row['status'] === 'active') {
+        <select
+          class="cell-select"
+          [ngModel]="row['_contractTypeId']"
+          (ngModelChange)="patchRowField(row, 'contractTypeId', +$event)"
+        >
+          @for (t of contractTypes(); track t.contractTypeId) {
+            <option [value]="t.contractTypeId">{{ t.contractCode }} — {{ t.contractName }}</option>
+          }
+        </select>
+      } @else {
+        <span class="cell-readonly">{{ val }}</span>
+      }
+    </ng-template>
+
+    <!-- CỘT LƯU / DUYỆT / WORD -->
+    <ng-template #actions let-row>
+      <div class="act-group">
+        <button type="button" class="act-btn is-word" title="Xuất file Word hợp đồng (.docx)" (click)="exportWordRow(row)">
+          <svg lucideFileText aria-hidden="true"></svg>
+          <span>Word</span>
+        </button>
+
+        @if (row['status'] === 'pending' && isDirectApprover()) {
+          <button type="button" class="act-btn is-approve" title="Phê duyệt & kích hoạt hợp đồng" (click)="approveRow(row, 'approved')">
+            <svg lucideCheck aria-hidden="true"></svg>
+            <span>Duyệt</span>
+          </button>
+          <button type="button" class="act-btn is-reject" title="Từ chối đề xuất" (click)="approveRow(row, 'rejected')">
+            <svg lucideX aria-hidden="true"></svg>
+          </button>
+        } @else if (row['status'] === 'active' && canProposeChange()) {
+          @if (tabMode() === 'expiring') {
+            <button type="button" class="act-btn is-approve" title="Gia hạn hợp đồng sắp hết hạn" (click)="openRenewDrawer(row)">
+              <svg lucideSave aria-hidden="true"></svg>
+              <span>Gia hạn</span>
+            </button>
+          } @else if (row['_dirty']) {
+            <button type="button" class="act-btn is-approve" [title]="isDirectApprover() ? 'Lưu thay đổi ngay' : 'Gửi cấp trên duyệt'" (click)="saveInlineRow(row)">
+              <svg lucideSave aria-hidden="true"></svg>
+              <span>{{ isDirectApprover() ? 'Lưu' : 'Gửi duyệt' }}</span>
+            </button>
+            <button type="button" class="act-btn is-undo" title="Hoàn tác chỉnh sửa" (click)="discardRowDraft(row)">
+              <svg lucideUndo2 aria-hidden="true"></svg>
+            </button>
+          } @else {
+            <button type="button" class="act-btn is-reject" title="Thanh lý hợp đồng" (click)="terminateRow(row)">
+              <svg lucideFileWarning aria-hidden="true"></svg>
+            </button>
+          }
+        }
+      </div>
+    </ng-template>
+  </app-admin-grid-table>
+</div>
+
+<!-- DRAWER CHỈ DÙNG ĐỂ KÝ HỢP ĐỒNG MỚI -->
+<app-admin-drawer
+  [isOpen]="isCreateDrawerOpen()"
+  [title]="drawerActionType() === 'renew' ? (isDirectApprover() ? 'Gia hạn hợp đồng lao động' : 'Đề xuất gia hạn hợp đồng') : (isDirectApprover() ? 'Ký hợp đồng lao động mới' : 'Đề xuất ký hợp đồng mới')"
+  [subtitle]="isDirectApprover() ? 'Thao tác của HRM/Admin sẽ có hiệu lực ngay và đồng bộ vào hồ sơ nhân sự.' : 'Đề xuất từ Quản lý cửa hàng sẽ được gửi lên cấp HRM/Admin phê duyệt.'"
+  width="34rem"
+  (close)="isCreateDrawerOpen.set(false)"
+>
+  <div class="drawer-form">
+    @if (!isDirectApprover()) {
+      <div class="approval-notice">
+        Mọi đề xuất hợp đồng từ cấp Quản lý Cửa hàng đều được tạo ở trạng thái <b>Chờ duyệt</b> và chỉ có hiệu lực sau khi HRM (Cấp 4) hoặc Admin (Cấp 5) phê duyệt.
+      </div>
+    }
+
+    <app-admin-form-field label="Nhân sự" htmlFor="ct-emp" [required]="true">
+      <app-admin-combo-box
+        style="--combo-width: 100%"
+        [options]="employeePickerOptions()"
+        [value]="formEmployeeId() ? '' + formEmployeeId() : ''"
+        placeholder="Chọn nhân sự..."
+        (valueChange)="onDrawerEmployeeChange($event)"
+      />
+    </app-admin-form-field>
+
+    <app-admin-form-field label="Loại hợp đồng" htmlFor="ct-type" [required]="true">
+      <select id="ct-type" [ngModel]="formContractTypeId()" (ngModelChange)="onDrawerContractTypeChange($event)">
+        @for (t of contractTypes(); track t.contractTypeId) {
+          <option [value]="t.contractTypeId">{{ t.contractCode }} — {{ t.contractName }}</option>
+        }
+      </select>
+    </app-admin-form-field>
+
+    <app-admin-form-field label="Chức vụ theo hợp đồng" htmlFor="ct-pos" [required]="true">
+      <input id="ct-pos" type="text" [ngModel]="formPosition()" (ngModelChange)="formPosition.set($event)" />
+    </app-admin-form-field>
+
+    <div class="form-row-2">
+      <app-admin-form-field label="Lương giờ (VNĐ)" htmlFor="ct-rate" [required]="true">
+        <input id="ct-rate" type="number" min="0" step="1000" [ngModel]="formHourlyRate()" (ngModelChange)="formHourlyRate.set(+$event)" />
+      </app-admin-form-field>
+
+      <app-admin-form-field label="Phụ cấp tháng (VNĐ)" htmlFor="ct-allow">
+        <input id="ct-allow" type="number" min="0" step="50000" [ngModel]="formAllowance()" (ngModelChange)="formAllowance.set(+$event)" />
+      </app-admin-form-field>
+    </div>
+
+    <div class="form-row-2">
+      <app-admin-form-field label="Ngày hiệu lực" htmlFor="ct-start" [required]="true">
+        <input id="ct-start" type="date" [ngModel]="formStartDate()" (ngModelChange)="onDrawerStartDateChange($event)" />
+      </app-admin-form-field>
+
+      <app-admin-form-field label="Ngày hết hạn (bỏ trống nếu vô thời hạn)" htmlFor="ct-end">
+        <input id="ct-end" type="date" [ngModel]="formEndDate()" (ngModelChange)="formEndDate.set($event)" />
+      </app-admin-form-field>
+    </div>
+
+    <app-admin-form-field label="Ghi chú / Lý do đề xuất" htmlFor="ct-note">
+      <textarea id="ct-note" rows="3" [ngModel]="formNote()" (ngModelChange)="formNote.set($event)"></textarea>
+    </app-admin-form-field>
+  </div>
+
+  <div footer class="drawer-footer-actions">
+    <button type="button" class="btn-cancel" [disabled]="isSubmitting()" (click)="isCreateDrawerOpen.set(false)">Hủy</button>
+    <button type="button" class="btn-submit" [disabled]="isSubmitting()" (click)="submitCreateDrawer()">
+      {{ isSubmitting() ? 'Đang xử lý...' : (isDirectApprover() ? 'Xác nhận áp dụng' : 'Gửi cấp trên duyệt') }}
+    </button>
+  </div>
+</app-admin-drawer>
+
+<!-- MODAL 1: XÁC NHẬN XUẤT FILE EXCEL HỢP ĐỒNG -->
+<app-admin-modal
+  [isOpen]="isExportConfirmOpen()"
+  title="Xác nhận xuất Excel"
+  message="Hệ thống sẽ xuất danh sách hợp đồng lao động hiện tại ra file Excel (.xlsx) theo bộ lọc đang chọn."
+  confirmText="Xác nhận xuất"
+  cancelText="Hủy bỏ"
+  variant="primary"
+  (confirm)="executeExportExcel()"
+  (cancel)="isExportConfirmOpen.set(false)"
+/>
+
+<!-- MODAL 2: TIẾN TRÌNH KHI ĐỌC VÀ PHÂN TÍCH TỆP EXCEL -->
+@if (isUploading()) {
+<div class="upload-overlay-backdrop">
+  <div class="upload-dialog-card">
+    <div class="upload-icon-circle">
+      <svg lucideRotateCcw class="spin-icon" aria-hidden="true"></svg>
+    </div>
+    <h3 class="upload-title">Đang phân tích dữ liệu Excel...</h3>
+    <p class="upload-filename">{{ selectedFileName() }}</p>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" [style.width.%]="uploadProgress()"></div>
+    </div>
+    <span class="progress-percentage">{{ uploadProgress() }}% hoàn tất</span>
+  </div>
+</div>
+}
+
+<!-- MODAL 3: XEM TRƯỚC VÀ XÁC NHẬN NHẬP DỮ LIỆU EXCEL (CHUẨN DANH SÁCH NHÂN VIÊN) -->
+@if (isImportModalOpen() && importPreview(); as preview) {
+<div class="preview-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-preview-title">
+  <div class="preview-modal-dialog">
+    <div class="preview-modal-header">
+      <div class="preview-header-left">
+        <div class="preview-header-icon">
+          <svg lucideFileText aria-hidden="true"></svg>
+        </div>
+        <div>
+          <h3 id="modal-preview-title" class="preview-header-title">
+            Xem trước dữ liệu nhập: {{ selectedFileName() }}
+          </h3>
+          <p class="preview-header-subtitle">
+            Vui lòng kiểm tra danh sách hợp lệ trước khi xác nhận lưu vào hệ thống
+          </p>
+        </div>
+      </div>
+
+      <div class="preview-header-actions">
+        <button type="button" class="btn-template-dl" (click)="downloadImportTemplate()">
+          <svg lucideDownload aria-hidden="true"></svg>
+          <span>Tải file mẫu</span>
+        </button>
+        <button type="button" class="btn-close-modal" (click)="closeImportModal()" [disabled]="isImporting()" aria-label="Đóng cửa sổ">
+          <svg lucideX aria-hidden="true"></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="preview-modal-body">
+      <div class="preview-filter-bar">
+        <div class="preview-tab-pill-group">
+          <button type="button" class="preview-tab-pill" [class.active-all]="previewTab() === 'all'" (click)="previewTab.set('all')">
+            Tất cả ({{ preview.totalRows }})
+          </button>
+          <button type="button" class="preview-tab-pill" [class.active-valid]="previewTab() === 'valid'" (click)="previewTab.set('valid')">
+            Hợp lệ ({{ preview.validRows }})
+          </button>
+          <button type="button" class="preview-tab-pill" [class.active-error]="previewTab() === 'error'" (click)="previewTab.set('error')">
+            Dòng lỗi ({{ preview.errorRows }})
+          </button>
+        </div>
+
+        @if (preview.errorRows > 0) {
+        <span class="preview-error-notice">
+          <svg lucideAlertTriangle aria-hidden="true"></svg>
+          Sẽ bỏ qua {{ preview.errorRows }} dòng lỗi và chỉ nạp {{ preview.validRows }} hợp đồng hợp lệ.
+        </span>
+        }
+      </div>
+
+      <div class="preview-table-card">
+        <table class="preview-table">
+          <thead>
+            <tr>
+              <th class="th-stt">STT</th>
+              <th class="th-status">Trạng thái</th>
+              <th>Mã NV</th>
+              <th>Họ và tên</th>
+              <th>Mã loại HĐ</th>
+              <th>Chức vụ</th>
+              <th class="th-salary">Lương/Giờ</th>
+              <th>Hiệu lực</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of filteredPreviewItems(); track item.rowIndex) {
+            <tr [class.row-invalid]="!item.isValid">
+              <td class="cell-stt">{{ item.rowIndex }}</td>
+              <td class="cell-status">
+                @if (item.isValid) {
+                  <span class="status-pill valid">
+                    <svg lucideCheckCircle aria-hidden="true"></svg> Hợp lệ
+                  </span>
+                } @else {
+                  <span class="status-pill error" [title]="item.errorMessage || ''">
+                    <svg lucideAlertCircle aria-hidden="true"></svg> {{ item.errorMessage }}
+                  </span>
+                }
+              </td>
+              <td class="cell-code">{{ item.employeeCode }}</td>
+              <td class="cell-name">{{ item.fullName || '—' }}</td>
+              <td>{{ item.contractTypeCode }}</td>
+              <td class="cell-position">{{ item.position }}</td>
+              <td class="cell-salary">{{ item.hourlyRate | number }} đ</td>
+              <td>{{ item.startDate }}</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="preview-modal-footer">
+      <div class="preview-footer-note">
+        Sẵn sàng nạp <b>{{ preview.validRows }}</b> hợp đồng hợp lệ vào cơ sở dữ liệu.
+      </div>
+      <div class="preview-footer-actions">
+        <button type="button" class="btn-cancel-modal" (click)="closeImportModal()" [disabled]="isImporting()">Hủy bỏ</button>
+        <button type="button" class="btn-confirm-import" [disabled]="preview.validRows === 0 || isImporting()" (click)="confirmImportSave()">
+          @if (isImporting()) {
+            <svg lucideRotateCcw class="spin-icon" aria-hidden="true"></svg>
+            <span>Đang lưu vào database...</span>
+          } @else {
+            <svg lucideUpload aria-hidden="true"></svg>
+            <span>Xác nhận nhập ({{ preview.validRows }} hợp đồng)</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}

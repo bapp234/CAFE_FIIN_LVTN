@@ -130,6 +130,10 @@ export const routes: Routes = [
     loadChildren: () => import('./admin/admin.routes').then((m) => m.ADMIN_ROUTES),
   },
   {
+    path: 'staff',
+    loadChildren: () => import('./admin/staff.routes').then((m) => m.STAFF_ROUTES),
+  },
+  {
     path: '**',
     redirectTo: ''
   }

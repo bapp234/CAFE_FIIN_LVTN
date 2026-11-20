@@ -1,7 +1,7 @@
 <div class="admin-shell">
   <app-admin-toast />
   <app-admin-topbar
-    [modules]="modules()"
+    [modules]="isStaffPortal() ? [] : modules()"
     [user]="user()"
     [hasMenu]="!!activeModule()"
     [menuOpen]="isMenuOpen()"
@@ -11,7 +11,12 @@
 
   <div class="admin-body">
     @if (activeModule(); as mod) {
-      <app-admin-sidebar [module]="mod" [isOpen]="isMenuOpen()" (closed)="closeMenu()" />
+      <app-admin-sidebar
+        [module]="mod"
+        [isStaffPortal]="isStaffPortal()"
+        [isOpen]="isMenuOpen()"
+        (closed)="closeMenu()"
+      />
     }
 
     <main class="admin-main">

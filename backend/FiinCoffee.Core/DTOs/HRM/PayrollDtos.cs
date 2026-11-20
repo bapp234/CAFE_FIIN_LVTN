@@ -74,4 +74,126 @@ public class LockPayrollPeriodRequest
 {
     public int PeriodId { get; set; }
     public string ApproverName { get; set; } = string.Empty;
+    public string? Password { get; set; }
+}
+
+/// <summary>
+/// DTO yêu cầu mở khóa kỳ lương
+/// </summary>
+public class UnlockPayrollPeriodRequest
+{
+    public int PeriodId { get; set; }
+    public string UnlockedBy { get; set; } = string.Empty;
+    public string? Reason { get; set; }
+    public string? Password { get; set; }
+}
+
+public class PayrollSettingItemDto
+{
+    public int SettingId { get; set; }
+    public string Code { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Category { get; set; } = "allowance";
+    public string CalcType { get; set; } = "fixed_month";
+    public decimal RawValue { get; set; }
+    public string Impact { get; set; } = "Addition";
+    public string ApplyScope { get; set; } = string.Empty;
+    public string? Note { get; set; }
+    public bool IsActive { get; set; }
+}
+
+public class SavePayrollSettingRequest
+{
+    public int? SettingId { get; set; }
+    public string Code { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Category { get; set; } = "allowance";
+    public string CalcType { get; set; } = "fixed_month";
+    public decimal RawValue { get; set; }
+    public string Impact { get; set; } = "Addition";
+    public string ApplyScope { get; set; } = "Toàn hệ thống";
+    public string? Note { get; set; }
+    public bool IsActive { get; set; } = true;
+}
+
+public class SalaryAdvanceItemDto
+{
+    public int AdvanceId { get; set; }
+    public string AdvanceCode { get; set; } = string.Empty;
+    public int EmployeeId { get; set; }
+    public string EmployeeCode { get; set; } = string.Empty;
+    public string EmployeeName { get; set; } = string.Empty;
+    public string Position { get; set; } = string.Empty;
+    public int? BranchId { get; set; }
+    public string BranchName { get; set; } = string.Empty;
+    public string RequestDate { get; set; } = string.Empty;
+    public string Period { get; set; } = string.Empty;
+    public decimal Amount { get; set; }
+    public string PaymentMethod { get; set; } = string.Empty;
+    public string Reason { get; set; } = string.Empty;
+    public string Status { get; set; } = "pending";
+    public string? ApprovedBy { get; set; }
+    public DateTime? ApprovedAt { get; set; }
+    public string? DecisionNote { get; set; }
+    public string? CreatedBy { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public decimal OtMonthlyLimit { get; set; } = 40m;
+    public decimal OtApprovedHours { get; set; }
+    public decimal OtPendingHours { get; set; }
+    public decimal OtTotalRegisteredHours { get; set; }
+    public decimal OtRemainingHours { get; set; } = 40m;
+    public string OtWarningStatus { get; set; } = "Trong hạn mức";
+    public decimal AnnualLeaveTotalDays { get; set; } = 12m;
+    public decimal AnnualLeaveApprovedDays { get; set; }
+    public decimal AnnualLeavePendingDays { get; set; }
+    public decimal AnnualLeaveRemainingDays { get; set; } = 12m;
+    public bool IsAttendanceLocked { get; set; }
+}
+
+public class EmployeeMonthlyQuotaItemDto
+{
+    public int EmployeeId { get; set; }
+    public string EmployeeCode { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
+    public string Position { get; set; } = string.Empty;
+    public int? BranchId { get; set; }
+    public string BranchName { get; set; } = string.Empty;
+    public string PeriodMonth { get; set; } = string.Empty;
+    public decimal OtMonthlyLimit { get; set; } = 40m;
+    public decimal OtApprovedHours { get; set; }
+    public decimal OtPendingHours { get; set; }
+    public decimal OtTotalRegisteredHours { get; set; }
+    public decimal OtRemainingHours { get; set; } = 40m;
+    public string OtWarningStatus { get; set; } = "Trong hạn mức";
+    public decimal AnnualLeaveTotalDays { get; set; } = 12m;
+    public decimal AnnualLeaveApprovedDays { get; set; }
+    public decimal AnnualLeavePendingDays { get; set; }
+    public decimal AnnualLeaveTotalRegisteredDays { get; set; }
+    public decimal AnnualLeaveRemainingDays { get; set; } = 12m;
+    public string AnnualLeaveWarningStatus { get; set; } = "Còn phép năm";
+    public bool IsAttendanceLocked { get; set; }
+}
+
+public class CreateSalaryAdvanceRequest
+{
+    public int EmployeeId { get; set; }
+    public string PeriodMonth { get; set; } = string.Empty;
+    public DateTime RequestDate { get; set; }
+    public decimal Amount { get; set; }
+    public string PaymentMethod { get; set; } = "Chuyển khoản";
+    public string Reason { get; set; } = string.Empty;
+    public string? CreatedBy { get; set; }
+}
+
+public class CreateSalaryAdvanceResultDto
+{
+    public int AdvanceId { get; set; }
+    public string AdvanceCode { get; set; } = string.Empty;
+}
+
+public class ProcessSalaryAdvanceRequest
+{
+    public string Action { get; set; } = string.Empty; // "approve" | "reject"
+    public string ApproverName { get; set; } = string.Empty;
+    public string? Note { get; set; }
 }

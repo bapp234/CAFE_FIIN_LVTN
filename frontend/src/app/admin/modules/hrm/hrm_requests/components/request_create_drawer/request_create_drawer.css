@@ -1,0 +1,341 @@
+@reference "../../../../../../../styles.css";
+
+.drawer-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+.drawer-section {
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: 4px;
+  padding: 0.9375rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.section-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 999px;
+  background-color: var(--color-xanh-dam);
+  color: var(--color-trang);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-nau-dam);
+}
+
+.scope-chip,
+.approver-count-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.1875rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background-color: #f3ede0;
+  color: var(--color-nau-dam);
+  border: 1px solid var(--color-vien-co);
+}
+
+.scope-chip.is-self {
+  background-color: #eef6f0;
+  color: var(--color-xanh-dam);
+  border-color: #b7d9c2;
+}
+
+.scope-chip svg,
+.approver-count-badge svg {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.emp-picker-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.field-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-nau-dam);
+}
+
+.field-label .req {
+  color: #b91c1c;
+}
+
+app-admin-combo-box.drawer-combo {
+  display: block;
+  width: 100%;
+  --combo-width: 100%;
+}
+
+/* Thẻ thông tin nhân sự tự động điền */
+.autofill-card {
+  background-color: #faf6ee;
+  border: 1px solid #e4d9c5;
+  border-radius: 4px;
+  padding: 0.75rem 0.875rem;
+}
+
+.autofill-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem 0.875rem;
+}
+
+.autofill-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.af-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #7d6d5d;
+  font-weight: 600;
+}
+
+.af-value {
+  font-size: 0.8rem;
+  color: var(--color-nau-dam);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.af-value.is-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 700;
+  color: var(--color-xanh-dam);
+}
+
+.af-value.is-strong {
+  font-weight: 700;
+}
+
+.af-value.is-branch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.af-value.is-branch svg {
+  width: 0.8rem;
+  height: 0.8rem;
+  flex-shrink: 0;
+  color: #7d6d5d;
+}
+
+.drawer-form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Danh sách người phê duyệt */
+.approver-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.approver-card {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.55rem 0.75rem;
+  background-color: #fbf9f4;
+  border: 1px solid #e5dccb;
+  border-radius: 4px;
+}
+
+.approver-level-pill {
+  flex-shrink: 0;
+  padding: 0.1875rem 0.45rem;
+  border-radius: 3px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  background-color: #e9f2ec;
+  color: #185c37;
+  border: 1px solid #b6dac3;
+}
+
+.approver-level-pill[data-level='2'] {
+  background-color: #fef3c7;
+  color: #92400e;
+  border-color: #fcd34d;
+}
+
+.approver-level-pill[data-level='3'],
+.approver-level-pill[data-level='4'],
+.approver-level-pill[data-level='5'] {
+  background-color: #e0e7ff;
+  color: #3730a3;
+  border-color: #c7d2fe;
+}
+
+.approver-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.approver-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.approver-name {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-nau-dam);
+}
+
+.approver-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  color: #7d6d5d;
+  background-color: #f0e8d8;
+  padding: 0.05rem 0.35rem;
+  border-radius: 2px;
+}
+
+.approver-meta {
+  font-size: 0.72rem;
+  color: #6b5e51;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.approver-status-pill {
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background-color: #fdf3d7;
+  color: #8a5a00;
+  border: 1px solid #f0dba0;
+}
+
+.approver-empty {
+  padding: 0.65rem 0.75rem;
+  font-size: 0.75rem;
+  color: #6b5e51;
+  background-color: #faf6ee;
+  border: 1px dashed var(--color-vien-co);
+  border-radius: 4px;
+}
+
+/* Footer */
+.drawer-footer-inner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.footer-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+  color: #6b5e51;
+}
+
+.footer-hint svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--color-xanh-dam);
+}
+
+.footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-drawer-cancel,
+.btn-drawer-submit {
+  height: 2.125rem;
+  padding: 0 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-drawer-cancel {
+  background-color: var(--color-trang);
+  color: var(--color-nau-dam);
+  border: 1px solid var(--color-vien-co);
+}
+
+.btn-drawer-cancel:hover:not(:disabled) {
+  background-color: #f5efe3;
+}
+
+.btn-drawer-submit {
+  background-color: var(--color-xanh-dam);
+  color: var(--color-trang);
+  border: 1px solid var(--color-xanh-dam);
+}
+
+.btn-drawer-submit:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.btn-drawer-cancel:disabled,
+.btn-drawer-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 520px) {
+  .autofill-grid {
+    grid-template-columns: 1fr;
+  }
+}

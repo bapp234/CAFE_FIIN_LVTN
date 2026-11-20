@@ -1,5 +1,7 @@
 using System.Data;
+using System.Text.Json;
 using Dapper;
+using System;
 using FiinCoffee.Core.DTOs.HRM;
 using FiinCoffee.Core.Interfaces;
 using FiinCoffee.Infrastructure.Data;
@@ -130,7 +132,7 @@ public class EmployeeRepository : IEmployeeRepository
         var sql = @"
             SELECT 
                 BranchId, BranchCode, BranchName, Address, 
-                PhoneNumber, OpeningTime, ClosingTime, IsActive
+                PhoneNumber, IsActive
             FROM dbo.Branches
             WHERE IsActive = 1
             ORDER BY BranchId";
@@ -365,12 +367,30 @@ public class EmployeeRepository : IEmployeeRepository
         return true;
     }
 
+    public async Task<bool> UnlockPayrollPeriodAsync(int periodId, string unlockedBy, string? reason = null)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+
+        var parameters = new DynamicParameters();
+        parameters.Add("@PeriodId", periodId);
+        parameters.Add("@UnlockedBy", unlockedBy.Trim());
+        parameters.Add("@Reason", reason?.Trim());
+
+        await connection.ExecuteAsync(
+            "dbo.sp_HRM_UnlockPayrollPeriod",
+            parameters,
+            commandType: CommandType.StoredProcedure
+        );
+
+        return true;
+    }
+
     public async Task<int> UpsertShiftTemplateAsync(UpsertShiftTemplateRequest request)
     {
         using var connection = _connectionFactory.CreateConnection();
 
         var parameters = new DynamicParameters();
-        parameters.Add("@TemplateId", request.TemplateId, direction: ParameterDirection.InputOutput);
+        parameters.Add("@TemplateId", request.TemplateId, dbType: DbType.Int32, direction: ParameterDirection.InputOutput);
         parameters.Add("@ShiftCode", request.ShiftCode.Trim());
         parameters.Add("@ShiftName", request.ShiftName.Trim());
         parameters.Add("@StartTime", request.StartTime);
@@ -421,6 +441,797 @@ public class EmployeeRepository : IEmployeeRepository
         return await connection.QueryAsync<WeeklyScheduleMatrixRowDto>(
             "dbo.sp_HRM_ExportWeeklySchedule",
             parameters,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+    public async Task<GridDatasetDto> GetEmployeesGridDatasetAsync(
+    string? currentUsername = null,
+    int? branchId = null,
+    string? position = null,
+    string? status = null,
+    DateTime? targetDate = null,
+    string? search = null,
+    int pageIndex = 1,
+    int pageSize = 50
+    )
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@CurrentUsername", string.IsNullOrWhiteSpace(currentUsername) ? null : currentUsername.Trim());
+        param.Add("@BranchId", branchId);
+        param.Add("@Position", string.IsNullOrWhiteSpace(position) || position == "all" ? null :
+        position.Trim());
+        param.Add("@Status", string.IsNullOrWhiteSpace(status) || status == "all" ? null : status.Trim());
+        param.Add("@TargetDate", targetDate?.Date);
+        param.Add("@SearchText", string.IsNullOrWhiteSpace(search) ? null : search.Trim());
+        param.Add("@PageIndex", pageIndex < 1 ? 1 : pageIndex);
+        param.Add("@PageSize", pageSize < 1 ? 50 : pageSize);
+        using var multi = await connection.QueryMultipleAsync(
+       "dbo.sp_HRM_GetEmployees_GridDataset",
+       param,
+       commandType: CommandType.StoredProcedure
+   );
+        var columns = (await multi.ReadAsync<GridColumnDto>()).ToList();
+        var rows = (await multi.ReadAsync<dynamic>()).ToList();
+        int totalCount = 0;
+        if (rows.Any())
+        {
+            var firstRow = (IDictionary<string, object>)rows.First();
+            if (firstRow.ContainsKey("TotalCount") && firstRow["TotalCount"] != null)
+            {
+                totalCount = Convert.ToInt32(firstRow["TotalCount"]);
+            }
+            else
+            {
+                totalCount = rows.Count;
+            }
+        }
+        return new GridDatasetDto
+        {
+            Columns = columns,
+            Rows = rows,
+            TotalCount = totalCount
+        };
+    }
+    public async Task<DataSet> GetEmployeesExportDataSetAsync(
+        string? currentUsername = null,
+        int? branchId = null,
+        string? position = null,
+        string? status = null,
+        string? searchText = null,
+        string? employeeCodes = null,
+        int accountStatus = -1)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var parameters = new DynamicParameters();
+        parameters.Add("@CurrentUsername", currentUsername);
+        parameters.Add("@BranchId", branchId);
+        parameters.Add("@Position", position);
+        parameters.Add("@Status", status);
+        parameters.Add("@SearchText", searchText);
+        parameters.Add("@EmployeeCodes", employeeCodes);
+        parameters.Add("@AccountStatus", accountStatus);
+        using var reader = await connection.ExecuteReaderAsync(
+            "dbo.sp_HRM_ExportEmployees_Excel",
+            parameters,
+            commandType: CommandType.StoredProcedure
+        );
+        var dataSet = new DataSet();
+        dataSet.Load(reader, LoadOption.OverwriteChanges, "Employees", "ExportConfig");
+        return dataSet;
+    }
+
+    public async Task<EmployeeFilterOptionsDto> GetEmployeesFilterOptionsAsync()
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        using var multi = await connection.QueryMultipleAsync(
+            "dbo.sp_HRM_GetEmployees_FilterOptions",
+            commandType: CommandType.StoredProcedure
+        );
+
+        return new EmployeeFilterOptionsDto
+        {
+            Branches = (await multi.ReadAsync<ComboOptionDto>()).ToList(),
+            Positions = (await multi.ReadAsync<ComboOptionDto>()).ToList(),
+            Statuses = (await multi.ReadAsync<ComboOptionDto>()).ToList(),
+            ContractTypes = (await multi.ReadAsync<ComboOptionDto>()).ToList()
+        };
+    }
+
+    public async Task<HashSet<string>> GetExistingCitizenIdsAsync()
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var citizenIds = await connection.QueryAsync<string>("SELECT CitizenId FROM dbo.Employees WHERE CitizenId IS NOT NULL");
+        return new HashSet<string>(citizenIds.Where(c => !string.IsNullOrWhiteSpace(c)), StringComparer.OrdinalIgnoreCase);
+    }
+
+    public async Task<EmployeeImportSaveResultDto> ImportEmployeesBatchAsync(EmployeeImportSaveRequestDto request, string? currentUsername = null)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+
+        // 1. Nếu người dùng chọn tạo tài khoản, chỉ băm mật khẩu 1 lần duy nhất cho toàn bộ 100+ tài khoản
+        string? defaultPasswordHash = null;
+        if (request.CreateAccounts)
+        {
+            string passToHash = string.IsNullOrWhiteSpace(request.DefaultPassword) ? "Fiin@123" : request.DefaultPassword.Trim();
+            defaultPasswordHash = _passwordHasher.HashPassword(passToHash);
+        }
+
+        var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        string employeesJson = JsonSerializer.Serialize(request.Employees, jsonOptions);
+
+        var parameters = new DynamicParameters();
+        parameters.Add("@EmployeesJson", employeesJson);
+        parameters.Add("@CreateAccounts", request.CreateAccounts);
+        parameters.Add("@DefaultPasswordHash", defaultPasswordHash);
+        parameters.Add("@ImportedByUsername", currentUsername);
+
+        using var multi = await connection.QueryMultipleAsync(
+            "dbo.sp_HRM_ImportEmployees_Batch",
+            parameters,
+            commandType: CommandType.StoredProcedure
+        );
+
+        var summary = await multi.ReadSingleOrDefaultAsync<EmployeeImportSaveResultDto>() 
+                      ?? new EmployeeImportSaveResultDto();
+        var details = (await multi.ReadAsync<EmployeeImportedItemDto>()).ToList();
+
+        summary.ImportedEmployees = details;
+        return summary;
+    }
+
+    public async Task<IEnumerable<EmployeeSimpleDto>> GetEmployeesSimpleAsync(
+        int accountStatus = -1,
+        DateTime? viewDate = null,
+        int? branchId = null,
+        string? searchText = null,
+        int loginId = -1,
+        int pageIndex = 1,
+        int pageSize = 50)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@AccountStatus", accountStatus);
+        param.Add("@ViewDate", viewDate?.Date);
+        param.Add("@BranchId", branchId <= 0 ? null : branchId);
+        param.Add("@SearchText", string.IsNullOrWhiteSpace(searchText) ? null : searchText.Trim());
+        param.Add("@LoginID", loginId);
+        param.Add("@PageIndex", pageIndex < 1 ? 1 : pageIndex);
+        param.Add("@PageSize", pageSize);
+
+        return await connection.QueryAsync<EmployeeSimpleDto>(
+            "dbo.sp_HRM_GetEmployees_Simple",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<HrmDashboardSummaryDto> GetDashboardSummaryAsync(
+        int? branchId = null,
+        int? year = null,
+        int? month = null,
+        int loginId = -1)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@BranchId", branchId <= 0 ? null : branchId);
+        param.Add("@Year", year);
+        param.Add("@Month", month);
+        param.Add("@LoginID", loginId);
+
+        using var multi = await connection.QueryMultipleAsync(
+            "dbo.sp_HRM_GetDashboardSummary",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+
+        var summary = await multi.ReadFirstOrDefaultAsync<HrmDashboardSummaryDto>()
+                      ?? new HrmDashboardSummaryDto();
+
+        summary.PositionBreakdown = (await multi.ReadAsync<DashboardPositionItemDto>()).ToList();
+        summary.MonthlyStats = (await multi.ReadAsync<DashboardMonthlyStatDto>()).ToList();
+        summary.AttendanceSummary = await multi.ReadFirstOrDefaultAsync<DashboardAttendanceSummaryDto>()
+                                    ?? new DashboardAttendanceSummaryDto();
+
+        return summary;
+    }
+
+    public async Task<AttendancePeriodStatusDto?> GetAttendancePeriodStatusAsync(int? branchId, string periodMonth)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@BranchId", branchId);
+        param.Add("@PeriodMonth", periodMonth);
+
+        return await connection.QuerySingleOrDefaultAsync<AttendancePeriodStatusDto>(
+            "dbo.sp_HRM_GetAttendancePeriodStatus",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<IEnumerable<AttendanceMonthlySummaryItemDto>> GetAttendanceMonthlySummaryAsync(
+        string periodMonth,
+        int? branchId = null,
+        string? search = null)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@PeriodMonth", periodMonth);
+        param.Add("@BranchId", branchId);
+        param.Add("@Search", search);
+
+        return await connection.QueryAsync<AttendanceMonthlySummaryItemDto>(
+            "dbo.sp_HRM_GetAttendanceMonthlySummary",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<IEnumerable<OvertimeTypeDto>> GetOvertimeTypesAsync(string? scope = null, string? search = null)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@Scope", scope);
+        param.Add("@Search", search);
+        return await connection.QueryAsync<OvertimeTypeDto>(
+            "dbo.sp_HRM_GetOvertimeTypes",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<int> SaveOvertimeTypeAsync(SaveOvertimeTypeRequest request)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@OvertimeTypeId", request.OvertimeTypeId);
+        param.Add("@OTCode", request.OTCode);
+        param.Add("@OTName", request.OTName);
+        param.Add("@OTCategory", request.OTCategory);
+        param.Add("@Scope", request.Scope);
+        param.Add("@PayMultiplier", request.PayMultiplier);
+        param.Add("@NightExtraRate", request.NightExtraRate);
+        param.Add("@MaxHoursPerDay", request.MaxHoursPerDay);
+        param.Add("@MaxHoursPerMonth", request.MaxHoursPerMonth);
+        param.Add("@RoundingMinutes", request.RoundingMinutes);
+        param.Add("@RequireApproval", request.RequireApproval);
+        param.Add("@AllowCompensatoryLeave", request.AllowCompensatoryLeave);
+        param.Add("@Description", request.Description);
+        param.Add("@IsActive", request.IsActive);
+
+        return await connection.QuerySingleAsync<int>(
+            "dbo.sp_HRM_SaveOvertimeType",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<bool> DeleteOvertimeTypeAsync(int overtimeTypeId)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@OvertimeTypeId", overtimeTypeId);
+        var affected = await connection.QuerySingleAsync<int>(
+            "dbo.sp_HRM_DeleteOvertimeType",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+        return affected > 0;
+    }
+
+    public async Task<IEnumerable<LeaveTypeDto>> GetLeaveTypesAsync(string? scope = null, string? search = null)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@Scope", scope);
+        param.Add("@Search", search);
+        return await connection.QueryAsync<LeaveTypeDto>(
+            "dbo.sp_HRM_GetLeaveTypes",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<int> SaveLeaveTypeAsync(SaveLeaveTypeRequest request)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@LeaveTypeId", request.LeaveTypeId);
+        param.Add("@LeaveCode", request.LeaveCode);
+        param.Add("@LeaveName", request.LeaveName);
+        param.Add("@Scope", request.Scope);
+        param.Add("@IsPaid", request.IsPaid);
+        param.Add("@PaidPercent", request.PaidPercent);
+        param.Add("@DeductAnnualLeave", request.DeductAnnualLeave);
+        param.Add("@StandardDaysPerYear", request.StandardDaysPerYear);
+        param.Add("@MinNoticeDays", request.MinNoticeDays);
+        param.Add("@MonthlyAccrual", request.MonthlyAccrual);
+        param.Add("@ProbationEligible", request.ProbationEligible);
+        param.Add("@AllowNegativeBalance", request.AllowNegativeBalance);
+        param.Add("@Description", request.Description);
+        param.Add("@IsActive", request.IsActive);
+
+        return await connection.QuerySingleAsync<int>(
+            "dbo.sp_HRM_SaveLeaveType",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<bool> DeleteLeaveTypeAsync(int leaveTypeId)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@LeaveTypeId", leaveTypeId);
+        var affected = await connection.QuerySingleAsync<int>(
+            "dbo.sp_HRM_DeleteLeaveType",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+        return affected > 0;
+    }
+
+    public async Task<IEnumerable<HolidayItemDto>> GetHolidaysByYearAsync(int? year = null)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@Year", year);
+        return await connection.QueryAsync<HolidayItemDto>(
+            "dbo.sp_HRM_GetHolidaysByYear",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<IEnumerable<PayrollSettingItemDto>> GetPayrollSettingsAsync(
+        string? category = null,
+        string? calcType = null,
+        string? search = null)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@Category", category);
+        param.Add("@CalcType", calcType);
+        param.Add("@Search", search);
+        return await connection.QueryAsync<PayrollSettingItemDto>(
+            "dbo.sp_HRM_GetPayrollSettings",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<int> SavePayrollSettingAsync(SavePayrollSettingRequest request)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@SettingId", request.SettingId);
+        param.Add("@Code", request.Code);
+        param.Add("@Name", request.Name);
+        param.Add("@Category", request.Category);
+        param.Add("@CalcType", request.CalcType);
+        param.Add("@RawValue", request.RawValue);
+        param.Add("@Impact", request.Impact);
+        param.Add("@ApplyScope", request.ApplyScope);
+        param.Add("@Note", request.Note);
+        param.Add("@IsActive", request.IsActive);
+
+        return await connection.QuerySingleAsync<int>(
+            "dbo.sp_HRM_SavePayrollSetting",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<bool> DeletePayrollSettingAsync(int settingId)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@SettingId", settingId);
+        var affected = await connection.QuerySingleAsync<int>(
+            "dbo.sp_HRM_DeletePayrollSetting",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+        return affected > 0;
+    }
+
+    public async Task<IEnumerable<OvertimeRequestItemDto>> GetOvertimeRequestsAsync(
+        string? periodMonth = null,
+        int? branchId = null,
+        string? status = null,
+        string? search = null)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@PeriodMonth", periodMonth);
+        param.Add("@BranchId", branchId);
+        param.Add("@Status", status);
+        param.Add("@Search", search);
+        return await connection.QueryAsync<OvertimeRequestItemDto>(
+            "dbo.sp_HRM_GetOvertimeRequests",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<int> CreateOvertimeRequestAsync(CreateOvertimeRequestDto request)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@EmployeeId", request.EmployeeId);
+        param.Add("@WorkDate", request.WorkDate.Date);
+        param.Add("@StartTime", TimeSpan.Parse(request.StartTime));
+        param.Add("@EndTime", TimeSpan.Parse(request.EndTime));
+        param.Add("@OTCode", request.OTCode);
+        param.Add("@Reason", request.Reason);
+        return await connection.QuerySingleAsync<int>(
+            "dbo.sp_HRM_CreateOvertimeRequest",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<bool> ProcessOvertimeRequestAsync(int overtimeId, ProcessHrmRequestDto request)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@OvertimeId", overtimeId);
+        param.Add("@Action", request.Action);
+        param.Add("@ApproverName", string.IsNullOrWhiteSpace(request.ApproverName) ? "Quản lý" : request.ApproverName);
+        param.Add("@Note", request.Note);
+        var affected = await connection.QuerySingleAsync<int>(
+            "dbo.sp_HRM_ProcessOvertimeRequest",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+        return affected > 0;
+    }
+
+    public async Task<IEnumerable<AttendanceCorrectionRequestItemDto>> GetAttendanceCorrectionRequestsAsync(
+        string? periodMonth = null,
+        int? branchId = null,
+        string? status = null,
+        string? search = null)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@PeriodMonth", periodMonth);
+        param.Add("@BranchId", branchId);
+        param.Add("@Status", status);
+        param.Add("@Search", search);
+        return await connection.QueryAsync<AttendanceCorrectionRequestItemDto>(
+            "dbo.sp_HRM_GetAttendanceCorrectionRequests",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<int> CreateAttendanceCorrectionRequestAsync(CreateAttendanceCorrectionRequestDto request)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@EmployeeId", request.EmployeeId);
+        param.Add("@WorkDate", request.WorkDate.Date);
+        param.Add("@RequestedCheckIn", TimeSpan.Parse(request.RequestedCheckIn));
+        param.Add("@RequestedCheckOut", TimeSpan.Parse(request.RequestedCheckOut));
+        param.Add("@Reason", request.Reason);
+        return await connection.QuerySingleAsync<int>(
+            "dbo.sp_HRM_CreateAttendanceCorrectionRequest",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<bool> ProcessAttendanceCorrectionRequestAsync(int requestId, ProcessHrmRequestDto request)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@RequestId", requestId);
+        param.Add("@Action", request.Action);
+        param.Add("@ApproverName", string.IsNullOrWhiteSpace(request.ApproverName) ? "Quản lý" : request.ApproverName);
+        param.Add("@Note", request.Note);
+        var affected = await connection.QuerySingleAsync<int>(
+            "dbo.sp_HRM_ProcessAttendanceCorrectionRequest",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+        return affected > 0;
+    }
+
+    public async Task<IEnumerable<LeaveRequestItemDto>> GetLeaveRequestsAsync(
+        string? periodMonth = null,
+        int? branchId = null,
+        string? status = null,
+        string? search = null)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@PeriodMonth", periodMonth);
+        param.Add("@BranchId", branchId);
+        param.Add("@Status", status);
+        param.Add("@Search", search);
+        return await connection.QueryAsync<LeaveRequestItemDto>(
+            "dbo.sp_HRM_GetLeaveRequests",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<int> CreateLeaveRequestAsync(CreateLeaveRequestDto request)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@EmployeeId", request.EmployeeId);
+        param.Add("@FromDate", request.FromDate.Date);
+        param.Add("@ToDate", request.ToDate.Date);
+        param.Add("@LeaveCode", request.LeaveCode);
+        param.Add("@Reason", request.Reason);
+        return await connection.QuerySingleAsync<int>(
+            "dbo.sp_HRM_CreateLeaveRequest",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<bool> ProcessLeaveRequestAsync(int leaveId, ProcessHrmRequestDto request)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@LeaveId", leaveId);
+        param.Add("@Action", request.Action);
+        param.Add("@ApproverName", string.IsNullOrWhiteSpace(request.ApproverName) ? "Quản lý" : request.ApproverName);
+        param.Add("@Note", request.Note);
+        var affected = await connection.QuerySingleAsync<int>(
+            "dbo.sp_HRM_ProcessLeaveRequest",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+        return affected > 0;
+    }
+
+    public async Task<bool> LockAttendancePeriodAsync(int branchId, string periodMonth, string lockedBy)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@BranchId", branchId);
+        param.Add("@PeriodMonth", periodMonth);
+        param.Add("@LockedBy", lockedBy);
+
+        await connection.ExecuteAsync(
+            "dbo.sp_HRM_LockAttendancePeriod",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+        return true;
+    }
+
+    public async Task<bool> UnlockAttendancePeriodAsync(int branchId, string periodMonth, string unlockPassword, string unlockReason, string unlockedBy, string? clientIp = null)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@BranchId", branchId);
+        param.Add("@PeriodMonth", periodMonth);
+        param.Add("@UnlockPassword", unlockPassword);
+        param.Add("@UnlockReason", unlockReason);
+        param.Add("@UnlockedBy", unlockedBy);
+        param.Add("@ClientIp", clientIp);
+
+        await connection.ExecuteAsync(
+            "dbo.sp_HRM_UnlockAttendancePeriod",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+        return true;
+    }
+
+    public async Task<ShiftScheduleWeekStatusDto?> GetShiftScheduleWeekStatusAsync(int branchId, DateTime startDate)
+    {
+        if (startDate < new DateTime(1753, 1, 1))
+        {
+            startDate = DateTime.Today;
+        }
+
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@BranchId", branchId);
+        param.Add("@StartDate", startDate.Date);
+
+        return await connection.QuerySingleOrDefaultAsync<ShiftScheduleWeekStatusDto>(
+            "dbo.sp_HRM_GetShiftScheduleWeekStatus",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<bool> LockShiftScheduleAsync(int branchId, DateTime startDate, string lockedBy)
+    {
+        if (startDate < new DateTime(1753, 1, 1))
+        {
+            startDate = DateTime.Today;
+        }
+
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@BranchId", branchId);
+        param.Add("@StartDate", startDate.Date);
+        param.Add("@LockedBy", lockedBy);
+
+        await connection.ExecuteAsync(
+            "dbo.sp_HRM_LockShiftSchedule",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+        return true;
+    }
+
+    public async Task<bool> UnlockShiftScheduleAsync(int branchId, DateTime startDate)
+    {
+        if (startDate < new DateTime(1753, 1, 1))
+        {
+            startDate = DateTime.Today;
+        }
+
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@BranchId", branchId);
+        param.Add("@StartDate", startDate.Date);
+
+        await connection.ExecuteAsync(
+            "dbo.sp_HRM_UnlockShiftSchedule",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+        return true;
+    }
+
+    public async Task<IEnumerable<ShiftAssignmentDto>> GetWeekShiftAssignmentsAsync(
+        int? branchId, DateTime startDate, DateTime endDate)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@BranchId", branchId <= 0 ? null : branchId);
+        param.Add("@StartDate", startDate.Date);
+        param.Add("@EndDate", endDate.Date);
+
+        return await connection.QueryAsync<ShiftAssignmentDto>(
+            "dbo.sp_HRM_GetWeekShiftAssignments",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<ShiftAssignmentDto> SaveShiftAssignmentAsync(SaveShiftAssignmentRequest request)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@EmployeeId", request.EmployeeId);
+        param.Add("@WorkDate", request.WorkDate.Date);
+        param.Add("@ShiftCode", request.ShiftCode);
+        param.Add("@TemplateId", request.TemplateId);
+        param.Add("@BranchId", request.BranchId <= 0 ? null : request.BranchId);
+        param.Add("@RegisteredBy", request.RegisteredBy ?? "manager");
+        param.Add("@Status", request.Status ?? "scheduled");
+        param.Add("@Note", request.Note);
+
+        return await connection.QuerySingleAsync<ShiftAssignmentDto>(
+            "dbo.sp_HRM_SaveShiftAssignment",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<bool> RemoveShiftAssignmentAsync(int assignmentId)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@AssignmentId", assignmentId);
+
+        var removed = await connection.QuerySingleOrDefaultAsync<int>(
+            "dbo.sp_HRM_RemoveShiftAssignment",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+        return removed > 0;
+    }
+
+    public async Task<decimal> AdjustAttendanceByEmployeeDateAsync(AdjustAttendanceManualByDateRequest request)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@EmployeeId", request.EmployeeId);
+        param.Add("@WorkDate", request.WorkDate.Date);
+        param.Add("@CheckInTime", request.CheckInTime);
+        param.Add("@CheckOutTime", request.CheckOutTime);
+        param.Add("@AdjustedBy", request.AdjustedBy);
+        param.Add("@AdjustedReason", request.AdjustedReason);
+
+        var res = await connection.QuerySingleAsync<dynamic>(
+            "dbo.sp_HRM_AdjustAttendanceByEmployeeDate",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+        return (decimal)(res.WorkHours ?? 0m);
+    }
+
+    public async Task<bool> DeleteShiftTemplateAsync(int templateId)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var affected = await connection.ExecuteAsync(
+            "UPDATE dbo.ShiftTemplates SET IsActive = 0 WHERE TemplateId = @TemplateId",
+            new { TemplateId = templateId }
+        );
+        return affected > 0;
+    }
+
+    public async Task<IEnumerable<SalaryAdvanceItemDto>> GetSalaryAdvancesAsync(
+        string? periodMonth = null,
+        int? branchId = null,
+        string? status = null,
+        string? search = null)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@PeriodMonth", periodMonth);
+        param.Add("@BranchId", branchId);
+        param.Add("@Status", status);
+        param.Add("@Search", search);
+        return await connection.QueryAsync<SalaryAdvanceItemDto>(
+            "dbo.sp_HRM_GetSalaryAdvances",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<CreateSalaryAdvanceResultDto> CreateSalaryAdvanceAsync(CreateSalaryAdvanceRequest request)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@EmployeeId", request.EmployeeId);
+        param.Add("@PeriodMonth", request.PeriodMonth?.Trim());
+        param.Add("@RequestDate", request.RequestDate.Date);
+        param.Add("@Amount", request.Amount);
+        param.Add("@PaymentMethod", string.IsNullOrWhiteSpace(request.PaymentMethod) ? "Chuyển khoản" : request.PaymentMethod.Trim());
+        param.Add("@Reason", request.Reason?.Trim());
+        param.Add("@CreatedBy", string.IsNullOrWhiteSpace(request.CreatedBy) ? null : request.CreatedBy.Trim());
+        return await connection.QuerySingleAsync<CreateSalaryAdvanceResultDto>(
+            "dbo.sp_HRM_CreateSalaryAdvance",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<bool> ProcessSalaryAdvanceAsync(int advanceId, ProcessSalaryAdvanceRequest request)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@AdvanceId", advanceId);
+        param.Add("@Action", request.Action?.Trim().ToLowerInvariant());
+        param.Add("@ApproverName", string.IsNullOrWhiteSpace(request.ApproverName) ? "Quản lý" : request.ApproverName.Trim());
+        param.Add("@Note", string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim());
+        var affected = await connection.QuerySingleAsync<int>(
+            "dbo.sp_HRM_ProcessSalaryAdvance",
+            param,
+            commandType: CommandType.StoredProcedure
+        );
+        return affected > 0;
+    }
+
+    public async Task<IEnumerable<EmployeeMonthlyQuotaItemDto>> GetEmployeeMonthlyQuotasAsync(
+        string periodMonth,
+        int? branchId = null,
+        int? employeeId = null,
+        string? search = null)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var param = new DynamicParameters();
+        param.Add("@PeriodMonth", periodMonth?.Trim());
+        param.Add("@BranchId", branchId <= 0 ? null : branchId);
+        param.Add("@EmployeeId", employeeId <= 0 ? null : employeeId);
+        param.Add("@Search", string.IsNullOrWhiteSpace(search) ? null : search.Trim());
+        return await connection.QueryAsync<EmployeeMonthlyQuotaItemDto>(
+            "dbo.sp_HRM_GetEmployeeMonthlyQuotas",
+            param,
             commandType: CommandType.StoredProcedure
         );
     }
