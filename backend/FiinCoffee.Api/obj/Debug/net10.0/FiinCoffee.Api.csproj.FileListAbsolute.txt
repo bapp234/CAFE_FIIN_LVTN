@@ -217,3 +217,11 @@ E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\runtimes
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\FiinCoffee.Core.pdb
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\FiinCoffee.Infrastructure.pdb
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity-cli\brain\859c4df8-5d24-4176-89cf-b1b6d212ee0d\scratch\api_build_check\appsettings.Development.json
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity-cli\brain\859c4df8-5d24-4176-89cf-b1b6d212ee0d\scratch\api_build_check\appsettings.json
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity-cli\brain\859c4df8-5d24-4176-89cf-b1b6d212ee0d\scratch\api_build_check\FiinCoffee.Api.staticwebassets.endpoints.json
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity-cli\brain\859c4df8-5d24-4176-89cf-b1b6d212ee0d\scratch\api_build_check\FiinCoffee.Api.exe
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity-cli\brain\859c4df8-5d24-4176-89cf-b1b6d212ee0d\scratch\api_build_check\FiinCoffee.Api.deps.json
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity-cli\brain\859c4df8-5d24-4176-89cf-b1b6d212ee0d\scratch\api_build_check\FiinCoffee.Api.runtimeconfig.json
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity-cli\brain\859c4df8-5d24-4176-89cf-b1b6d212ee0d\scratch\api_build_check\FiinCoffee.Api.dll
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity-cli\brain\859c4df8-5d24-4176-89cf-b1b6d212ee0d\scratch\api_build_check\FiinCoffee.Api.pdb

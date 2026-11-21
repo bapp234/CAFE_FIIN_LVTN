@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json;
+using FiinCoffee.Api.Services;
 using FiinCoffee.Core.Common;
 using FiinCoffee.Core.Interfaces;
 using FiinCoffee.Infrastructure;
@@ -15,6 +16,10 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
     });
+
+builder.Services.AddHttpClient();
+builder.Services.AddSingleton<LocationSyncWorker>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<LocationSyncWorker>());
 
 // 2. Cấu hình Swagger / OpenAPI
 builder.Services.AddEndpointsApiExplorer();
@@ -43,7 +48,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 4. Cấu hình xác thực phiên HttpOnly Cookie (Admin Portal & Staff Portal)
+// 4. Cấu hình xác thực phiên HttpOnly Cookie (Tách riêng Admin/Staff và Customer)
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -84,35 +89,85 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
                     ctx.RejectPrincipal();
                 }
             },
-            OnRedirectToLogin = ctx =>
+            OnRedirectToLogin = async ctx =>
             {
                 ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 ctx.Response.ContentType = "application/json; charset=utf-8";
                 if (ctx.HttpContext.Items.ContainsKey("SessionReplaced"))
                 {
-                    return ctx.Response.WriteAsJsonAsync(new
+                    await ctx.Response.WriteAsJsonAsync(new
                     {
                         success = false,
                         code = "SESSION_REPLACED",
                         message = "Tài khoản đã được đăng nhập ở một cửa sổ khác hoặc phiên đã kết thúc."
                     });
+                    return;
                 }
-                return ctx.Response.WriteAsJsonAsync(ApiResponse.Fail("Phiên đăng nhập chưa được xác thực hoặc đã hết hạn."));
+                await ctx.Response.WriteAsJsonAsync(ApiResponse.Fail("Phiên đăng nhập chưa được xác thực hoặc đã hết hạn."));
             },
-            OnRedirectToAccessDenied = ctx =>
+            OnRedirectToAccessDenied = async ctx =>
             {
                 ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
                 ctx.Response.ContentType = "application/json; charset=utf-8";
-                return ctx.Response.WriteAsJsonAsync(ApiResponse.Fail("Bạn không có quyền thực hiện thao tác này."));
+                await ctx.Response.WriteAsJsonAsync(ApiResponse.Fail("Bạn không có quyền thực hiện thao tác này."));
+            },
+        };
+    })
+    .AddCookie("CustomerCookie", options =>
+    {
+        options.Cookie.Name = "fiin_customer_session";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.ExpireTimeSpan = TimeSpan.FromHours(12);
+        options.SlidingExpiration = true;
+
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnValidatePrincipal = async ctx =>
+            {
+                var userIdStr = ctx.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!int.TryParse(userIdStr, out var userId))
+                {
+                    ctx.RejectPrincipal();
+                    return;
+                }
+
+                var repo = ctx.HttpContext.RequestServices.GetRequiredService<IAuthRepository>();
+                var record = await repo.GetUserByIdAsync(userId);
+                if (record == null || !record.IsActive)
+                {
+                    ctx.RejectPrincipal();
+                }
+            },
+            OnRedirectToLogin = async ctx =>
+            {
+                ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                ctx.Response.ContentType = "application/json; charset=utf-8";
+                await ctx.Response.WriteAsJsonAsync(ApiResponse.Fail("Phiên đăng nhập khách hàng chưa được xác thực hoặc đã hết hạn."));
+            },
+            OnRedirectToAccessDenied = async ctx =>
+            {
+                ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                ctx.Response.ContentType = "application/json; charset=utf-8";
+                await ctx.Response.WriteAsJsonAsync(ApiResponse.Fail("Bạn không có quyền thực hiện thao tác này."));
             },
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.DefaultPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            "CustomerCookie")
+        .RequireAuthenticatedUser()
+        .Build();
+});
 
 // 5. Đăng ký Hạ tầng dữ liệu Dapper & Bảo mật
 builder.Services.AddInfrastructure();
-builder.Services.AddScoped<FiinCoffee.Api.Services.ILockPasswordVerifier, FiinCoffee.Api.Services.LockPasswordVerifier>();
+builder.Services.AddScoped<ILockPasswordVerifier, LockPasswordVerifier>();
+builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 
 var app = builder.Build();
 

@@ -332,7 +332,19 @@ public class ContractsController : ControllerBase
     private (byte Level, int? EmployeeId, int? BranchId) GetCallerScope()
     {
         byte.TryParse(User.FindFirstValue("hierarchy_level"), out var lvl);
-        if (lvl <= 0) lvl = 1;
+
+        if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+        {
+            if (lvl < 5) lvl = 5;
+        }
+        else if (User.IsInRole("HRManager"))
+        {
+            if (lvl < 4) lvl = 4;
+        }
+        else if (lvl <= 0)
+        {
+            lvl = 1;
+        }
 
         int? empId = int.TryParse(User.FindFirstValue("employee_id"), out var eid) ? eid : null;
         int? branchId = int.TryParse(User.FindFirstValue("branch_id"), out var bid) ? bid : null;

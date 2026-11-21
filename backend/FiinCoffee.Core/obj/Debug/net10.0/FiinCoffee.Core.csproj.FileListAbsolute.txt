@@ -22,3 +22,6 @@ E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_out\FiinCoffee
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\FiinCoffee.Core.deps.json
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\FiinCoffee.Core.dll
 E:\LUAN_VAN_TOT_NGHIEP_2026\src\backend\FiinCoffee.Api\obj\verify_build\FiinCoffee.Core.pdb
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity-cli\brain\859c4df8-5d24-4176-89cf-b1b6d212ee0d\scratch\api_build_check\FiinCoffee.Core.deps.json
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity-cli\brain\859c4df8-5d24-4176-89cf-b1b6d212ee0d\scratch\api_build_check\FiinCoffee.Core.dll
+C:\Users\Ngô Hoàng Sang\.gemini\antigravity-cli\brain\859c4df8-5d24-4176-89cf-b1b6d212ee0d\scratch\api_build_check\FiinCoffee.Core.pdb

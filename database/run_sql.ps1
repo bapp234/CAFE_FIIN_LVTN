@@ -14,5 +14,5 @@ if (-not (Test-Path $SqlFile)) {
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 chcp 65001 | Out-Null
 
-sqlcmd -S $Server -E -d $Database -f 65001 -i $SqlFile -C
+sqlcmd -S $Server -E -d $Database -f 65001 -I -i $SqlFile -C
 exit $LASTEXITCODE

@@ -32,6 +32,7 @@ public class HrmRoleSettingsRepository : IHrmRoleSettingsRepository
                 COUNT(ur.UserId) AS MemberCount
             FROM dbo.Roles r
             LEFT JOIN dbo.UserRoles ur ON r.RoleId = ur.RoleId
+            WHERE r.RoleName <> N'Customer'
             GROUP BY r.RoleId, r.RoleName, r.Description
             ORDER BY r.RoleId ASC;";
 

@@ -61,6 +61,88 @@ public class AuthRepository : IAuthRepository
         return affected > 0;
     }
 
+    public async Task<(int UserId, int CustomerId)> RegisterCustomerAsync(
+        string username,
+        string passwordHash,
+        string fullName,
+        string phoneNumber,
+        string email)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var row = await connection.QuerySingleAsync<(int UserId, int CustomerId)>(
+            "dbo.sp_CUST_Register",
+            new
+            {
+                Username = username.Trim(),
+                PasswordHash = passwordHash,
+                PasswordSalt = (string?)null,
+                FullName = fullName.Trim(),
+                PhoneNumber = phoneNumber.Trim(),
+                Email = email.Trim(),
+                DefaultAddress = (string?)null,
+            },
+            commandType: CommandType.StoredProcedure
+        );
+
+        return row;
+    }
+
+    public async Task<AuthTokenIssueResult> CreateAuthTokenAsync(
+        string email,
+        string tokenType,
+        string tokenHash,
+        int expireMinutes)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        return await connection.QuerySingleAsync<AuthTokenIssueResult>(
+            "dbo.sp_Auth_CreateAuthToken",
+            new
+            {
+                Email = email.Trim(),
+                TokenType = tokenType,
+                TokenHash = tokenHash,
+                ExpireMinutes = expireMinutes,
+            },
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<bool> VerifyEmailTokenAsync(string tokenHash)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var row = await connection.QueryFirstOrDefaultAsync<VerifyResultRow>(
+            "dbo.sp_Auth_VerifyEmailToken",
+            new { TokenHash = tokenHash },
+            commandType: CommandType.StoredProcedure
+        );
+
+        return row?.IsEmailVerified ?? false;
+    }
+
+    public async Task<bool> ResetPasswordByTokenAsync(string tokenHash, string newPasswordHash)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var row = await connection.QueryFirstOrDefaultAsync<ResetResultRow>(
+            "dbo.sp_Auth_ResetPasswordByToken",
+            new { TokenHash = tokenHash, NewPasswordHash = newPasswordHash },
+            commandType: CommandType.StoredProcedure
+        );
+
+        return row?.ResetSuccess ?? false;
+    }
+
+    private sealed class VerifyResultRow
+    {
+        public int UserId { get; set; }
+        public bool IsEmailVerified { get; set; }
+    }
+
+    private sealed class ResetResultRow
+    {
+        public int UserId { get; set; }
+        public bool ResetSuccess { get; set; }
+    }
+
     private static async Task<AuthUserRecord?> ReadAuthUserRecordAsync(SqlMapper.GridReader multi)
     {
         if (multi.IsConsumed) return null;

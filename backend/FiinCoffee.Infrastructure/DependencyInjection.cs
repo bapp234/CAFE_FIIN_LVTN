@@ -22,6 +22,7 @@ public static class DependencyInjection
         services.AddScoped<IContractExcelService, ContractExcelService>();
         services.AddScoped<IWordTemplateEngine, WordTemplateEngine>();
         services.AddScoped<IAuthRepository, AuthRepository>();
+        services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IContractRepository, ContractRepository>();
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
         services.AddScoped<IApprovalRepository, ApprovalRepository>();
