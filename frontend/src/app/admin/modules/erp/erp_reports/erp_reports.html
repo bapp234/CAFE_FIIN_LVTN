@@ -1,0 +1,57 @@
+<div class="folder-shell">
+  <div class="folder-tabs-header">
+    <div class="tabs-container">
+      <button type="button" class="folder-tab-btn" [class.active]="activeTab() === 'revenue'" (click)="setTab('revenue')">
+        <span class="tab-label">Doanh thu bán hàng</span>
+      </button>
+      <button type="button" class="folder-tab-btn" [class.active]="activeTab() === 'profit'" (click)="setTab('profit')">
+        <span class="tab-label">Chi phí &amp; Lợi nhuận</span>
+      </button>
+      <button type="button" class="folder-tab-btn" [class.active]="activeTab() === 'products'" (click)="setTab('products')">
+        <span class="tab-label">Doanh thu theo Món &amp; Danh mục</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="folder-body-outlet">
+    <div class="sub-header-stripe">
+      <div class="stripe-left">
+        <app-admin-combo-box [options]="yearOptions" [value]="selectedYear()" width="8rem" (valueChange)="selectedYear.set($event); loadData()" ariaLabel="Chọn năm" />
+        <app-admin-button title="Làm mới" (clicked)="loadData()">
+          <svg lucideRotateCcw aria-hidden="true"></svg><span>Làm mới</span>
+        </app-admin-button>
+      </div>
+      <div class="stripe-right">
+        <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" (clicked)="exportExcel()">
+          <svg lucideDownload aria-hidden="true"></svg><span>Xuất Excel</span>
+        </app-admin-button>
+      </div>
+    </div>
+
+    <div class="employee-grid-container">
+      @if (activeTab() === 'products') {
+        <app-admin-grid-table
+          ariaLabel="Báo cáo doanh thu theo món"
+          [columns]="productColumns"
+          [rows]="productRows()"
+          rowKey="productCode"
+          [loading]="isLoading()"
+          [showIndex]="true"
+          indexLabel="STT"
+          [frozenCount]="3"
+        />
+      } @else {
+        <app-admin-grid-table
+          ariaLabel="Báo cáo doanh thu bán hàng"
+          [columns]="revenueColumns"
+          [rows]="revenueRows()"
+          rowKey="month"
+          [loading]="isLoading()"
+          [showIndex]="true"
+          indexLabel="STT"
+          [frozenCount]="3"
+        />
+      }
+    </div>
+  </div>
+</div>

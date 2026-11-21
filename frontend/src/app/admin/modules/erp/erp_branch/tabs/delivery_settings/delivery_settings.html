@@ -1,0 +1,83 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <app-admin-button title="Làm mới" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+  <div class="stripe-right">
+    <span class="count-badge">Tổng chi nhánh: <b>{{ rows().length }}</b></span>
+  </div>
+</div>
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng cấu hình phạm vi giao hàng và phí ship"
+    [columns]="columns"
+    [rows]="gridRows()"
+    rowKey="branchId"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [frozenCount]="3"
+    [cellTemplates]="{
+      isDeliveryEnabled: enabledTpl,
+      maxRadiusKm: radiusTpl,
+      baseShippingFee: baseFeeTpl,
+      feePerKm: feeKmTpl,
+      freeShipMinOrder: freeMinTpl,
+      supportedAreas: areasTpl
+    }"
+  />
+</div>
+
+<ng-template #enabledTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-check-wrap" (click)="$event.stopPropagation()">
+    <input type="checkbox" [(ngModel)]="item.isDeliveryEnabled" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #radiusTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" (click)="$event.stopPropagation()">
+    <input type="number" class="ghost-input is-num" [(ngModel)]="item.maxRadiusKm" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #baseFeeTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" (click)="$event.stopPropagation()">
+    <input type="number" class="ghost-input is-num" [(ngModel)]="item.baseShippingFee" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #feeKmTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" (click)="$event.stopPropagation()">
+    <input type="number" class="ghost-input is-num" [(ngModel)]="item.feePerKm" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #freeMinTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" (click)="$event.stopPropagation()">
+    <input type="number" class="ghost-input is-num" [(ngModel)]="item.freeShipMinOrder" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #areasTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" (click)="$event.stopPropagation()">
+    <input type="text" class="ghost-input" placeholder="Quận 1, Quận 3..." [(ngModel)]="item.supportedAreas" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+
+@if (dirtyCount() > 0) {
+  <div class="hrm-floating-action-bar">
+    <div class="fab-summary">Đang có <strong>{{ dirtyCount() }}</strong> chi nhánh thay đổi chưa lưu</div>
+    <div class="fab-actions">
+      <app-admin-button [disabled]="isSaving()" (clicked)="discardChanges()">
+        <svg lucideX aria-hidden="true"></svg><span>Hủy thay đổi</span>
+      </app-admin-button>
+      <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" [disabled]="isSaving()" (clicked)="saveAllChanges()">
+        <svg lucideCheck aria-hidden="true"></svg><span>Lưu thay đổi ({{ dirtyCount() }})</span>
+      </app-admin-button>
+    </div>
+  </div>
+}

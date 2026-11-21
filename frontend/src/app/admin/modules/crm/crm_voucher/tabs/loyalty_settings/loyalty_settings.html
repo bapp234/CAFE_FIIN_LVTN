@@ -1,0 +1,203 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        placeholder="Tìm mã quy tắc, tên quy tắc Điểm Fiin..."
+        ariaLabel="Tìm kiếm quy tắc Điểm Fiin"
+        (searched)="searchQuery.set($event)"
+      />
+    </div>
+
+    <app-admin-button title="Tải lại danh sách quy tắc" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+
+  <div class="stripe-right">
+    <span class="count-badge">
+      Tổng quy tắc: <b>{{ filteredRows().length }}</b>
+    </span>
+
+    <app-admin-button
+      title="Thêm dòng quy tắc mới trực tiếp trên bảng"
+      bgColor="var(--color-xanh-dam)"
+      textColor="var(--color-trang)"
+      (clicked)="addNewRow()"
+    >
+      <svg lucidePlus aria-hidden="true"></svg>
+      <span>Thêm quy tắc</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng thiết lập quy tắc Điểm Fiin"
+    [columns]="columns"
+    [rows]="filteredRows()"
+    rowKey="_localKey"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [clientSort]="false"
+    actionsLabel="Xóa"
+    actionsWidth="4.25rem"
+    [cellTemplates]="{
+      ruleCode: ruleCodeTpl,
+      ruleName: ruleNameTpl,
+      earnAmountPerPoint: earnAmountTpl,
+      pointsPerStep: pointsStepTpl,
+      multiplier: multiplierTpl,
+      startDate: startDateTpl,
+      endDate: endDateTpl,
+      isActive: isActiveTpl
+    }"
+  >
+    <ng-template #actions let-row>
+      <button
+        type="button"
+        class="row-action-btn is-danger"
+        title="Xóa quy tắc"
+        (click)="confirmDelete(row)"
+      >
+        <svg lucideTrash2 class="w-3.5 h-3.5" aria-hidden="true"></svg>
+      </button>
+    </ng-template>
+  </app-admin-grid-table>
+</div>
+
+<ng-template #ruleCodeTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input
+      type="text"
+      class="ghost-input is-code"
+      placeholder="FIIN_..."
+      [(ngModel)]="item.ruleCode"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #ruleNameTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input
+      type="text"
+      class="ghost-input is-name"
+      placeholder="Nhập tên quy tắc..."
+      [(ngModel)]="item.ruleName"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #earnAmountTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input
+      type="number"
+      class="ghost-input is-num"
+      [(ngModel)]="item.earnAmountPerPoint"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #pointsStepTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input
+      type="number"
+      class="ghost-input is-num"
+      [(ngModel)]="item.pointsPerStep"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #multiplierTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input
+      type="number"
+      step="0.5"
+      class="ghost-input is-num"
+      [(ngModel)]="item.multiplier"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #startDateTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input
+      type="date"
+      class="ghost-input"
+      [(ngModel)]="item.startDate"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #endDateTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input
+      type="date"
+      class="ghost-input"
+      [(ngModel)]="item.endDate"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #isActiveTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-check-wrap" (click)="$event.stopPropagation()">
+    <input
+      type="checkbox"
+      [(ngModel)]="item.isActive"
+      (ngModelChange)="markDirty(item)"
+      aria-label="Áp dụng quy tắc"
+    />
+  </div>
+</ng-template>
+
+@if (dirtyCount() > 0) {
+  <div class="hrm-floating-action-bar" role="region" aria-label="Lưu thay đổi quy tắc Điểm Fiin">
+    <div class="fab-summary">
+      Đang có <strong>{{ dirtyCount() }}</strong> quy tắc thay đổi chưa lưu
+    </div>
+    <div class="fab-actions">
+      <app-admin-button [disabled]="isSaving()" (clicked)="discardChanges()">
+        <svg lucideX aria-hidden="true"></svg>
+        <span>Hủy thay đổi</span>
+      </app-admin-button>
+
+      <app-admin-button
+        bgColor="var(--color-xanh-dam)"
+        textColor="var(--color-trang)"
+        [disabled]="isSaving()"
+        (clicked)="saveAllChanges()"
+      >
+        <svg lucideCheck aria-hidden="true"></svg>
+        <span>{{ isSaving() ? 'Đang lưu...' : 'Lưu thay đổi (' + dirtyCount() + ')' }}</span>
+      </app-admin-button>
+    </div>
+  </div>
+}
+
+<app-admin-modal
+  [isOpen]="deleteTarget() !== null"
+  title="Xác nhận xóa quy tắc Điểm Fiin"
+  [message]="'Bạn có chắc chắn muốn xóa quy tắc ' + (deleteTarget()?.ruleCode ?? '') + ' (' + (deleteTarget()?.ruleName ?? '') + ') không?'"
+  confirmText="Xóa"
+  cancelText="Hủy"
+  variant="danger"
+  [isLoading]="isSaving()"
+  (confirm)="executeDelete()"
+  (cancel)="deleteTarget.set(null)"
+/>

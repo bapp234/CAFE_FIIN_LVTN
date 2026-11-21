@@ -1,0 +1,140 @@
+<!-- THANH CÔNG CỤ -->
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        placeholder="Tìm mã hoặc tên loại hợp đồng..."
+        ariaLabel="Tìm kiếm loại hợp đồng"
+        (searched)="searchQuery.set($event)"
+      />
+    </div>
+
+    <app-admin-button title="Tải lại danh mục loại hợp đồng" (clicked)="loadTypes()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+
+    <span class="inline-hint">Sửa trực tiếp trên từng ô bảng tính rồi bấm <b>Lưu</b> ở cuối dòng.</span>
+  </div>
+
+  <div class="stripe-right">
+    <app-admin-button
+      title="Thêm dòng loại hợp đồng mới ngay trên bảng"
+      bgColor="var(--color-xanh-dam)"
+      textColor="var(--color-trang)"
+      (clicked)="addInlineRow()"
+    >
+      <svg lucidePlus aria-hidden="true"></svg>
+      <span>Thêm dòng mới</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<!-- BẢNG EXCEL SỬA TRỰC TIẾP TRÊN TỪNG Ô -->
+<div class="settings-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng thiết lập danh mục loại hợp đồng"
+    [columns]="columns"
+    [rows]="gridRows()"
+    rowKey="_rowKey"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [cellTemplates]="cellTemplates()"
+    actionsLabel="Lưu / Xóa"
+    actionsWidth="7.5rem"
+    emptyTitle="Chưa có loại hợp đồng nào"
+    emptyDescription="Nhấn 'Thêm dòng mới' để nhập trực tiếp trên bảng."
+  >
+    <ng-template #tplCode let-val let-row="row">
+      <input
+        type="text"
+        class="cell-input is-code"
+        [ngModel]="val"
+        placeholder="HD-MOI"
+        (ngModelChange)="patchCell(row, 'contractCode', $event)"
+      />
+    </ng-template>
+
+    <ng-template #tplName let-val let-row="row">
+      <input
+        type="text"
+        class="cell-input"
+        [ngModel]="val"
+        placeholder="Tên loại hợp đồng..."
+        (ngModelChange)="patchCell(row, 'contractName', $event)"
+      />
+    </ng-template>
+
+    <ng-template #tplRate let-val let-row="row">
+      <input
+        type="number"
+        min="0"
+        step="1000"
+        class="cell-input is-num"
+        [ngModel]="val"
+        (ngModelChange)="patchCell(row, 'standardHourlyRate', +$event)"
+      />
+    </ng-template>
+
+    <ng-template #tplAllow let-val let-row="row">
+      <input
+        type="number"
+        min="0"
+        step="50000"
+        class="cell-input is-num"
+        [ngModel]="val"
+        (ngModelChange)="patchCell(row, 'allowance', +$event)"
+      />
+    </ng-template>
+
+    <ng-template #tplPct let-val let-row="row">
+      <input
+        type="number"
+        min="1"
+        max="200"
+        class="cell-input is-num"
+        [ngModel]="val"
+        (ngModelChange)="patchCell(row, 'salaryPercentage', +$event)"
+      />
+    </ng-template>
+
+    <ng-template #tplMonths let-val let-row="row">
+      <input
+        type="number"
+        min="0"
+        class="cell-input is-center"
+        placeholder="∞"
+        [ngModel]="val"
+        (ngModelChange)="patchCell(row, 'durationMonths', $event ? +$event : null)"
+      />
+    </ng-template>
+
+    <ng-template #tplActive let-val let-row="row">
+      <input
+        type="checkbox"
+        class="cell-check"
+        [ngModel]="val"
+        (ngModelChange)="patchCell(row, 'isActive', $event)"
+      />
+    </ng-template>
+
+    <ng-template #actions let-row>
+      <div class="act-group">
+        @if (row['_dirty']) {
+          <button type="button" class="act-btn is-save" title="Lưu thay đổi dòng này" (click)="saveRow(row)">
+            <svg lucideSave aria-hidden="true"></svg>
+            <span>Lưu</span>
+          </button>
+        } @else {
+          <span class="saved-badge" title="Đã đồng bộ">
+            <svg lucideCheck aria-hidden="true"></svg>
+          </span>
+        }
+        <button type="button" class="act-btn is-del" title="Xóa / Ngưng áp dụng" (click)="deleteRow(row)">
+          <svg lucideTrash2 aria-hidden="true"></svg>
+        </button>
+      </div>
+    </ng-template>
+  </app-admin-grid-table>
+</div>

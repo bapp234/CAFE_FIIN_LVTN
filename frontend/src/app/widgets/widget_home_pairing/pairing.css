@@ -1,0 +1,453 @@
+@reference "../../../styles.css";
+
+:host {
+    display: block;
+    width: 100%;
+}
+
+.pairing-widget-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* Header */
+.pairing-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.pairing-badge-pill {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    background-color: rgba(47, 93, 88, 0.12);
+    color: var(--color-xanh-dam);
+    font-family: var(--font-ui);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.badge-svg {
+    width: 0.8rem;
+    height: 0.8rem;
+}
+
+.pairing-main-title {
+    font-family: var(--font-heading);
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: var(--color-den);
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.pairing-subtitle {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-nau-xam);
+    margin: 0;
+}
+
+/* Khung Studio 2 Cột */
+.pairing-studio-card {
+    background-color: var(--color-trang);
+    border-radius: 18px;
+    border: 1px solid rgba(107, 97, 87, 0.16);
+    box-shadow: 0 8px 28px rgba(35, 31, 28, 0.06);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr;
+}
+
+/* Cột trái: Ảnh & Stamp */
+.studio-visual-col {
+    position: relative;
+    min-height: 14rem;
+    background-color: var(--color-nau-dam);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.35rem;
+}
+
+.studio-cover-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.studio-visual-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to top,
+        rgba(28, 21, 18, 0.9) 0%,
+        rgba(28, 21, 18, 0.3) 55%,
+        rgba(28, 21, 18, 0.2) 100%
+    );
+}
+
+.discount-stamp {
+    position: relative;
+    z-index: 2;
+    align-self: flex-end;
+    background-color: var(--color-do);
+    color: var(--color-trang);
+    padding: 0.45rem 0.75rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 6px 16px rgba(155, 45, 32, 0.4);
+    border: 1.5px solid rgba(255, 253, 247, 0.35);
+}
+
+.stamp-top {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    opacity: 0.9;
+}
+
+.stamp-val {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.visual-caption {
+    position: relative;
+    z-index: 2;
+    color: var(--color-trang);
+}
+
+.caption-tag {
+    display: inline-block;
+    font-family: var(--font-ui);
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--color-vang-chanh);
+    margin-bottom: 0.25rem;
+}
+
+.caption-text {
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--color-be);
+    margin: 0;
+}
+
+/* Cột phải: Bộ ghép đôi */
+.studio-builder-col {
+    padding: 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    background: linear-gradient(180deg, var(--color-trang) 0%, var(--color-be-card) 100%);
+}
+
+.builder-step {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.step-label-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.step-num {
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 50%;
+    background-color: var(--color-den);
+    color: var(--color-trang);
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-icon {
+    width: 1rem;
+    height: 1rem;
+    color: var(--color-do);
+}
+
+.step-title {
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-den);
+}
+
+/* Cards chọn bánh */
+.selector-cards-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+}
+
+.mini-choice-card {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 12px;
+    border: 1.5px solid rgba(107, 97, 87, 0.2);
+    background-color: var(--color-trang);
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mini-choice-card:hover {
+    border-color: var(--color-nau-dat);
+}
+
+.mini-choice-card.is-selected {
+    border-color: var(--color-do);
+    background-color: rgba(155, 45, 32, 0.05);
+    box-shadow: 0 4px 12px rgba(155, 45, 32, 0.08);
+}
+
+.mini-thumb {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.mini-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.mini-name {
+    font-family: var(--font-ui);
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--color-den);
+}
+
+.mini-price {
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-nau-xam);
+}
+
+.mini-check {
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 50%;
+    border: 1.5px solid rgba(107, 97, 87, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-trang);
+}
+
+.mini-choice-card.is-selected .mini-check {
+    background-color: var(--color-do);
+    border-color: var(--color-do);
+}
+
+.check-svg {
+    width: 0.8rem;
+    height: 0.8rem;
+    stroke-width: 3;
+}
+
+/* Connector */
+.builder-connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-block: -0.25rem;
+}
+
+.connector-plus {
+    width: 1.65rem;
+    height: 1.65rem;
+    border-radius: 50%;
+    background-color: var(--color-be);
+    color: var(--color-do);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.plus-svg {
+    width: 0.9rem;
+    height: 0.9rem;
+    stroke-width: 2.5;
+}
+
+/* Pills chọn đồ uống */
+.drink-pills-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.drink-chip-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.85rem;
+    border-radius: 10px;
+    border: 1.5px solid rgba(107, 97, 87, 0.2);
+    background-color: var(--color-trang);
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.drink-chip-btn:hover {
+    border-color: var(--color-xanh-dam);
+}
+
+.drink-chip-btn.is-selected {
+    border-color: var(--color-xanh-dam);
+    background-color: var(--color-xanh-dam);
+    color: var(--color-trang);
+}
+
+.drink-chip-name {
+    font-weight: 700;
+}
+
+.drink-chip-price {
+    font-size: 0.74rem;
+    opacity: 0.85;
+}
+
+/* Thanh Checkout Combo */
+.combo-checkout-bar {
+    margin-top: 0.4rem;
+    padding-top: 0.95rem;
+    border-top: 1px dashed var(--color-vien-co);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.85rem;
+}
+
+.combo-price-summary {
+    display: flex;
+    flex-direction: column;
+}
+
+.price-top-line {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.combo-final-price {
+    font-family: var(--font-display);
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: var(--color-do);
+    line-height: 1;
+}
+
+.combo-old-price {
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    text-decoration: line-through;
+    color: var(--color-nau-xam);
+}
+
+.combo-saved-note {
+    font-family: var(--font-ui);
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--color-xanh-dam);
+    margin-top: 0.15rem;
+}
+
+.combo-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.btn-custom-single {
+    padding: 0.68rem 0.95rem;
+    border-radius: 10px;
+    border: 1.5px solid rgba(107, 97, 87, 0.25);
+    background-color: var(--color-trang);
+    color: var(--color-den);
+    font-family: var(--font-ui);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-custom-single:hover {
+    border-color: var(--color-den);
+    background-color: var(--color-be);
+}
+
+.btn-add-combo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.7rem 1.25rem;
+    border-radius: 10px;
+    border: none;
+    background-color: var(--color-do);
+    color: var(--color-trang);
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(155, 45, 32, 0.25);
+    transition: background-color 0.2s ease;
+}
+
+.btn-add-combo:hover {
+    background-color: var(--color-do-hover);
+}
+
+.bag-svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+@media (min-width: 640px) {
+    .selector-cards-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 900px) {
+    .pairing-studio-card {
+        grid-template-columns: 1fr 1.45fr;
+    }
+}

@@ -1,0 +1,82 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        placeholder="Tìm tên, SĐT, email, mã KH..."
+        ariaLabel="Tìm kiếm khách hàng"
+        (searched)="searchQuery.set($event); onFilterChange()"
+      />
+    </div>
+
+    <app-admin-combo-box
+      [options]="tierOptions()"
+      [value]="tierFilter()"
+      width="11rem"
+      (valueChange)="tierFilter.set($event); onFilterChange()"
+      ariaLabel="Lọc theo hạng khách hàng"
+    />
+
+    <app-admin-combo-box
+      [options]="segmentOptions()"
+      [value]="segmentFilter()"
+      width="12.5rem"
+      (valueChange)="segmentFilter.set($event); onFilterChange()"
+      ariaLabel="Lọc theo tệp khách hàng"
+    />
+
+    <app-admin-combo-box
+      [options]="joinOrderOptions()"
+      [value]="joinOrderFilter()"
+      width="11rem"
+      (valueChange)="joinOrderFilter.set($event); onFilterChange()"
+      ariaLabel="Sắp xếp theo ngày gia nhập"
+    />
+
+    <app-admin-combo-box
+      [options]="provinceOptions()"
+      [value]="provinceFilter()"
+      width="12rem"
+      (valueChange)="provinceFilter.set($event); onFilterChange()"
+      ariaLabel="Lọc theo tỉnh thành"
+    />
+
+    <app-admin-button title="Tải lại danh sách khách hàng" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+
+  <div class="stripe-right">
+    <span class="count-badge">
+      Đang hiển thị: <b>{{ rows().length }}</b>
+    </span>
+
+    <app-admin-button
+      title="Xuất báo cáo Excel theo mẫu chuẩn Fiin"
+      bgColor="var(--color-xanh-dam)"
+      textColor="var(--color-trang)"
+      [disabled]="isExporting()"
+      (clicked)="exportExcel()"
+    >
+      <svg lucideDownload aria-hidden="true"></svg>
+      <span>{{ isExporting() ? 'Đang xuất...' : 'Xuất Excel' }}</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng danh sách khách hàng (chỉ xem)"
+    [columns]="columns"
+    [rows]="rows()"
+    rowKey="customerId"
+    [loading]="isLoading()"
+    [loadingMore]="loadingMore()"
+    [hasMore]="hasMore()"
+    loadingMoreText="Đang tải thêm 10 khách hàng tiếp theo..."
+    [showIndex]="true"
+    indexLabel="STT"
+    [frozenCount]="3"
+    (scrolledToBottom)="loadMore()"
+  />
+</div>

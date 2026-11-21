@@ -1,0 +1,172 @@
+<div class="crm-dashboard">
+  <div class="sub-header-stripe">
+    <div class="stripe-left">
+      <app-admin-combo-box
+        class="combo-month"
+        [options]="monthOptions"
+        [value]="selectedMonthString()"
+        (valueChange)="onMonthChange($event)"
+        ariaLabel="Chọn tháng báo cáo"
+      />
+      <app-admin-combo-box
+        class="combo-year"
+        [options]="yearOptions"
+        [value]="selectedYear()"
+        (valueChange)="onYearChange($event)"
+        ariaLabel="Chọn năm báo cáo"
+      />
+      <app-admin-button title="Làm mới chỉ số CRM" (clicked)="refreshDashboard()">
+        <svg lucideRotateCcw [class.animate-spin]="isLoading()" aria-hidden="true"></svg>
+        <span>Làm mới dữ liệu</span>
+      </app-admin-button>
+    </div>
+
+    <div class="stripe-right">
+      <div class="system-time-tag">
+        <svg lucideClock class="w-3.5 h-3.5 text-stone-500" aria-hidden="true"></svg>
+        <span>Kỳ báo cáo: <b>Tháng {{ selectedMonth() }}/{{ selectedYear() }}</b></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 THẺ CHỈ SỐ KPI CRM -->
+  <section class="stat-grid" aria-label="Chỉ số tổng quan CRM">
+    <app-admin-stat-card
+      label="Tổng khách hàng"
+      [value]="kpi().totalCustomers"
+      diff="Thành viên đã đăng ký"
+      trend="neutral"
+      trendLabel="toàn hệ thống"
+      icon="users"
+    />
+    <app-admin-stat-card
+      label="Khách mới trong tháng"
+      [value]="kpi().newCustomersInMonth"
+      diff="Tài khoản tạo trong kỳ"
+      trend="up"
+      trendLabel="tăng trưởng"
+      icon="users"
+    />
+    <app-admin-stat-card
+      label="Điểm Fiin lưu hành"
+      [value]="kpi().totalFiinPoints"
+      diff="Tổng điểm khách đang giữ"
+      trend="neutral"
+      trendLabel="điểm tích lũy"
+      icon="activity"
+    />
+    <app-admin-stat-card
+      label="Đánh giá trung bình"
+      [value]="kpi().averageRating + ' ★'"
+      [diff]="kpi().totalReviews + ' lượt đánh giá'"
+      trend="up"
+      trendLabel="mức hài lòng"
+      icon="activity"
+    />
+  </section>
+
+  <!-- HÀNG 2: BIỂU ĐỒ XU HƯỚNG & DONUT HẠNG THÀNH VIÊN -->
+  <section class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-card-head">
+        <div class="chart-title-wrap">
+          <svg lucideTrendingUp class="chart-icon" aria-hidden="true"></svg>
+          <div>
+            <h2 class="chart-title">Xu hướng đơn hàng 12 tháng ({{ selectedYear() }})</h2>
+            <p class="chart-sub">Số lượng đơn hàng phát sinh theo từng tháng</p>
+          </div>
+        </div>
+      </div>
+
+      <svg viewBox="0 0 560 175" class="trend-svg" role="img" aria-label="Biểu đồ xu hướng đơn hàng 12 tháng">
+        <defs>
+          <linearGradient id="crmAreaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--color-xanh-dam)" stop-opacity="0.25" />
+            <stop offset="100%" stop-color="var(--color-xanh-dam)" stop-opacity="0.02" />
+          </linearGradient>
+        </defs>
+        <line x1="36" y1="144" x2="544" y2="144" class="axis-line" />
+        @if (areaPath()) {
+          <path [attr.d]="areaPath()" fill="url(#crmAreaGrad)" />
+        }
+        @if (linePath()) {
+          <path [attr.d]="linePath()" fill="none" stroke="var(--color-xanh-dam)" stroke-width="2.5" />
+        }
+        @for (pt of trendPoints(); track pt.month) {
+          <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="4" class="trend-dot">
+            <title>{{ pt.label }}: {{ pt.ordersCount }} đơn ({{ pt.newCustomers }} khách mới)</title>
+          </circle>
+          <text [attr.x]="pt.x" y="164" text-anchor="middle" class="axis-label">{{ pt.label }}</text>
+        }
+      </svg>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-card-head">
+        <div class="chart-title-wrap">
+          <svg lucidePieChart class="chart-icon" aria-hidden="true"></svg>
+          <div>
+            <h2 class="chart-title">Cơ cấu hạng thành viên</h2>
+            <p class="chart-sub">Phân bổ theo hạng Đồng Điệu, Bạc, Vàng, Thượng Khách</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="donut-body">
+        <svg viewBox="0 0 140 140" class="donut-svg" role="img" aria-label="Biểu đồ hạng thành viên">
+          <circle cx="70" cy="70" r="52" fill="none" stroke="var(--color-be)" stroke-width="18" />
+          @for (seg of donutSegments(); track seg.id) {
+            <circle
+              cx="70"
+              cy="70"
+              r="52"
+              fill="none"
+              [attr.stroke]="seg.color"
+              stroke-width="18"
+              [attr.stroke-dasharray]="seg.dashArray"
+              [attr.stroke-dashoffset]="seg.dashOffset"
+              transform="rotate(-90 70 70)"
+            />
+          }
+          <text x="70" y="74" text-anchor="middle" class="donut-total">{{ kpi().totalCustomers }}</text>
+        </svg>
+
+        <ul class="donut-legend">
+          @for (seg of donutSegments(); track seg.id) {
+            <li class="legend-item">
+              <span class="legend-dot" [style.backgroundColor]="seg.color"></span>
+              <span class="legend-label">{{ seg.label }}</span>
+              <strong class="legend-val">{{ seg.count }} ({{ seg.percentage }}%)</strong>
+            </li>
+          } @empty {
+            <li class="legend-empty">Chưa có dữ liệu hạng thành viên</li>
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- HÀNG 3: PHÂN BỔ KÊNH ĐẶT HÀNG -->
+  <section class="chart-card">
+    <div class="chart-card-head">
+      <div>
+        <h2 class="chart-title">Phân bổ kênh đặt hàng</h2>
+        <p class="chart-sub">So sánh hành vi đặt tại quầy (POS) và đặt trực tuyến (Website)</p>
+      </div>
+    </div>
+
+    <div class="channel-bars">
+      @for (bar of channelBars(); track bar.key) {
+        <div class="channel-row">
+          <span class="channel-name">{{ bar.label }}</span>
+          <div class="channel-track">
+            <div class="channel-fill" [style.width.%]="bar.widthPct"></div>
+          </div>
+          <strong class="channel-count">{{ bar.count }} đơn</strong>
+        </div>
+      } @empty {
+        <p class="legend-empty">Chưa có dữ liệu đơn hàng trong hệ thống.</p>
+      }
+    </div>
+  </section>
+</div>

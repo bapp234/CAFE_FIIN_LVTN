@@ -1,0 +1,21 @@
+<div class="folder-shell">
+  <!-- TẦNG 1: CÁC THẺ TAB CHUYỂN PHÂN HỆ NGHIỆP VỤ (SUB-ROUTES) -->
+  <div class="folder-tabs-header">
+    <div class="tabs-container">
+      <a routerLink="danh-sach" routerLinkActive="active" class="folder-tab-btn">
+        <span class="tab-label">Danh sách nhân sự</span>
+      </a>
+      <a routerLink="chua-thiet-lap" routerLinkActive="active" class="folder-tab-btn">
+        <span class="tab-label">Tài khoản chưa thiết lập</span>
+      </a>
+      <a routerLink="thiet-lap" routerLinkActive="active" class="folder-tab-btn">
+        <span class="tab-label">Thiết lập nhân sự</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- TẦNG 2 & 3: NỘI DUNG TỪNG TAB NẠP LAZY-LOAD VÀO ĐÂY QUA ROUTER-OUTLET -->
+  <div class="folder-body-outlet">
+    <router-outlet />
+  </div>
+</div>

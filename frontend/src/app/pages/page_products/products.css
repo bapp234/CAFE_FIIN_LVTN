@@ -1,0 +1,726 @@
+@reference "../../../styles.css";
+
+:host {
+  display: block;
+  background-color: var(--color-be);
+  color: var(--color-den);
+  font-family: var(--font-body);
+}
+
+.products-page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-be);
+}
+
+.products-container {
+  width: 100%;
+  max-width: 1360px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  box-sizing: border-box;
+}
+
+/* =========================================
+   2. THANH ĐIỀU HƯỚNG & BỘ LỌC NGANG STICKY
+   ========================================= */
+.menu-filter-dock {
+  position: sticky;
+  top: 0;
+  z-index: 35;
+  background-color: var(--color-be-card);
+  border-bottom: 1.5px solid var(--color-vien-co);
+  padding: 0.9rem 0 1rem;
+  box-shadow: 0 3px 12px rgba(28, 21, 18, 0.06);
+}
+
+.dock-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+/* Breadcrumb */
+.breadcrumb-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+}
+
+.breadcrumb-link {
+  color: var(--color-nau-xam);
+  text-decoration: none;
+  transition: color 0.18s ease;
+}
+
+.breadcrumb-link:hover {
+  color: var(--color-do);
+}
+
+.breadcrumb-sep {
+  color: var(--color-nau-xam);
+  opacity: 0.5;
+}
+
+.breadcrumb-current {
+  color: var(--color-do);
+  font-weight: 700;
+}
+
+/* Hàng 1: Dải Danh Mục Ngang + Thanh cuộn ngang hiển thị rõ + Nút điều hướng */
+.category-scroller-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.scroll-nav-btn {
+  width: 2.15rem;
+  height: 2.35rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-vien-co);
+  background-color: var(--color-trang);
+  color: var(--color-den);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.scroll-nav-btn:hover {
+  border-color: var(--color-do);
+  background-color: var(--color-do);
+  color: var(--color-trang);
+}
+
+.nav-arrow-svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.category-tabs-bar {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 0.45rem;
+  /* Custom Horizontal Scrollbar rõ ràng, đồng bộ palette */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-nau-dat) var(--color-be);
+}
+
+.category-tabs-bar::-webkit-scrollbar {
+  height: 5px;
+}
+
+.category-tabs-bar::-webkit-scrollbar-track {
+  background-color: var(--color-be);
+  border-radius: var(--radius-sm);
+}
+
+.category-tabs-bar::-webkit-scrollbar-thumb {
+  background-color: var(--color-nau-dat);
+  border-radius: var(--radius-sm);
+}
+
+.category-tabs-bar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-do);
+}
+
+.cat-tab-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-vien-co);
+  background-color: var(--color-trang);
+  color: var(--color-den);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.cat-tab-pill:hover {
+  border-color: var(--color-nau-dat);
+  background-color: var(--color-be);
+}
+
+.cat-tab-pill.is-active {
+  background-color: var(--color-do);
+  border-color: var(--color-do);
+  color: var(--color-trang);
+}
+
+.cat-lucide-svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex-shrink: 0;
+}
+
+.cat-tab-badge {
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  background-color: var(--color-be);
+  color: var(--color-den);
+}
+
+.cat-tab-pill.is-active .cat-tab-badge {
+  background-color: rgba(255, 253, 247, 0.22);
+  color: var(--color-trang);
+}
+
+/* Hàng 2: Thanh lọc nhanh + Sắp xếp */
+.horizontal-filters-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.65rem;
+  border-top: 1px dashed var(--color-vien-co);
+}
+
+.filter-pills-scroll {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-vien-co) transparent;
+  flex: 1;
+}
+
+.filter-pills-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.filter-pills-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--color-vien-co);
+  border-radius: var(--radius-sm);
+}
+
+.filter-icon-lead {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-nau-xam);
+  white-space: nowrap;
+}
+
+.filter-lead-svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--color-do);
+}
+
+.chip-segment-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.filter-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-vien-co);
+  background-color: var(--color-trang);
+  color: var(--color-den);
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.filter-chip-btn:hover {
+  border-color: var(--color-do);
+  background-color: var(--color-be);
+}
+
+.filter-chip-btn.is-active {
+  background-color: var(--color-den);
+  border-color: var(--color-den);
+  color: var(--color-trang);
+}
+
+.filter-chip-btn.is-teal-mode.is-active {
+  background-color: var(--color-xanh-dam);
+  border-color: var(--color-xanh-dam);
+  color: var(--color-trang);
+}
+
+.chip-lucide-svg {
+  width: 0.82rem;
+  height: 0.82rem;
+}
+
+.bar-vertical-sep {
+  width: 1px;
+  height: 1.15rem;
+  background-color: var(--color-vien-co);
+  flex-shrink: 0;
+}
+
+.btn-reset-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--color-do);
+  background-color: var(--color-trang);
+  color: var(--color-do);
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.btn-reset-inline:hover {
+  background-color: var(--color-do);
+  color: var(--color-trang);
+}
+
+.reset-svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+/* Cụm phải: Đếm số món & Dropdown Sắp xếp */
+.bar-right-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.items-counter {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--color-nau-xam);
+  white-space: nowrap;
+}
+
+.items-counter strong {
+  color: var(--color-do);
+  font-weight: 800;
+}
+
+.sort-select-box {
+  position: relative;
+}
+
+.sort-select-field {
+  appearance: none;
+  padding: 0.38rem 1.85rem 0.38rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-vien-co);
+  background-color: var(--color-trang);
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-den);
+  cursor: pointer;
+  outline: none;
+}
+
+.sort-select-field:focus {
+  border-color: var(--color-do);
+}
+
+.sort-chevron-svg {
+  position: absolute;
+  right: 0.55rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.9rem;
+  height: 0.9rem;
+  color: var(--color-nau-xam);
+  pointer-events: none;
+}
+
+/* =========================================
+   3. LƯỚI SẢN PHẨM TOÀN CHIỀU RỘNG (4 CỘT DESKTOP)
+   ========================================= */
+.products-main-layout {
+  flex: 1;
+  padding: 1.75rem 0 4.5rem;
+}
+
+.products-grid-catalog {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+.catalog-product-card {
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-md);
+  padding: 0.65rem;
+  box-shadow: 0 2px 10px rgba(28, 21, 18, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.catalog-product-card:hover {
+  transform: translateY(-4px);
+  background-color: var(--color-be-card);
+  box-shadow: 0 10px 22px rgba(28, 21, 18, 0.1);
+  border-color: var(--color-nau-dat);
+}
+
+.product-thumb-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-be);
+  border: 1px solid var(--color-vien-co);
+  overflow: hidden;
+}
+
+.product-thumb-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.45s ease;
+}
+
+.catalog-product-card:hover .product-thumb-image {
+  transform: scale(1.05);
+}
+
+.product-badge-flag {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.22rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--color-trang);
+  background-color: var(--color-do);
+}
+
+.product-badge-flag.is-try {
+  background-color: var(--color-xanh-dam);
+}
+
+.product-badge-flag.is-new {
+  background-color: var(--color-vang-chanh);
+  color: var(--color-den);
+}
+
+.flag-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.serving-type-tag {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.2rem 0.45rem;
+  background-color: var(--color-nau-dam);
+  color: var(--color-trang);
+  font-family: var(--font-ui);
+  font-size: 0.66rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+}
+
+.serving-lucide-svg {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+/* Nút Quick Add góc ảnh dùng --radius-md */
+.quick-add-fab {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-do);
+  background-color: var(--color-trang);
+  color: var(--color-do);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(28, 21, 18, 0.18);
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.catalog-product-card:hover .quick-add-fab,
+.quick-add-fab:hover {
+  background-color: var(--color-do);
+  color: var(--color-trang);
+}
+
+.fab-plus-svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  stroke-width: 2.5;
+}
+
+.product-info-container {
+  padding: 0 0.25rem 0.25rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.product-brand-line {
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  color: var(--color-xanh-dam);
+  margin-bottom: 0.2rem;
+}
+
+.product-title-heading {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-den);
+  line-height: 1.32;
+}
+
+.product-desc-snippet {
+  margin: 0 0 0.85rem;
+  font-size: 0.83rem;
+  line-height: 1.5;
+  color: var(--color-nau-xam);
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--color-vien-co);
+}
+
+.product-price-highlight {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-do);
+}
+
+.customize-hint-text {
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--color-nau-xam);
+  transition: color 0.18s ease;
+}
+
+.catalog-product-card:hover .customize-hint-text {
+  color: var(--color-do);
+}
+
+/* Empty State */
+.products-empty-state {
+  text-align: center;
+  padding: 4rem 1.5rem;
+  background-color: var(--color-trang);
+  border: 1.5px dashed var(--color-vien-co);
+  border-radius: var(--radius-md);
+}
+
+.empty-icon-box {
+  width: 3.5rem;
+  height: 3.5rem;
+  margin: 0 auto 0.85rem;
+  border-radius: var(--radius-md);
+  background-color: var(--color-be);
+  border: 1px solid var(--color-vien-co);
+  color: var(--color-do);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-lucide-svg {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.empty-title {
+  margin: 0 0 0.45rem;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.empty-suggestion {
+  margin: 0 auto 1.5rem;
+  max-width: 440px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--color-nau-xam);
+}
+
+.btn-empty-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.65rem 1.25rem;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* =========================================
+   5. FAB & TOAST
+   ========================================= */
+.products-floating-group {
+  position: fixed;
+  right: 1.35rem;
+  bottom: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  z-index: 50;
+}
+
+.fab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.85rem;
+  height: 2.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 253, 247, 0.2);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(28, 21, 18, 0.22);
+  transition: transform 0.2s ease;
+  text-decoration: none;
+}
+
+.fab-btn:hover {
+  transform: translateY(-2px);
+}
+
+.fab-top {
+  background-color: var(--color-xanh-duong);
+  color: var(--color-trang);
+}
+
+.fab-call {
+  background-color: var(--color-do);
+  color: var(--color-trang);
+}
+
+.fab-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.catalog-toast-box {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.72rem 1.25rem;
+  background-color: var(--color-nau-dam);
+  color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+  font-size: 0.86rem;
+  font-weight: 600;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  z-index: 1100;
+}
+
+.toast-check-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--color-vang-chanh);
+}
+
+/* =========================================
+   RESPONSIVE DESIGN
+   ========================================= */
+@media (max-width: 1100px) {
+  .products-grid-catalog {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .products-grid-catalog {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.9rem;
+  }
+
+  .items-counter {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .products-grid-catalog {
+    grid-template-columns: 1fr;
+  }
+}

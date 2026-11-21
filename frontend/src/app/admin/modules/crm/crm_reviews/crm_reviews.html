@@ -1,0 +1,129 @@
+<div class="reviews-shell">
+  <div class="sub-header-stripe">
+    <div class="stripe-left">
+      <div class="sub-search-wrap">
+        <app-admin-search-box
+          placeholder="Tìm khách hàng, món, nội dung..."
+          ariaLabel="Tìm kiếm đánh giá"
+          (searched)="searchQuery.set($event); refreshTab()"
+        />
+      </div>
+
+      <app-admin-combo-box
+        [options]="ratingOptions"
+        [value]="ratingFilter()"
+        width="9.5rem"
+        (valueChange)="ratingFilter.set($event); refreshTab()"
+        ariaLabel="Lọc theo số sao"
+      />
+
+      <app-admin-combo-box
+        [options]="visibleOptions"
+        [value]="visibleFilter()"
+        width="10.5rem"
+        (valueChange)="visibleFilter.set($event); refreshTab()"
+        ariaLabel="Lọc theo trạng thái hiển thị"
+      />
+
+      <app-admin-combo-box
+        [options]="sortOptions"
+        [value]="sortOrder()"
+        width="9rem"
+        (valueChange)="sortOrder.set($event); refreshTab()"
+        ariaLabel="Sắp xếp theo thời gian"
+      />
+
+      <app-admin-button title="Tải lại danh sách đánh giá" (clicked)="refreshTab()">
+        <svg lucideRotateCcw aria-hidden="true"></svg>
+        <span>Làm mới</span>
+      </app-admin-button>
+    </div>
+
+    <div class="stripe-right">
+      <span class="count-badge">
+        Đang hiển thị: <b>{{ rows().length }}</b>
+      </span>
+
+      <app-admin-button
+        title="Xuất báo cáo Excel theo mẫu chuẩn Fiin"
+        bgColor="var(--color-xanh-dam)"
+        textColor="var(--color-trang)"
+        [disabled]="isExporting()"
+        (clicked)="exportExcel()"
+      >
+        <svg lucideDownload aria-hidden="true"></svg>
+        <span>{{ isExporting() ? 'Đang xuất...' : 'Xuất Excel' }}</span>
+      </app-admin-button>
+    </div>
+  </div>
+
+  <div class="employee-grid-container">
+    <app-admin-grid-table
+      ariaLabel="Bảng quản lý đánh giá khách hàng"
+      [columns]="columns"
+      [rows]="gridRows()"
+      rowKey="reviewId"
+      [loading]="isLoading()"
+      [loadingMore]="loadingMore()"
+      [hasMore]="hasMore()"
+      loadingMoreText="Đang tải thêm 10 đánh giá tiếp theo..."
+      [showIndex]="true"
+      indexLabel="STT"
+      [frozenCount]="3"
+      (scrolledToBottom)="loadMore()"
+      [cellTemplates]="{
+        adminReply: adminReplyTpl,
+        isVisible: isVisibleTpl
+      }"
+    />
+  </div>
+
+  <ng-template #adminReplyTpl let-row="row">
+    @let item = getRaw(row);
+    <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" (click)="$event.stopPropagation()">
+      <input
+        type="text"
+        class="ghost-input"
+        placeholder="Nhập phản hồi của quán..."
+        [(ngModel)]="item.adminReply"
+        (ngModelChange)="markDirty(item)"
+      />
+    </div>
+  </ng-template>
+
+  <ng-template #isVisibleTpl let-row="row">
+    @let item = getRaw(row);
+    <div class="cell-check-wrap" (click)="$event.stopPropagation()">
+      <input
+        type="checkbox"
+        [(ngModel)]="item.isVisible"
+        (ngModelChange)="markDirty(item)"
+        aria-label="Hiển thị đánh giá"
+      />
+    </div>
+  </ng-template>
+
+  @if (dirtyCount() > 0) {
+    <div class="hrm-floating-action-bar" role="region" aria-label="Lưu phản hồi đánh giá">
+      <div class="fab-summary">
+        Đang có <strong>{{ dirtyCount() }}</strong> đánh giá thay đổi chưa lưu
+      </div>
+      <div class="fab-actions">
+        <app-admin-button [disabled]="isSaving()" (clicked)="discardChanges()">
+          <svg lucideX aria-hidden="true"></svg>
+          <span>Hủy thay đổi</span>
+        </app-admin-button>
+
+        <app-admin-button
+          bgColor="var(--color-xanh-dam)"
+          textColor="var(--color-trang)"
+          [disabled]="isSaving()"
+          (clicked)="saveAllChanges()"
+        >
+          <svg lucideCheck aria-hidden="true"></svg>
+          <span>{{ isSaving() ? 'Đang lưu...' : 'Lưu thay đổi (' + dirtyCount() + ')' }}</span>
+        </app-admin-button>
+      </div>
+    </div>
+  }
+</div>

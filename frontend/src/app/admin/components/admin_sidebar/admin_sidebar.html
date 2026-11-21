@@ -1,0 +1,43 @@
+<div class="backdrop" [class.is-visible]="isOpen()" (click)="closed.emit()" aria-hidden="true"></div>
+
+<aside
+  id="admin-sidebar"
+  class="sidebar"
+  [class.is-open]="isOpen()"
+  [style.--accent]="module().accent"
+  [attr.aria-label]="'Menu ' + module().label"
+>
+  <div class="sb-head">
+    <span class="sb-badge"><app-admin-icon [name]="module().icon" /></span>
+    <span class="sb-head-text">
+      <strong class="sb-title">{{ module().label }}</strong>
+      <span class="sb-sub">{{ module().title }}</span>
+    </span>
+  </div>
+
+  <nav class="sb-nav">
+    <ul class="sb-list">
+      @for (item of module().menu; track item.path; let i = $index) {
+        <li [style.--i]="i">
+          <a
+            class="sb-link"
+            [routerLink]="linkFor(item.path)"
+            routerLinkActive="is-active"
+            ariaCurrentWhenActive="page"
+            (click)="closed.emit()"
+          >
+            <app-admin-icon [name]="item.icon" />
+            <span>{{ item.label }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <div class="sb-foot">
+    <a class="sb-site" href="/" target="_blank" rel="noopener">
+      <span>Xem website</span>
+      <svg lucideExternalLink class="sb-site-icon" aria-hidden="true"></svg>
+    </a>
+  </div>
+</aside>

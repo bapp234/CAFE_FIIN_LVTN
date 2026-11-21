@@ -1,0 +1,108 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box placeholder="Tìm mã PO, nhà cung cấp..." ariaLabel="Tìm kiếm phiếu nhập" (searched)="searchQuery.set($event); refreshTab()" />
+    </div>
+    <app-admin-combo-box [options]="statusOptions" [value]="statusFilter()" width="11.5rem" (valueChange)="statusFilter.set($event); refreshTab()" ariaLabel="Lọc theo trạng thái PO" />
+    <app-admin-button title="Làm mới" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg><span>Làm mới</span>
+    </app-admin-button>
+  </div>
+  <div class="stripe-right">
+    <span class="count-badge">Tổng PO: <b>{{ rows().length }}</b></span>
+    <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" (clicked)="exportExcel()">
+      <svg lucideDownload aria-hidden="true"></svg><span>Xuất Excel</span>
+    </app-admin-button>
+    <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" (clicked)="addNewRow()">
+      <svg lucidePlus aria-hidden="true"></svg><span>Tạo phiếu PO</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng phiếu nhập hàng"
+    [columns]="columns"
+    [rows]="gridRows()"
+    rowKey="_localKey"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [frozenCount]="3"
+    [cellTemplates]="{
+      poCode: codeTpl,
+      supplierId: supTpl,
+      status: statusTpl,
+      paymentStatus: payTpl,
+      totalAmount: totalTpl,
+      paidAmount: paidTpl,
+      notes: notesTpl
+    }"
+  />
+</div>
+
+<ng-template #codeTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input type="text" class="ghost-input is-code" [(ngModel)]="item.poCode" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #supTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <select class="ghost-select" [(ngModel)]="item.supplierId" (ngModelChange)="markDirty(item)">
+      @for (s of suppliers(); track s.supplierId) {
+        <option [ngValue]="s.supplierId">{{ s.supplierName }}</option>
+      }
+    </select>
+  </div>
+</ng-template>
+<ng-template #statusTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <select class="ghost-select" [(ngModel)]="item.status" (ngModelChange)="markDirty(item)">
+      <option value="Draft">Nháp</option>
+      <option value="Ordered">Đã đặt hàng</option>
+      <option value="Received">Đã nhập Kho Tổng</option>
+      <option value="Cancelled">Đã hủy</option>
+    </select>
+  </div>
+</ng-template>
+<ng-template #payTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <select class="ghost-select" [(ngModel)]="item.paymentStatus" (ngModelChange)="markDirty(item)">
+      <option value="Unpaid">Chưa thanh toán</option>
+      <option value="Partial">Trả một phần</option>
+      <option value="Paid">Đã thanh toán</option>
+    </select>
+  </div>
+</ng-template>
+<ng-template #totalTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <input type="number" class="ghost-input is-num" [(ngModel)]="item.totalAmount" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #paidTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <input type="number" class="ghost-input is-num" [(ngModel)]="item.paidAmount" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #notesTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <input type="text" class="ghost-input" [(ngModel)]="item.notes" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+
+@if (dirtyCount() > 0) {
+  <div class="hrm-floating-action-bar">
+    <div class="fab-summary">Đang có <strong>{{ dirtyCount() }}</strong> phiếu PO thay đổi chưa lưu</div>
+    <div class="fab-actions">
+      <app-admin-button [disabled]="isSaving()" (clicked)="discardChanges()"><svg lucideX aria-hidden="true"></svg><span>Hủy thay đổi</span></app-admin-button>
+      <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" [disabled]="isSaving()" (clicked)="saveAllChanges()"><svg lucideCheck aria-hidden="true"></svg><span>Lưu thay đổi ({{ dirtyCount() }})</span></app-admin-button>
+    </div>
+  </div>
+}

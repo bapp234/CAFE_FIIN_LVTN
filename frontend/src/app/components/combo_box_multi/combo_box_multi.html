@@ -1,0 +1,39 @@
+<div class="combo-box">
+  <button
+    type="button"
+    class="combo-trigger"
+    [disabled]="disabled()"
+    [attr.aria-expanded]="isOpen()"
+    (click)="toggle()"
+  >
+    <span class="combo-text">{{ selectedLabel() }}</span>
+    <span class="combo-arrow" aria-hidden="true">▾</span>
+  </button>
+
+  @if (isOpen()) {
+    <div class="combo-menu">
+      <div class="combo-search-wrap">
+        <input
+          type="text"
+          class="combo-search-input"
+          [value]="searchQuery()"
+          [placeholder]="searchPlaceholder()"
+          (input)="onSearchInput($event)"
+        />
+      </div>
+      <ul class="combo-list" role="listbox">
+        @for (opt of filteredOptions(); track opt.value) {
+          <li
+            class="combo-item"
+            [class.is-selected]="value() === opt.value"
+            (click)="selectOption(opt.value)"
+          >
+            {{ opt.label }}
+          </li>
+        } @empty {
+          <li class="combo-empty">Không tìm thấy kết quả</li>
+        }
+      </ul>
+    </div>
+  }
+</div>

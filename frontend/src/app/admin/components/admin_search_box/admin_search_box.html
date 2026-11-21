@@ -1,0 +1,6 @@
+<div class="search-box">
+  <input #searchInput type="text" class="search-input" [placeholder]="placeholder()" [attr.aria-label]="ariaLabel()"
+    (input)="onInput(searchInput.value)" (keydown.enter)="onSearch(searchInput.value)" />
+  <button type="button" class="search-btn" aria-label="Tìm kiếm" (click)="onSearch(searchInput.value)">
+  </button>
+</div>

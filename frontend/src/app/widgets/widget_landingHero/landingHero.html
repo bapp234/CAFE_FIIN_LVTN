@@ -1,0 +1,33 @@
+<section id="section-1" class="hero-section" aria-label="Không gian và cà phê phin truyền thống Cà Phê Fiin">
+  <div class="hero-stage">
+    <img
+      #heroImg
+      [src]="heroImage"
+      [alt]="heroAlt"
+      class="hero-static-img"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+      draggable="false"
+    />
+    <div class="hero-scrim" aria-hidden="true"></div>
+  </div>
+
+  <!-- Dải chữ chạy (Marquee) dưới Hero -->
+  <div #heroMarquee class="hero-marquee-bar" aria-hidden="true">
+    <div class="marquee-track">
+      <div class="marquee-group">
+        @for (item of marqueeItems; track $index) {
+          <span class="marquee-item">{{ item }}</span>
+          <span class="marquee-sep">✦</span>
+        }
+      </div>
+      <div class="marquee-group">
+        @for (item of marqueeItems; track 'dup-' + $index) {
+          <span class="marquee-item">{{ item }}</span>
+          <span class="marquee-sep">✦</span>
+        }
+      </div>
+    </div>
+  </div>
+</section>

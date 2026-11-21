@@ -1,0 +1,151 @@
+@reference "../../../styles.css";
+
+:host {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+}
+
+.landing-header {
+  padding: 0.9rem 1.5rem;
+  background: linear-gradient(
+    180deg,
+    rgba(28, 21, 18, 0.78) 0%,
+    rgba(28, 21, 18, 0.35) 70%,
+    transparent 100%
+  );
+  color: var(--color-trang);
+  border-bottom: 1px solid rgba(255, 253, 247, 0.12);
+  transition:
+    background-color 220ms ease,
+    color 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.landing-header.is-scrolled {
+  background: var(--color-be-card);
+  color: var(--color-den);
+  border-bottom: 1px solid var(--color-vien-co);
+  box-shadow: 0 2px 12px rgba(28, 21, 18, 0.12);
+}
+
+.header-container {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand-name {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: inherit;
+}
+
+.header-right-group {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  color: inherit;
+}
+
+.menu-toggle {
+  display: none;
+}
+
+.mobile-nav-panel {
+  display: none;
+}
+
+@media screen and (max-width: 767px) {
+  .landing-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .header-right-group {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid currentColor;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .toggle-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .mobile-nav-panel {
+    display: none;
+    width: 100%;
+    margin-top: 0.75rem;
+    padding: 0.75rem 1rem 1rem;
+    background-color: var(--color-be-card);
+    color: var(--color-den);
+    border: 1px solid var(--color-vien-co);
+    border-radius: var(--radius-sm);
+  }
+
+  .mobile-nav-panel.is-open {
+    display: block;
+  }
+
+  .mobile-nav-list {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .mobile-nav-link {
+    display: block;
+    padding: 0.75rem 0.25rem;
+    color: var(--color-den);
+    text-decoration: none;
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-bottom: 1px dashed var(--color-vien-co);
+  }
+
+  .mobile-nav-link:hover {
+    color: var(--color-do);
+  }
+
+  .mobile-order-wrapper {
+    margin-top: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-header {
+    transition: none;
+  }
+}

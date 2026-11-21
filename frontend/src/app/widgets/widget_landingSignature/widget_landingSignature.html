@@ -1,0 +1,138 @@
+<section #counterSection id="signature-title" class="counter-section" aria-labelledby="counter-heading">
+  <!-- Ánh đèn vàng ấm chiếu lên quầy pha chế -->
+  <div class="bar-spotlight" aria-hidden="true"></div>
+
+  <div class="counter-shell">
+    <!-- Header căn giữa tinh gọn -->
+    <header class="counter-header" data-sig-header>
+      <span class="counter-kicker">GÓC QUẦY PHA CHẾ • CÀ PHÊ FIIN</span>
+      <h2 id="counter-heading" class="counter-heading">Quầy của quán</h2>
+      <p class="counter-subtitle">Chạm vào từng ly cà phê trên quầy gỗ để xem hương vị và đặt món</p>
+    </header>
+
+    <!-- 4 Bảng Menu + Dây nối + 4 Ly Cà Phê đặt trên mặt quầy -->
+    <div class="counter-showcase-grid">
+      @for (drink of drinks; track drink.id; let i = $index) {
+        <div
+          class="counter-column"
+          [class.is-active]="activeIndex() === i"
+          (mouseenter)="selectDrink(i)"
+        >
+          <!-- Bảng tên món phía trên -->
+          <button
+            type="button"
+            class="drink-plaque"
+            [class.is-active]="activeIndex() === i"
+            (click)="selectDrink(i)"
+            data-sig-plaque
+          >
+            <div class="plaque-top-meta">
+              <span class="plaque-code">[{{ drink.code }}]</span>
+              @if (drink.badge) {
+                <span class="plaque-tag">{{ drink.badge }}</span>
+              }
+            </div>
+            <h3 class="drink-name">{{ drink.name }}</h3>
+            <span class="drink-price">{{ drink.price }}</span>
+            <p class="drink-desc">{{ drink.description }}</p>
+          </button>
+
+          <!-- Dây nối xuống ly -->
+          <div class="connector-stem" data-sig-stem aria-hidden="true">
+            <span class="stem-pin"></span>
+          </div>
+
+          <!-- Ly cà phê minh họa đặt trực tiếp lên mặt quầy -->
+          <div class="cup-on-counter-wrap" data-sig-cup>
+            <div class="cup-glow" aria-hidden="true"></div>
+
+            @if (drink.isHot) {
+              <div class="steam-wisps" aria-hidden="true">
+                <span class="wisp wisp-1"></span>
+                <span class="wisp wisp-2"></span>
+                <span class="wisp wisp-3"></span>
+              </div>
+            }
+
+            <a
+              routerLink="/san-pham"
+              class="cup-visual-link"
+              [attr.aria-label]="'Đặt món ' + drink.name"
+            >
+              @switch (drink.cupStyle) {
+                @case ('muoi') {
+                  <!-- Ly Cà Phê Muối -->
+                  <svg class="cup-svg" viewBox="0 0 120 130" aria-hidden="true">
+                    <path d="M32 32 L88 32 L80 112 Q79 118 72 118 L48 118 Q41 118 40 112 Z" fill="#3b2012" stroke="#d9c6a3" stroke-width="2.5" />
+                    <path d="M35 56 L85 56 L80 112 Q79 116 72 116 L48 116 Q41 116 40 112 Z" fill="#231209" />
+                    <path d="M33 34 L87 34 L85 56 L35 56 Z" fill="#faf4e4" />
+                    <rect x="44" y="62" width="12" height="12" rx="2" fill="rgba(255,253,247,0.22)" transform="rotate(-12 50 68)" />
+                    <rect x="62" y="66" width="11" height="11" rx="2" fill="rgba(255,253,247,0.18)" transform="rotate(14 67 71)" />
+                    <circle cx="52" cy="40" r="1.5" fill="#b86b43" />
+                    <circle cx="63" cy="38" r="1.5" fill="#b86b43" />
+                    <circle cx="70" cy="42" r="1.3" fill="#b86b43" />
+                  </svg>
+                }
+                @case ('bac-xiu') {
+                  <!-- Ly Bạc Xỉu Nóng (Tách sứ + Đĩa lót) -->
+                  <svg class="cup-svg" viewBox="0 0 120 130" aria-hidden="true">
+                    <ellipse cx="60" cy="116" rx="44" ry="7" fill="#e7dcc2" stroke="#b5a68c" stroke-width="1.5" />
+                    <path d="M88 54 C104 54 104 84 85 84" fill="none" stroke="#faf4e4" stroke-width="6" stroke-linecap="round" />
+                    <path d="M32 42 L88 42 L82 104 Q80 114 60 114 Q40 114 38 104 Z" fill="#faf4e4" stroke="#b5a68c" stroke-width="2" />
+                    <ellipse cx="60" cy="42" rx="28" ry="5" fill="#d9c6a3" />
+                    <ellipse cx="60" cy="42" rx="24" ry="3.5" fill="#6e3b20" />
+                    <path d="M46 74 L74 74" stroke="#b86b43" stroke-width="2" opacity="0.45" />
+                  </svg>
+                }
+                @case ('trung') {
+                  <!-- Ly Cà Phê Trứng -->
+                  <svg class="cup-svg" viewBox="0 0 120 130" aria-hidden="true">
+                    <ellipse cx="60" cy="116" rx="40" ry="6" fill="#d9c6a3" />
+                    <path d="M34 46 L86 46 L80 108 Q78 115 60 115 Q42 115 40 108 Z" fill="#2b170d" stroke="#d9c6a3" stroke-width="2" />
+                    <path d="M36 46 L84 46 L82 70 L38 70 Z" fill="#f3d56f" />
+                    <path d="M35 46 Q60 36 85 46 Z" fill="#f8e396" />
+                    <circle cx="52" cy="44" r="1.4" fill="#5e321a" />
+                    <circle cx="60" cy="42" r="1.6" fill="#5e321a" />
+                    <circle cx="68" cy="45" r="1.3" fill="#5e321a" />
+                  </svg>
+                }
+                @case ('phin') {
+                  <!-- Ly Cà Phê Phin Nhôm -->
+                  <svg class="cup-svg" viewBox="0 0 120 130" aria-hidden="true">
+                    <path d="M36 62 L84 62 L78 112 Q77 118 70 118 L50 118 Q43 118 42 112 Z" fill="rgba(255,253,247,0.12)" stroke="#d9c6a3" stroke-width="2" />
+                    <path d="M40 84 L80 84 L78 112 Q77 116 70 116 L50 116 Q43 116 42 112 Z" fill="#1c0e07" />
+                    <rect x="30" y="56" width="60" height="6" rx="1" fill="#c2c7cc" stroke="#7d848b" stroke-width="1" />
+                    <path d="M38 26 L82 26 L78 56 L42 56 Z" fill="#d5dadf" stroke="#7d848b" stroke-width="1.5" />
+                    <path d="M35 22 L85 22 L85 26 L35 26 Z" fill="#b7bec5" />
+                    <rect x="55" y="16" width="10" height="6" rx="1" fill="#9ea6ae" />
+                    <circle cx="60" cy="72" r="2.2" fill="#3b2012" />
+                  </svg>
+                }
+              }
+
+              <span class="cup-order-pill">Đặt món &rarr;</span>
+            </a>
+
+            <!-- Đế lót ly tiếp xúc mặt quầy -->
+            <div class="cup-coaster" aria-hidden="true"></div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Mặt Quầy Gỗ Barista 2 tầng -->
+    <div class="wooden-counter-assembly" data-sig-counter aria-hidden="true">
+      <div class="counter-surface-top"></div>
+      <div class="counter-front-apron">
+        <span class="counter-brass-plate">FIIN COFFEE BAR • SINCE 2016</span>
+      </div>
+    </div>
+
+    <div class="counter-footer">
+      <a routerLink="/san-pham" class="counter-cta-link">
+        <span>Khám phá toàn bộ thực đơn</span>
+        <span aria-hidden="true">&rarr;</span>
+      </a>
+    </div>
+  </div>
+</section>

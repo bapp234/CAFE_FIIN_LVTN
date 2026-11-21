@@ -1,0 +1,11 @@
+@reference "../../../../../../../styles.css";
+:host { display: flex; flex-direction: column; flex: 1; min-height: 0; width: 100%; }
+.sub-header-stripe { flex-shrink: 0; background-color: var(--color-be-card); border-bottom: 1px solid var(--color-vien-co); padding: 0.5rem 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; overflow: visible; gap: 0.5rem; }
+.stripe-left, .stripe-right { display: flex; align-items: center; gap: 0.5rem; }
+.count-badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem; font-size: 0.75rem; color: var(--color-nau-dam); background-color: var(--color-be); border: 1px solid var(--color-vien-co); border-radius: var(--radius-sm); }
+.req-form-bar { flex-shrink: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; padding: 0.6rem 1.5rem; background-color: var(--color-be); border-bottom: 1px solid var(--color-vien-co); }
+.req-input { height: 2rem; padding: 0 0.5rem; font-size: 0.8rem; color: var(--color-den); background: var(--color-trang); border: 1px solid var(--color-vien-co); border-radius: var(--radius-sm); }
+.req-qty { width: 6rem; }
+.req-note { min-width: 14rem; }
+.employee-grid-container { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.row-action-btn { display: inline-flex; align-items: center; justify-content: center; width: 1.85rem; height: 1.85rem; border: 1px solid var(--color-vien-co); border-radius: var(--radius-sm); background: var(--color-trang); color: var(--color-xanh-dam); cursor: pointer; }

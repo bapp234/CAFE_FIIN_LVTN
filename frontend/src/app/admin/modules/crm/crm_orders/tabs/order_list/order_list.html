@@ -1,0 +1,82 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        placeholder="Tìm mã đơn, tên khách, SĐT..."
+        ariaLabel="Tìm kiếm đơn hàng"
+        (searched)="searchQuery.set($event); refreshTab()"
+      />
+    </div>
+
+    <app-admin-combo-box
+      [options]="orderTypeOptions"
+      [value]="orderTypeFilter()"
+      width="11.5rem"
+      (valueChange)="orderTypeFilter.set($event); refreshTab()"
+      ariaLabel="Lọc theo kênh đặt"
+    />
+
+    <app-admin-combo-box
+      [options]="orderStatusOptions"
+      [value]="orderStatusFilter()"
+      width="11rem"
+      (valueChange)="orderStatusFilter.set($event); refreshTab()"
+      ariaLabel="Lọc theo trạng thái đơn"
+    />
+
+    <app-admin-combo-box
+      [options]="paymentStatusOptions"
+      [value]="paymentStatusFilter()"
+      width="11rem"
+      (valueChange)="paymentStatusFilter.set($event); refreshTab()"
+      ariaLabel="Lọc theo trạng thái thanh toán"
+    />
+
+    <app-admin-combo-box
+      [options]="sortOptions"
+      [value]="sortOrder()"
+      width="9rem"
+      (valueChange)="sortOrder.set($event); refreshTab()"
+      ariaLabel="Sắp xếp theo thời gian"
+    />
+
+    <app-admin-button title="Tải lại danh sách đơn hàng" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+
+  <div class="stripe-right">
+    <span class="count-badge">
+      Đang hiển thị: <b>{{ rows().length }}</b>
+    </span>
+
+    <app-admin-button
+      title="Xuất báo cáo Excel theo mẫu chuẩn Fiin"
+      bgColor="var(--color-xanh-dam)"
+      textColor="var(--color-trang)"
+      [disabled]="isExporting()"
+      (clicked)="exportExcel()"
+    >
+      <svg lucideDownload aria-hidden="true"></svg>
+      <span>{{ isExporting() ? 'Đang xuất...' : 'Xuất Excel' }}</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng lịch sử đơn hàng khách hàng (chỉ xem)"
+    [columns]="columns"
+    [rows]="rows()"
+    rowKey="orderId"
+    [loading]="isLoading()"
+    [loadingMore]="loadingMore()"
+    [hasMore]="hasMore()"
+    loadingMoreText="Đang tải thêm 10 đơn hàng tiếp theo..."
+    [showIndex]="true"
+    indexLabel="STT"
+    [frozenCount]="3"
+    (scrolledToBottom)="loadMore()"
+  />
+</div>

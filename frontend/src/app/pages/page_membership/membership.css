@@ -1,0 +1,1110 @@
+@reference "../../../styles.css";
+
+:host {
+  display: block;
+  background-color: var(--color-be);
+  color: var(--color-den);
+  font-family: var(--font-body);
+}
+
+.rewards-page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-be);
+}
+
+.rewards-container {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  box-sizing: border-box;
+}
+
+/* =========================================
+   2. HERO SECTION & THẺ THÀNH VIÊN VINTAGE
+   ========================================= */
+.rewards-hero {
+  background-color: var(--color-be-card);
+  border-bottom: 2px solid var(--color-vien-co);
+  padding: 3rem 0 3.5rem;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.hero-stamp-wrap {
+  margin-bottom: 0.85rem;
+}
+
+.vintage-badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  font-family: var(--font-ui);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+}
+
+.hero-heading {
+  margin: 0 0 1rem;
+  font-family: var(--font-heading);
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--color-den);
+  line-height: 1.2;
+}
+
+.hero-desc {
+  margin: 0 0 1.75rem;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--color-nau-xam);
+  max-width: 560px;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-bottom: 2rem;
+}
+
+.btn-primary-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.4rem;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 180ms ease, transform 180ms ease;
+}
+
+.btn-primary-card:hover {
+  background-color: var(--color-do-hover);
+  transform: translateY(-1px);
+}
+
+.btn-secondary-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.4rem;
+  background-color: var(--color-trang);
+  color: var(--color-den);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 180ms ease;
+}
+
+.btn-secondary-card:hover {
+  background-color: var(--color-be);
+}
+
+.btn-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.hero-quick-stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--color-vien-co);
+}
+
+.quick-stat-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-number {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-do);
+  line-height: 1.1;
+}
+
+.stat-label {
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
+  color: var(--color-nau-xam);
+}
+
+.stat-separator {
+  color: var(--color-vien-co);
+  user-select: none;
+}
+
+/* THẺ HỘI VIÊN MÔ PHỎNG */
+.hero-card-preview {
+  display: flex;
+  justify-content: center;
+}
+
+.vintage-card-object {
+  width: 100%;
+  max-width: 380px;
+  background-color: var(--color-trang);
+  border: 2px solid var(--color-do);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  box-shadow: 0 4px 16px rgba(35, 31, 28, 0.12);
+  position: relative;
+}
+
+.card-inner-frame {
+  border: 1px dashed var(--color-vien-co);
+  padding: 1.25rem;
+  background-color: #fbf7ee;
+  border-radius: var(--radius-sm);
+}
+
+.card-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.card-brand-tag {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-brand-title {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-do);
+  letter-spacing: 0.05em;
+}
+
+.card-brand-sub {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  color: var(--color-nau-xam);
+}
+
+.card-rank-seal {
+  padding: 0.2rem 0.55rem;
+  background-color: var(--color-xanh-dam);
+  color: var(--color-trang);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.card-center-body {
+  margin-bottom: 1.75rem;
+}
+
+.card-holder-title {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  color: var(--color-nau-xam);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.card-holder-name {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-den);
+  margin-bottom: 0.35rem;
+}
+
+.card-number-id {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--color-nau-xam);
+  letter-spacing: 0.04em;
+}
+
+.card-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--color-vien-co);
+}
+
+.card-points-badge {
+  display: flex;
+  flex-direction: column;
+}
+
+.points-label {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-nau-xam);
+}
+
+.points-val {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-do);
+}
+
+.card-barcode-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.barcode-lines {
+  width: 90px;
+  height: 22px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--color-den) 0,
+    var(--color-den) 2px,
+    transparent 2px,
+    transparent 4px,
+    var(--color-den) 4px,
+    var(--color-den) 7px,
+    transparent 7px,
+    transparent 9px
+  );
+  margin-bottom: 0.25rem;
+}
+
+.barcode-hint {
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  color: var(--color-nau-xam);
+}
+
+/* =========================================
+   3. BẢNG 4 HẠNG MỨC THÀNH VIÊN
+   ========================================= */
+.section-tiers {
+  padding: 4rem 0;
+  border-bottom: 1px dashed var(--color-vien-co);
+}
+
+.section-header-center {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 2.75rem;
+}
+
+.section-kicker {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-do);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
+}
+
+.section-main-title {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-den);
+  line-height: 1.25;
+}
+
+.section-subtitle {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-nau-xam);
+}
+
+.tiers-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.tier-card {
+  position: relative;
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-md);
+  padding: 1.75rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.tier-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(35, 31, 28, 0.08);
+}
+
+.tier-card--featured {
+  border: 2px solid var(--color-do);
+  background-color: #fffdf9;
+  box-shadow: 0 4px 14px rgba(155, 45, 32, 0.12);
+}
+
+.featured-ribbon {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.ribbon-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.tier-badge-label {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-nau-xam);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.4rem;
+}
+
+.tier-name {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-den);
+}
+
+.tier-tagline {
+  margin: 0 0 1.25rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--color-nau-xam);
+  min-height: 2.6rem;
+}
+
+.tier-earn-box {
+  padding: 0.85rem;
+  background-color: var(--color-be);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-bottom: 1.25rem;
+}
+
+.earn-lead {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--color-nau-xam);
+}
+
+.earn-rate {
+  font-family: var(--font-display);
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--color-do);
+}
+
+.earn-unit {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--color-nau-xam);
+}
+
+.tier-condition {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed var(--color-vien-co);
+  margin-bottom: 1.25rem;
+}
+
+.cond-title {
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
+  color: var(--color-nau-xam);
+  margin-bottom: 0.2rem;
+}
+
+.cond-val {
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-den);
+}
+
+.tier-benefits-list {
+  flex: 1;
+}
+
+.benefits-header {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-den);
+  margin-bottom: 0.65rem;
+}
+
+.styled-benefits {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.styled-benefits li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--color-den);
+}
+
+.check-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--color-xanh-dam);
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+/* =========================================
+   4. KHO TEM PHIẾU ƯU ĐÃI (VOUCHERS SECTION)
+   ========================================= */
+.section-vouchers {
+  padding: 4rem 0;
+  background-color: var(--color-be-card);
+  border-bottom: 1px dashed var(--color-vien-co);
+}
+
+.vouchers-filter-nav {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-bottom: 2.5rem;
+}
+
+.filter-pill {
+  padding: 0.5rem 1.15rem;
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  color: var(--color-nau-xam);
+  font-family: var(--font-ui);
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.filter-pill:hover {
+  background-color: var(--color-be);
+  color: var(--color-den);
+}
+
+.filter-pill.is-active {
+  background-color: var(--color-do);
+  border-color: var(--color-do);
+  color: var(--color-trang);
+}
+
+.vouchers-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2.75rem;
+}
+
+/* THẺ TEM PHIẾU RĂNG CƯA */
+.ticket-card {
+  display: flex;
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(35, 31, 28, 0.05);
+  transition: transform 180ms ease;
+}
+
+.ticket-card:hover {
+  transform: translateY(-2px);
+}
+
+.ticket-stub {
+  width: 140px;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  padding: 1.25rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  border-right: 2px dashed rgba(255, 253, 247, 0.4);
+  flex-shrink: 0;
+}
+
+.stub-badge {
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  opacity: 0.9;
+  margin-bottom: 0.35rem;
+}
+
+.stub-discount {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.stub-punch-hole {
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  background-color: var(--color-be-card);
+  border-radius: 50%;
+}
+
+.ticket-body {
+  flex: 1;
+  padding: 1.25rem 1.35rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.ticket-title {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-den);
+}
+
+.ticket-cond {
+  margin: 0 0 0.65rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--color-nau-xam);
+  flex: 1;
+}
+
+.ticket-expiry {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
+  color: var(--color-nau-xam);
+  margin-bottom: 1rem;
+}
+
+.ticket-clock-icon {
+  width: 0.85rem;
+  height: 0.85rem;
+  color: var(--color-do);
+}
+
+.ticket-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--color-vien-co);
+}
+
+.ticket-code-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.code-lbl {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  color: var(--color-nau-xam);
+  font-weight: 600;
+}
+
+.code-val {
+  font-family: monospace;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-do);
+  background-color: var(--color-be);
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.05em;
+}
+
+.btn-copy-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-do);
+  border-radius: var(--radius-sm);
+  color: var(--color-do);
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.btn-copy-code:hover {
+  background-color: var(--color-do);
+  color: var(--color-trang);
+}
+
+.btn-copy-code.is-copied {
+  background-color: var(--color-xanh-dam);
+  border-color: var(--color-xanh-dam);
+  color: var(--color-trang);
+}
+
+.copy-icon {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.voucher-cta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.25rem 1.75rem;
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+}
+
+.cta-bar-text {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-den);
+}
+
+.btn-go-menu {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.65rem 1.25rem;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 180ms ease;
+}
+
+.btn-go-menu:hover {
+  background-color: var(--color-do-hover);
+}
+
+.btn-arrow {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* =========================================
+   5. CƠ CHẾ 3 BƯỚC TÍCH ĐIỂM ĐA KÊNH
+   ========================================= */
+.section-how-it-works {
+  padding: 4rem 0;
+  border-bottom: 1px dashed var(--color-vien-co);
+}
+
+.steps-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.75rem;
+}
+
+.how-step-card {
+  position: relative;
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-md);
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.step-badge-number {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 32px;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-icon-wrap {
+  width: 3rem;
+  height: 3rem;
+  margin: 0.5rem auto 1rem;
+  background-color: var(--color-be);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-do);
+}
+
+.how-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.step-card-title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-heading);
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: var(--color-den);
+}
+
+.step-card-desc {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--color-nau-xam);
+}
+
+/* =========================================
+   6. HỎI ĐÁP FAQ ACCORDION
+   ========================================= */
+.section-faq {
+  padding: 4rem 0 5rem;
+}
+
+.faq-container {
+  max-width: 860px;
+}
+
+.faq-accordion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.faq-item {
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color 180ms ease;
+}
+
+.faq-item.is-open {
+  border-color: var(--color-do);
+}
+
+.faq-question-btn {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.15rem 1.35rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.faq-question-text {
+  font-family: var(--font-heading);
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--color-den);
+  line-height: 1.4;
+  padding-right: 1rem;
+}
+
+.faq-toggle-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  color: var(--color-do);
+  flex-shrink: 0;
+  transition: transform 200ms ease;
+}
+
+.faq-item.is-open .faq-toggle-icon {
+  transform: rotate(180deg);
+}
+
+.faq-answer-panel {
+  padding: 0 1.35rem 1.25rem;
+  border-top: 1px dashed var(--color-vien-co);
+}
+
+.faq-answer-text {
+  margin: 0.85rem 0 0;
+  font-size: 0.94rem;
+  line-height: 1.65;
+  color: var(--color-nau-xam);
+}
+
+.faq-support-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: var(--color-be-card);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  color: var(--color-nau-xam);
+}
+
+.faq-hotline-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-do);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.faq-hotline-link:hover {
+  text-decoration: underline;
+}
+
+.hotline-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* =========================================
+   7. FLOATING ACTIONS (FAB) & TOAST
+   ========================================= */
+.floating-actions-group {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  z-index: 50;
+}
+
+.fab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(35, 31, 28, 0.2);
+  transition: transform 180ms ease;
+  text-decoration: none;
+}
+
+.fab-btn:hover {
+  transform: translateY(-2px);
+}
+
+.fab-top {
+  background-color: var(--color-xanh-duong);
+  color: var(--color-trang);
+}
+
+.fab-call {
+  background-color: var(--color-do);
+  color: var(--color-trang);
+}
+
+.fab-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.toast-notification {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background-color: var(--color-den);
+  color: var(--color-trang);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  z-index: 999;
+  animation: fadeInToast 200ms ease;
+}
+
+.toast-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  color: #86efac;
+}
+
+@keyframes fadeInToast {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* =========================================
+   RESPONSIVE DESIGN (360px, 768px, 1024px)
+   ========================================= */
+@media (max-width: 1024px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .tiers-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .vouchers-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-heading {
+    font-size: 1.75rem;
+  }
+
+  .hero-desc {
+    font-size: 0.95rem;
+  }
+
+  .tiers-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .steps-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ticket-card {
+    flex-direction: column;
+  }
+
+  .ticket-stub {
+    width: 100%;
+    padding: 1rem;
+    border-right: none;
+    border-bottom: 2px dashed rgba(255, 253, 247, 0.4);
+  }
+
+  .stub-punch-hole {
+    display: none;
+  }
+
+  .voucher-cta-bar {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .btn-go-menu {
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary-card,
+  .btn-secondary-card,
+  .tier-card,
+  .ticket-card,
+  .filter-pill,
+  .btn-copy-code,
+  .btn-go-menu,
+  .fab-btn {
+    transition: none;
+  }
+
+  .toast-notification {
+    animation: none;
+  }
+}
+

@@ -1,0 +1,42 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        placeholder="Tìm mã, tên vật tư..."
+        ariaLabel="Tìm kiếm tồn kho chi nhánh"
+        (searched)="searchQuery.set($event); refreshTab()"
+      />
+    </div>
+    <app-admin-combo-box
+      [options]="branchOptions()"
+      [value]="branchService.selectedBranchId()"
+      width="13rem"
+      (valueChange)="onBranchChange($event)"
+      ariaLabel="Chọn chi nhánh"
+    />
+    <app-admin-button title="Làm mới" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+  <div class="stripe-right">
+    <span class="count-badge">Tổng VT: <b>{{ rows().length }}</b></span>
+    <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" (clicked)="exportExcel()">
+      <svg lucideDownload aria-hidden="true"></svg>
+      <span>Xuất Excel</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng tồn kho chi nhánh"
+    [columns]="columns"
+    [rows]="rows()"
+    rowKey="ingredientId"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [frozenCount]="3"
+  />
+</div>

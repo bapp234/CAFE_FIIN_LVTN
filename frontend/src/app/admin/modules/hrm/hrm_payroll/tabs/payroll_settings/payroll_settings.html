@@ -1,0 +1,241 @@
+<!-- THANH ĐIỀU KHIỂN TRUNG TÂM -->
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        placeholder="Tìm mã khoản mục, tên phụ cấp, phạm vi..."
+        ariaLabel="Tìm kiếm khoản mục thiết lập lương"
+        (searched)="searchQuery.set($event)"
+      />
+    </div>
+
+    <app-admin-combo-box
+      [options]="categoryFilterOptions"
+      [value]="categoryFilter()"
+      width="11.5rem"
+      (valueChange)="categoryFilter.set($event)"
+      ariaLabel="Lọc theo nhóm chính sách lương"
+    />
+
+    <app-admin-combo-box
+      [options]="calcTypeOptions"
+      [value]="calcTypeFilter()"
+      width="11.5rem"
+      (valueChange)="calcTypeFilter.set($event)"
+      ariaLabel="Lọc theo cách tính"
+    />
+
+    <app-admin-button title="Tải lại danh mục từ máy chủ" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+
+  <div class="stripe-right">
+    <span class="count-badge">
+      Tổng khoản mục: <b>{{ gridRows().length }}</b>
+    </span>
+
+    <app-admin-button
+      title="Thêm dòng khoản mục lương mới trực tiếp trên bảng"
+      bgColor="var(--color-xanh-dam)"
+      textColor="var(--color-trang)"
+      (clicked)="addNewRow()"
+    >
+      <svg lucidePlus aria-hidden="true"></svg>
+      <span>Thêm khoản mục</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<!-- BẢNG LƯỚI ADMIN_GRID_TABLE CHỈNH SỬA TRỰC TIẾP -->
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng danh mục thiết lập phụ cấp, thưởng, khấu trừ và bảo hiểm"
+    [columns]="settingColumns"
+    [rows]="gridRows()"
+    rowKey="_localKey"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [clientSort]="false"
+    actionsLabel="Xóa"
+    actionsWidth="4.25rem"
+    loadingText="Đang tải danh mục thiết lập lương từ cơ sở dữ liệu..."
+    emptyTitle="Không tìm thấy khoản mục thiết lập lương nào"
+    emptyDescription="Vui lòng chọn nhóm chính sách khác hoặc nhấn 'Thêm khoản mục'."
+    [cellTemplates]="{
+      code: codeTpl,
+      name: nameTpl,
+      category: categoryTpl,
+      calcType: calcTypeTpl,
+      rawValue: rawValueTpl,
+      impact: impactTpl,
+      applyScope: applyScopeTpl,
+      note: noteTpl,
+      isActive: isActiveTpl
+    }"
+  >
+    <ng-template #actions let-row>
+      <button
+        type="button"
+        class="row-action-btn is-danger"
+        title="Xóa khoản mục"
+        (click)="confirmDelete(row)"
+      >
+        <svg lucideTrash2 class="w-3.5 h-3.5" aria-hidden="true"></svg>
+      </button>
+    </ng-template>
+  </app-admin-grid-table>
+</div>
+
+<!-- CELL TEMPLATES CHO ADMIN_GRID_TABLE -->
+<ng-template #codeTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input
+      type="text"
+      class="ghost-input is-code"
+      placeholder="PC-..."
+      [(ngModel)]="item.code"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #nameTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input
+      type="text"
+      class="ghost-input is-name"
+      placeholder="Nhập tên khoản mục..."
+      [(ngModel)]="item.name"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #categoryTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <select class="ghost-select" [(ngModel)]="item.category" (ngModelChange)="markDirty(item)">
+      <option value="allowance">Phụ cấp</option>
+      <option value="subsidy">Trợ cấp / Thưởng</option>
+      <option value="deduction">Khấu trừ / Phạt</option>
+      <option value="insurance">Bảo hiểm</option>
+      <option value="tax">Thuế TNCN</option>
+      <option value="general">Tham số chung</option>
+    </select>
+  </div>
+</ng-template>
+
+<ng-template #calcTypeTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <select class="ghost-select" [(ngModel)]="item.calcType" (ngModelChange)="markDirty(item)">
+      <option value="fixed_month">Cố định / tháng</option>
+      <option value="fixed_shift">Theo ngày làm</option>
+      <option value="fixed_count">Theo số lần</option>
+      <option value="percent">Phần trăm (%)</option>
+    </select>
+  </div>
+</ng-template>
+
+<ng-template #rawValueTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <input
+      type="number"
+      [step]="item.calcType === 'percent' ? 0.5 : 5000"
+      class="ghost-input is-num"
+      [(ngModel)]="item.rawValue"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #impactTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <select class="ghost-select" [(ngModel)]="item.impact" (ngModelChange)="markDirty(item)">
+      <option value="Addition">Cộng lương (+)</option>
+      <option value="Deduction">Trừ lương (-)</option>
+      <option value="Employer">Tham số chung</option>
+    </select>
+  </div>
+</ng-template>
+
+<ng-template #applyScopeTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <select class="ghost-select" [(ngModel)]="item.applyScope" (ngModelChange)="markDirty(item)">
+      <option value="all">Tất cả nhân sự</option>
+      <option value="full_time">Chính thức (Full-time)</option>
+      <option value="part_time">Bán thời gian (Part-time)</option>
+    </select>
+  </div>
+</ng-template>
+
+<ng-template #noteTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <input
+      type="text"
+      class="ghost-input"
+      placeholder="Ghi chú..."
+      [(ngModel)]="item.note"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #isActiveTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-check-wrap" (click)="$event.stopPropagation()">
+    <input
+      type="checkbox"
+      aria-label="Đang áp dụng"
+      [(ngModel)]="item.isActive"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<!-- THANH LƯU THAY ĐỔI NỔI -->
+@if (dirtyCount() > 0) {
+  <div class="hrm-floating-action-bar" role="region" aria-label="Lưu thay đổi thiết lập lương">
+    <div class="fab-summary">
+      Đang có <strong>{{ dirtyCount() }}</strong> khoản mục thay đổi chưa lưu
+    </div>
+    <div class="fab-actions">
+      <app-admin-button [disabled]="isSaving()" (clicked)="discardChanges()">
+        <svg lucideX aria-hidden="true"></svg>
+        <span>Hủy thay đổi</span>
+      </app-admin-button>
+
+      <app-admin-button
+        bgColor="var(--color-xanh-dam)"
+        textColor="var(--color-trang)"
+        [disabled]="isSaving()"
+        (clicked)="saveAllChanges()"
+      >
+        <svg lucideCheck aria-hidden="true"></svg>
+        <span>{{ isSaving() ? 'Đang lưu...' : 'Lưu thay đổi (' + dirtyCount() + ')' }}</span>
+      </app-admin-button>
+    </div>
+  </div>
+}
+
+<!-- MODAL XÁC NHẬN XÓA -->
+<app-admin-modal
+  [isOpen]="deleteTarget() !== null"
+  title="Xác nhận xóa khoản mục lương"
+  [message]="'Bạn có chắc chắn muốn xóa khoản mục ' + (deleteTarget()?.code ?? '') + ' (' + (deleteTarget()?.name ?? '') + ') không?'"
+  confirmText="Xóa"
+  cancelText="Hủy"
+  variant="danger"
+  [isLoading]="isSaving()"
+  (confirm)="executeDelete()"
+  (cancel)="deleteTarget.set(null)"
+></app-admin-modal>

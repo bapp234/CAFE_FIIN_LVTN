@@ -1,0 +1,225 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        placeholder="Tìm tên danh mục đồ uống..."
+        ariaLabel="Tìm kiếm loại đồ uống"
+        (searched)="searchQuery.set($event); refreshTab()"
+      />
+    </div>
+
+    <app-admin-combo-box
+      [options]="statusOptions"
+      [value]="statusFilter()"
+      width="10.5rem"
+      (valueChange)="statusFilter.set($event); refreshTab()"
+      ariaLabel="Lọc theo trạng thái"
+    />
+
+    <app-admin-button title="Tải lại danh sách loại món" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+
+  <div class="stripe-right">
+    <span class="count-badge">
+      Tổng loại: <b>{{ rows().length }}</b>
+    </span>
+
+    <input #csvInput type="file" accept=".csv" (change)="onImportCsv($event)" hidden />
+    <app-admin-button
+      title="Nhập danh mục từ CSV (Tên danh mục,Thứ tự)"
+      bgColor="var(--color-xanh-dam)"
+      textColor="var(--color-trang)"
+      (clicked)="csvInput.click()"
+    >
+      <svg lucideUpload aria-hidden="true"></svg>
+      <span>Nhập</span>
+    </app-admin-button>
+
+    <app-admin-button
+      title="Xuất danh sách loại món ra Excel"
+      bgColor="var(--color-xanh-dam)"
+      textColor="var(--color-trang)"
+      [disabled]="isExporting()"
+      (clicked)="exportExcel()"
+    >
+      <svg lucideDownload aria-hidden="true"></svg>
+      <span>Xuất Excel</span>
+    </app-admin-button>
+
+    <app-admin-button
+      title="Thêm loại đồ uống mới trực tiếp trên bảng"
+      bgColor="var(--color-xanh-dam)"
+      textColor="var(--color-trang)"
+      (clicked)="addNewRow()"
+    >
+      <svg lucidePlus aria-hidden="true"></svg>
+      <span>Thêm loại</span>
+    </app-admin-button>
+  </div>
+</div>
+
+@if (assignCategory(); as cat) {
+  <div class="assign-panel">
+    <div class="assign-panel-head">
+      <div>
+        <strong>Gắn sản phẩm vào danh mục: {{ cat.categoryName }}</strong>
+        <span class="assign-hint"> (Sản phẩm đang thuộc danh mục khác phải gỡ ra trước mới được thêm)</span>
+      </div>
+      <div class="assign-head-right">
+        <input
+          type="text"
+          class="assign-search"
+          [ngModel]="poolSearch()"
+          (ngModelChange)="poolSearch.set($event)"
+          placeholder="Tìm món cần gắn..."
+        />
+        <app-admin-button (clicked)="assignCategory.set(null)">
+          <span>Đóng</span>
+        </app-admin-button>
+      </div>
+    </div>
+
+    <div class="assign-grid">
+      @for (p of filteredPool(); track p.productId) {
+        <div class="assign-item">
+          <div class="assign-item-info">
+            <span class="assign-code">{{ p.productCode }}</span>
+            <span class="assign-name">{{ p.productName }}</span>
+            <span class="assign-cat">{{ p.categoryName ? 'Đang ở: ' + p.categoryName : 'Chưa có danh mục' }}</span>
+          </div>
+          @if (p.categoryId === cat.categoryId) {
+            <button type="button" class="btn-assign is-remove" (click)="unassignProduct(p.productId)">
+              Gỡ khỏi DM
+            </button>
+          } @else if (p.categoryId !== null) {
+            <button type="button" class="btn-assign is-warn" (click)="unassignProduct(p.productId)">
+              Gỡ ra trước
+            </button>
+          } @else {
+            <button type="button" class="btn-assign is-add" (click)="assignProduct(p.productId)">
+              + Thêm vào DM
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng danh sách loại đồ uống Fiin"
+    [columns]="columns"
+    [rows]="gridRows()"
+    rowKey="_localKey"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [frozenCount]="3"
+    actionsLabel="Xóa"
+    actionsWidth="4.25rem"
+    [cellTemplates]="{
+      categoryName: nameTpl,
+      displayOrder: orderTpl,
+      assignAction: assignTpl,
+      isActive: isActiveTpl
+    }"
+  >
+    <ng-template #actions let-row>
+      <button
+        type="button"
+        class="row-action-btn is-danger"
+        title="Xóa danh mục"
+        (click)="confirmDelete(row)"
+      >
+        <svg lucideTrash2 class="w-3.5 h-3.5" aria-hidden="true"></svg>
+      </button>
+    </ng-template>
+  </app-admin-grid-table>
+</div>
+
+<ng-template #nameTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input
+      type="text"
+      class="ghost-input is-name"
+      placeholder="Nhập tên danh mục..."
+      [(ngModel)]="item.categoryName"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #orderTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input
+      type="number"
+      class="ghost-input is-num"
+      [(ngModel)]="item.displayOrder"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #assignTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-check-wrap" (click)="$event.stopPropagation()">
+    <button type="button" class="btn-assign-trigger" (click)="openAssignPanel(item)">
+      <svg lucideFolderPlus aria-hidden="true"></svg>
+      <span>Gắn / Gỡ món</span>
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #isActiveTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-check-wrap" (click)="$event.stopPropagation()">
+    <input
+      type="checkbox"
+      [(ngModel)]="item.isActive"
+      (ngModelChange)="markDirty(item)"
+      aria-label="Hiển thị danh mục"
+    />
+  </div>
+</ng-template>
+
+@if (dirtyCount() > 0) {
+  <div class="hrm-floating-action-bar" role="region" aria-label="Lưu thay đổi danh mục">
+    <div class="fab-summary">
+      Đang có <strong>{{ dirtyCount() }}</strong> danh mục thay đổi chưa lưu
+    </div>
+    <div class="fab-actions">
+      <app-admin-button [disabled]="isSaving()" (clicked)="discardChanges()">
+        <svg lucideX aria-hidden="true"></svg>
+        <span>Hủy thay đổi</span>
+      </app-admin-button>
+
+      <app-admin-button
+        bgColor="var(--color-xanh-dam)"
+        textColor="var(--color-trang)"
+        [disabled]="isSaving()"
+        (clicked)="saveAllChanges()"
+      >
+        <svg lucideCheck aria-hidden="true"></svg>
+        <span>{{ isSaving() ? 'Đang lưu...' : 'Lưu thay đổi (' + dirtyCount() + ')' }}</span>
+      </app-admin-button>
+    </div>
+  </div>
+}
+
+<app-admin-modal
+  [isOpen]="deleteTarget() !== null"
+  title="Xác nhận xóa danh mục"
+  [message]="'Bạn có chắc chắn muốn xóa danh mục ' + (deleteTarget()?.categoryName ?? '') + ' không?'"
+  confirmText="Xóa"
+  cancelText="Hủy"
+  variant="danger"
+  [isLoading]="isSaving()"
+  (confirm)="executeDelete()"
+  (cancel)="deleteTarget.set(null)"
+/>

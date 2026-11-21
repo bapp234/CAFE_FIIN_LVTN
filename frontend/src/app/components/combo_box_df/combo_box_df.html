@@ -1,0 +1,26 @@
+<div class="combo-box">
+  <button
+    type="button"
+    class="combo-trigger"
+    [disabled]="disabled()"
+    [attr.aria-expanded]="isOpen()"
+    (click)="toggle()"
+  >
+    <span class="combo-text">{{ selectedLabel() }}</span>
+    <span class="combo-arrow" aria-hidden="true">▾</span>
+  </button>
+
+  @if (isOpen()) {
+    <ul class="combo-list" role="listbox">
+      @for (opt of options(); track opt.value) {
+        <li
+          class="combo-item"
+          [class.is-selected]="value() === opt.value"
+          (click)="selectOption(opt.value)"
+        >
+          {{ opt.label }}
+        </li>
+      }
+    </ul>
+  }
+</div>

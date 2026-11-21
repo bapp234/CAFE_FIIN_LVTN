@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+@theme {
+    --color-*: initial;
+    --color-be: #F2E8D0;
+    --color-be-card: #FAF4E4;
+    --color-xanh-nhat: #9DBFB6;
+    --color-xanh-dam: #2F5D58;
+    --color-do: #9B2D20;
+    --color-do-hover: #7E2218;
+    --color-xanh-duong: #2E5A88;
+    --color-vang-chanh: #E3D45A;
+    --color-den: #231F1C;
+    --color-nau-xam: #6B6157;
+    --color-trang: #FFFDF7;
+    --color-nau-dam: #1C1512;
+    --color-nau-dat: #B86B43;
+    --color-vien-co: rgba(107, 97, 87, 0.35);
+    --radius-*: initial;
+    --radius-sm: 2px;
+    --radius-md: 3px;
+
+    --font-display: "Rokkitt", serif;
+    --font-heading: "Roboto Slab", serif;
+    --font-body: "Lora", serif;
+    --font-ui: "Be Vietnam Pro", sans-serif;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-nau-dam);
+}
+
+/* ==========================================================================
+   HRM SHARED FLOATING ACTION BAR (THANH HÀNH ĐỘNG NỔI Ở ĐÁY BẢNG)
+   ========================================================================== */
+.hrm-floating-action-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.625rem 1.5rem;
+    background-color: var(--color-be-card, #f7f3ee);
+    border-top: 1px solid var(--color-vien-co, #d8ceba);
+    box-shadow: 0 -4px 14px rgba(43, 30, 22, 0.08);
+    font-family: var(--font-ui, "Be Vietnam Pro", sans-serif);
+}
+
+.hrm-fab-left,
+.hrm-fab-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.hrm-fab-count {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-nau-dam, #3c2619);
+}
+
+.hrm-fab-btn {
+    height: 2.125rem;
+    padding: 0 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-nau-dam, #3c2619);
+    background-color: var(--color-trang, #ffffff);
+    border: 1px solid var(--color-vien-co, #d8ceba);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.hrm-fab-btn:hover {
+    background-color: var(--color-be, #ede7de);
+    border-color: var(--color-nau-xam, #78716c);
+}
+
+.hrm-fab-btn-clear {
+    height: 2.125rem;
+    padding: 0 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-nau-xam, #78716c);
+    background-color: var(--color-trang, #ffffff);
+    border: 1px solid var(--color-vien-co, #d8ceba);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.hrm-fab-btn-clear:hover {
+    border-color: var(--color-do, #9b2d20);
+    color: var(--color-do, #9b2d20);
+    background-color: rgba(155, 45, 32, 0.08);
+}

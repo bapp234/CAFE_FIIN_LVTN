@@ -1,0 +1,229 @@
+<div #pageWrapper class="products-page-wrapper">
+  <!-- 1. HEADER CHÍNH DÙNG CHUNG -->
+  <app-widget-header [isSidebarOpen]="false" (toggleSidebar)="navigateToHome()"></app-widget-header>
+
+  <!-- 2. THANH ĐIỀU HƯỚNG & BỘ LỌC NGANG STICKY -->
+  <section class="menu-filter-dock">
+    <div class="products-container dock-inner">
+      <!-- Breadcrumb -->
+      <nav class="products-breadcrumb gsap-top-reveal" aria-label="Đường dẫn trang">
+        <ol class="breadcrumb-list">
+          <li><a routerLink="/" class="breadcrumb-link">Trang chủ</a></li>
+          <li class="breadcrumb-sep">/</li>
+          <li><a routerLink="/home" class="breadcrumb-link">Cửa hàng trực tuyến</a></li>
+          <li class="breadcrumb-sep">/</li>
+          <li class="breadcrumb-current" aria-current="page">Tất cả thực đơn</li>
+        </ol>
+      </nav>
+
+      <!-- Hàng 1: Dải Danh Mục Ngang có thanh cuộn & nút trượt 2 đầu -->
+      <div class="category-scroller-wrapper gsap-top-reveal">
+        <button type="button" class="scroll-nav-btn" (click)="scrollCategories('left')"
+          aria-label="Cuộn danh mục sang trái">
+          <svg lucideChevronLeft class="nav-arrow-svg"></svg>
+        </button>
+
+        <div #categoryTrack class="category-tabs-bar" role="tablist" aria-label="Loại thực đơn">
+          @for (cat of categories(); track cat.id) {
+          <button type="button" role="tab" [attr.aria-selected]="selectedCategory() === cat.id" class="cat-tab-pill"
+            [class.is-active]="selectedCategory() === cat.id" (click)="onCategorySelect(cat.id)">
+            @switch (cat.iconKey) {
+            @case ('all') { <svg lucideLayoutGrid class="cat-lucide-svg"></svg> }
+            @case ('coffee') { <svg lucideCoffee class="cat-lucide-svg"></svg> }
+            @case ('leaf') { <svg lucideLeaf class="cat-lucide-svg"></svg> }
+            @case ('sparkles') { <svg lucideSparkles class="cat-lucide-svg"></svg> }
+            @case ('snowflake') { <svg lucideSnowflake class="cat-lucide-svg"></svg> }
+            @case ('croissant') { <svg lucideCroissant class="cat-lucide-svg"></svg> }
+            @case ('cake') { <svg lucideCakeSlice class="cat-lucide-svg"></svg> }
+            @case ('cup') { <svg lucideCupSoda class="cat-lucide-svg"></svg> }
+            }
+            <span class="cat-tab-label">{{ cat.name }}</span>
+            <span class="cat-tab-badge">{{ categoryCounts()[cat.id] ?? 0 }}</span>
+          </button>
+          }
+        </div>
+
+        <button type="button" class="scroll-nav-btn" (click)="scrollCategories('right')"
+          aria-label="Cuộn danh mục sang phải">
+          <svg lucideChevronRight class="nav-arrow-svg"></svg>
+        </button>
+      </div>
+
+      <!-- Hàng 2: Thanh Lọc Nhanh (Khoảng giá + Đặc tính + Sắp xếp) -->
+      <div class="horizontal-filters-bar gsap-top-reveal">
+        <div class="filter-pills-scroll">
+          <div class="filter-icon-lead">
+            <svg lucideSlidersHorizontal class="filter-lead-svg"></svg>
+            <span>Lọc:</span>
+          </div>
+
+          <!-- Nhóm Chip Khoảng Giá -->
+          <div class="chip-segment-group" role="group" aria-label="Khoảng giá">
+            @for (p of priceOptions; track p.id) {
+            <button type="button" class="filter-chip-btn" [class.is-active]="selectedPriceRange() === p.id"
+              (click)="onPriceSelect(p.id)">
+              {{ p.label }}
+            </button>
+            }
+          </div>
+
+          <span class="bar-vertical-sep" aria-hidden="true"></span>
+
+          <!-- Nhóm Chip Đặc Tính (Dùng Lucide Icons) -->
+          <div class="chip-segment-group" role="group" aria-label="Đặc tính phục vụ">
+            @for (s of servingOptions; track s.id) {
+            <button type="button" class="filter-chip-btn is-teal-mode" [class.is-active]="selectedServing() === s.id"
+              (click)="onServingSelect(s.id)">
+              @if (s.iconType === 'ice') {
+              <svg lucideSnowflake class="chip-lucide-svg"></svg>
+              } @else if (s.iconType === 'hot') {
+              <svg lucideCoffee class="chip-lucide-svg"></svg>
+              } @else if (s.iconType === 'hot-badge') {
+              <svg lucideFlame class="chip-lucide-svg"></svg>
+              } @else if (s.iconType === 'new-badge') {
+              <svg lucideSparkles class="chip-lucide-svg"></svg>
+              }
+              <span>{{ s.label }}</span>
+            </button>
+            }
+          </div>
+
+          @if (hasActiveFilters()) {
+          <button type="button" class="btn-reset-inline" (click)="resetAllFilters()">
+            <svg lucideRotateCcw class="reset-svg"></svg>
+            <span>Đặt lại</span>
+          </button>
+          }
+        </div>
+
+        <!-- Cụm phải: Đếm món + Sắp xếp -->
+        <div class="bar-right-controls">
+          <span class="items-counter">
+            <strong>{{ filteredProducts().length }}</strong> món
+          </span>
+
+          <div class="sort-select-box">
+            <select id="product-sort-select" class="sort-select-field" [value]="selectedSort()"
+              (change)="onSortSelect($event)" aria-label="Sắp xếp thực đơn">
+              <option value="featured">Nổi Bật Nhất</option>
+              <option value="price-asc">Giá: Thấp &rarr; Cao</option>
+              <option value="price-desc">Giá: Cao &rarr; Thấp</option>
+              <option value="name-asc">Tên món: A &rarr; Z</option>
+            </select>
+            <svg lucideChevronDown class="sort-chevron-svg"></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. KHU VỰC HIỂN THỊ LƯỚI THỰC ĐƠN -->
+  <main class="products-main-layout">
+    <div class="products-container">
+      @if (filteredProducts().length > 0) {
+      <div #productsGrid class="products-grid-catalog">
+        @for (product of filteredProducts(); track product.id) {
+        <article class="catalog-product-card" (click)="openProductModal(product, $event)" role="button" tabindex="0"
+          (keydown.enter)="openProductModal(product)">
+          <!-- Khung ảnh -->
+          <div class="product-thumb-container">
+            <img [src]="product.image" [alt]="product.name" class="product-thumb-image" loading="lazy" />
+
+            @if (product.badge) {
+            <span class="product-badge-flag" [class.is-hot]="product.badge === 'BÁN CHẠY!'"
+              [class.is-try]="product.badge === 'THỬ NGAY!'" [class.is-new]="product.badge === 'MỚI'">
+              @if (product.badge === 'BÁN CHẠY!') {
+              <svg lucideFlame class="flag-icon"></svg>
+              } @else {
+              <svg lucideSparkles class="flag-icon"></svg>
+              }
+              <span>{{ product.badge }}</span>
+            </span>
+            }
+
+            <!-- Tag phục vụ dùng Lucide Icon -->
+            <span class="serving-type-tag">
+              @if (product.servingType === 'ice') {
+              <svg lucideSnowflake class="serving-lucide-svg"></svg>
+              <span>Đá</span>
+              } @else if (product.servingType === 'hot') {
+              <svg lucideCoffee class="serving-lucide-svg"></svg>
+              <span>Nóng</span>
+              } @else {
+              <svg lucideSnowflake class="serving-lucide-svg"></svg>
+              <span>/</span>
+              <svg lucideCoffee class="serving-lucide-svg"></svg>
+              }
+            </span>
+
+            <!-- Nút Quick-Add -->
+            <button type="button" class="quick-add-fab"
+              (click)="quickAddToCart(product, $event)"
+              [attr.aria-label]="'Thêm nhanh ' + product.name">
+              <svg lucidePlus class="fab-plus-svg"></svg>
+            </button>
+          </div>
+
+          <!-- Thông tin sản phẩm -->
+          <div class="product-info-container">
+            <span class="product-brand-line">{{ product.brand }}</span>
+            <h3 class="product-title-heading">{{ product.name }}</h3>
+            <p class="product-desc-snippet">{{ product.description }}</p>
+
+            <div class="product-footer-row">
+              <span class="product-price-highlight">
+                {{ formatPrice(product.price) }}
+              </span>
+              <span class="customize-hint-text">Tùy chỉnh &rarr;</span>
+            </div>
+          </div>
+        </article>
+        }
+      </div>
+      } @else {
+      <!-- Empty State -->
+      <div class="products-empty-state">
+        <div class="empty-icon-box">
+          <svg lucideCoffee class="empty-lucide-svg"></svg>
+        </div>
+        <h3 class="empty-title">Chưa tìm thấy món phù hợp</h3>
+        <p class="empty-suggestion">
+          Thực đơn hiện không có món nào thỏa mãn các tiêu chí lọc đang chọn. Hãy thử đặt lại bộ lọc để xem toàn bộ món
+          nhé!
+        </p>
+        <button type="button" class="btn-empty-reset" (click)="resetAllFilters()">
+          <svg lucideRotateCcw class="reset-svg"></svg>
+          <span>Xem Toàn Bộ Thực Đơn</span>
+        </button>
+      </div>
+      }
+    </div>
+  </main>
+
+  <!-- 4. MODAL TÙY CHỌN MÓN -->
+  @if (selectedProductForModal(); as prod) {
+  <app-widget-product-modal [product]="prod" (closeModal)="closeProductModal()"
+    (addToCart)="onProductCustomized($event)"></app-widget-product-modal>
+  }
+
+  <!-- 5. NÚT NỔI TÁC VỤ (FAB) -->
+  <div class="products-floating-group">
+    <button type="button" class="fab-btn fab-top" (click)="scrollToTop()" aria-label="Cuộn lên đầu trang">
+      <svg lucideChevronUp class="fab-icon"></svg>
+    </button>
+    <a href="tel:19001755" class="fab-btn fab-call" aria-label="Gọi hotline hỗ trợ 1900 1755">
+      <svg lucidePhone class="fab-icon"></svg>
+    </a>
+  </div>
+
+  <!-- 7. THÔNG BÁO TOAST -->
+  @if (toastMessage(); as msg) {
+  <div class="catalog-toast-box" role="status" aria-live="polite">
+    <svg lucideCheck class="toast-check-icon"></svg>
+    <span>{{ msg }}</span>
+  </div>
+  }
+
+  <!-- 8. FOOTER CHÍNH -->
+  <app-widget-landing-footer></app-widget-landing-footer>
+</div>

@@ -1,0 +1,57 @@
+<div class="home-page-wrapper">
+  <!-- 1. HEADER CHÍNH -->
+  <app-widget-header [isSidebarOpen]="isSidebarOpen()" (toggleSidebar)="toggleSidebar()"></app-widget-header>
+
+  <!-- 2. BỐ CỤC CHÍNH -->
+  <div class="home-main-layout">
+    <div class="layout-container">
+
+      <!-- Hàng trên: Sidebar danh mục + Hero Slider -->
+      <div class="home-top-row">
+        <!-- Widget Sidebar -->
+        <app-widget-home-sidebar [categories]="categories" [isOpen]="isSidebarOpen()"
+          (closed)="isSidebarOpen.set(false)" />
+
+        <!-- Widget Hero Banner -->
+        <div class="hero-wrapper">
+          <app-widget-home-hero [slides]="heroSlides" [currentSlide]="currentSlide()"
+            (slideClick)="onHeroSlideClick($event)" (prevClick)="prevSlide()" (nextClick)="nextSlide()"
+            (selectSlide)="goToSlide($event)" />
+        </div>
+      </div>
+
+      <!-- Khu vực nội dung bên dưới (Vouchers, Kệ sản phẩm... luôn trải rộng 100%) -->
+      <main class="order-content-area">
+        <!-- Widget Dải Voucher -->
+        <app-widget-home-vouchers [vouchers]="vouchers()" (copyVoucher)="copyVoucher($event)" />
+
+        <!-- Widget Kệ 1: Một Chất Phin Từ 1999 -->
+        <app-widget-home-shelf [sectionId]="'ca-phe'" [title]="'MỘT CHẤT PHIN TỪ 1999'" [products]="phinProducts"
+          (selectProduct)="openProductModal($event)" />
+
+        <!-- Widget Kệ 2: Vị Ký Ức (Kèm Banner Điểm Tâm) -->
+        <app-widget-home-pairing [sectionId]="'banh-mi-que'"
+          [heroImage]="'/assets/images/newsletter/fiin-newsletter.png'" [foodItems]="pastryProducts"
+          [drinkOptions]="phinProducts.slice(0, 3)" (selectSingleProduct)="openProductModal($event)"
+          (addComboToCart)="onPairingComboAdded($event)" />
+      </main>
+
+    </div>
+  </div>
+
+  <!-- 4. MODAL TÙY CHỌN MÓN -->
+  @if (selectedProduct(); as prod) {
+  <app-widget-product-modal [product]="prod" (closeModal)="closeProductModal()"
+    (addToCart)="onProductCustomized($event)" />
+  }
+
+  <!-- 5. THÔNG BÁO TOAST -->
+  @if (toastMessage(); as msg) {
+  <div class="app-toast-box" role="status" aria-live="polite">
+    <span>{{ msg }}</span>
+  </div>
+  }
+
+  <!-- 7. FOOTER CHÍNH -->
+  <app-widget-landing-footer></app-widget-landing-footer>
+</div>

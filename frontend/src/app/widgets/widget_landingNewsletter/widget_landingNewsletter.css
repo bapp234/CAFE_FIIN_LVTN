@@ -1,0 +1,122 @@
+@reference "../../../styles.css";
+
+:host {
+  display: block;
+}
+
+.newsletter-strip {
+  background-color: var(--color-xanh-dam);
+  color: var(--color-trang);
+  padding: 2.25rem 1.25rem;
+  border-top: 1px solid rgba(255, 253, 247, 0.14);
+}
+
+.newsletter-shell {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.newsletter-text {
+  flex: 1;
+}
+
+.newsletter-title {
+  margin: 0 0 0.25rem;
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-trang);
+}
+
+.newsletter-desc {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 0.84rem;
+  color: rgba(255, 253, 247, 0.78);
+}
+
+.newsletter-form-wrap {
+  flex: 1;
+  max-width: 460px;
+}
+
+.newsletter-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.newsletter-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.65rem 0.9rem;
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  color: var(--color-den);
+  outline: none;
+}
+
+.newsletter-input:focus {
+  border-color: var(--color-vang-chanh);
+}
+
+.newsletter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1.25rem;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 180ms ease;
+}
+
+.newsletter-btn:hover {
+  background-color: var(--color-do-hover);
+}
+
+.newsletter-status {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--color-vang-chanh);
+}
+
+.newsletter-status.is-error {
+  color: #fecaca;
+}
+
+@media (max-width: 768px) {
+  .newsletter-shell {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+  }
+
+  .newsletter-form-wrap {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .newsletter-form {
+    flex-direction: column;
+  }
+
+  .newsletter-btn {
+    justify-content: center;
+  }
+}

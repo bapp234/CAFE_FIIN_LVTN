@@ -1,0 +1,620 @@
+@reference "../../../../../../../styles.css";
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  font-family: var(--font-ui, "Be Vietnam Pro", sans-serif);
+}
+
+/* ==========================================================================
+   1. THANH ĐIỀU KHIỂN TRUNG TÂM (SUB-HEADER TOOLBAR - ĐỒNG BỘ 3 TAB)
+   ========================================================================== */
+.sub-header-stripe {
+  background-color: var(--color-be-card);
+  border-bottom: 1px solid var(--color-vien-co);
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 0.625rem;
+}
+
+@media (max-width: 1099px) {
+  .sub-header-stripe {
+    flex-wrap: wrap;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sub-header-stripe {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.stripe-left,
+.stripe-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stripe-left {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.stripe-right {
+  flex: 0 0 auto;
+}
+
+.stripe-left > * {
+  flex-shrink: 0;
+}
+
+.stripe-left > .sub-search-wrap {
+  flex: 1 1 14rem;
+  min-width: 10rem;
+  max-width: 20rem;
+}
+
+.combo-branch {
+  --combo-width: 11rem;
+}
+
+.combo-level {
+  --combo-width: 12.5rem;
+}
+
+.count-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-nau-dam);
+  background-color: var(--color-be);
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--color-vien-co);
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   2. KHUNG DỮ LIỆU BẢNG LƯỚI TRÀN VIỀN (ĐỒNG BỘ 100% VỚI EMPLOYEE LIST)
+   ========================================================================== */
+.employee-grid-container {
+  flex: 1;
+  min-height: 0;
+  padding: 0;
+  background-color: var(--color-trang, #ffffff);
+  display: flex;
+  flex-direction: column;
+}
+
+.employee-grid-container app-admin-grid-table {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.employee-grid-container ::ng-deep .gt-card {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.employee-grid-container ::ng-deep .gt-viewport {
+  flex: 1;
+  min-height: 0;
+  max-height: none !important;
+  overflow: auto;
+}
+
+/* ==========================================================================
+   3. CỘT QUYỀN HẠN (VAI TRÒ & NÚT DẤU +)
+   ========================================================================== */
+.roles-cell-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.roles-pill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+  flex: 1;
+}
+
+.role-empty-text {
+  font-size: 0.75rem;
+  color: var(--color-nau-xam, #78716c);
+  font-style: italic;
+}
+
+.role-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.125rem 0.4375rem;
+  border-radius: 0.25rem;
+  white-space: nowrap;
+  line-height: 1.25;
+}
+
+.role-pill-red { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+.role-pill-blue { background-color: #e0f2fe; color: #075985; border: 1px solid #7dd3fc; }
+.role-pill-amber { background-color: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+.role-pill-emerald { background-color: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+.role-pill-cyan { background-color: #cffafe; color: #155e75; border: 1px solid #67e8f9; }
+.role-pill-indigo { background-color: #e0e7ff; color: #3730a3; border: 1px solid #a5b4fc; }
+.role-pill-gray { background-color: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; }
+
+.btn-add-role {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  background-color: var(--color-trang, #ffffff);
+  border: 1px solid var(--color-vien-co, #d8ceba);
+  border-radius: 0.25rem;
+  color: var(--color-nau-dam, #3c2619);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-add-role:hover {
+  background-color: var(--color-xanh-dam, #2f5d58);
+  border-color: var(--color-xanh-dam, #2f5d58);
+  color: var(--color-trang, #ffffff);
+  transform: scale(1.05);
+}
+
+/* ==========================================================================
+   4. CỘT CẤP DUYỆT (COMBOBOX TRỰC TIẾP TRÊN DÒNG)
+   ========================================================================== */
+.level-select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.approval-level-select {
+  width: 100%;
+  padding: 0.28rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 0.25rem;
+  border: 1px solid transparent;
+  background-color: var(--color-trang, #ffffff);
+  color: var(--color-nau-dam, #3c2619);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.approval-level-select:hover {
+  border-color: var(--color-vien-co, #d8ceba);
+}
+
+.combo-bulk-level {
+  --combo-width: 14rem;
+}
+
+.approval-level-select:focus {
+  border-color: var(--color-xanh-dam, #2f5d58);
+  box-shadow: 0 0 0 2px rgba(47, 93, 88, 0.15);
+}
+
+.approval-level-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Màu viền & nền nhẹ theo cấp duyệt */
+.level-badge-5 { background-color: #fff1f2; border-color: #fecdd3; color: #9f1239; }
+.level-badge-4 { background-color: #f5f3ff; border-color: #ddd6fe; color: #5b21b6; }
+.level-badge-3 { background-color: #fffbeb; border-color: #fde68a; color: #92400e; }
+.level-badge-2 { background-color: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
+.level-badge-1 { background-color: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+.level-badge-0 { background-color: #fafafa; border-color: #e5e5e5; color: #737373; font-weight: 500; }
+
+.select-loading-spinner {
+  position: absolute;
+  right: 0.5rem;
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  border-top-color: var(--color-xanh-dam, #2f5d58);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   5. MODAL PHÂN QUYỀN (KHI BẤM DẤU +)
+   ========================================================================== */
+.role-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background-color: rgba(26, 15, 8, 0.45);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.role-modal-container {
+  background-color: var(--color-trang, #ffffff);
+  border: 1px solid var(--color-vien-co, #d8ceba);
+  border-radius: 0.5rem;
+  width: 100%;
+  max-width: 48rem;
+  box-shadow: 0 10px 25px -5px rgba(26, 15, 8, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.role-modal-header {
+  padding: 1rem 1.25rem;
+  background-color: var(--color-be-card, #f7f3ee);
+  border-bottom: 1px solid var(--color-vien-co, #d8ceba);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modal-icon-wrap {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.375rem;
+  background-color: var(--color-be, #ede7de);
+  border: 1px solid var(--color-vien-co, #d8ceba);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-xanh-dam, #2f5d58);
+  flex-shrink: 0;
+}
+
+.modal-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-nau-dam, #3c2619);
+  margin: 0;
+  line-height: 1.25;
+}
+
+.modal-subtitle {
+  font-size: 0.75rem;
+  color: var(--color-nau-xam, #78716c);
+  margin: 0.2rem 0 0 0;
+}
+
+.btn-close-modal {
+  background: transparent;
+  border: none;
+  color: var(--color-nau-xam, #78716c);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.btn-close-modal:hover {
+  background-color: rgba(155, 45, 32, 0.1);
+  color: #991b1b;
+}
+
+.role-modal-body {
+  padding: 1rem 1.25rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.modal-section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-nau-dam, #3c2619);
+  margin-bottom: 0.5rem;
+}
+
+.role-items-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .role-items-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.perm-preview-section {
+  margin-top: 1rem;
+  padding-top: 0.875rem;
+  border-top: 1px dashed var(--color-vien-co, #d8ceba);
+}
+
+.perm-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.625rem;
+}
+
+.perm-preview-count {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-xanh-dam, #2f5d58);
+}
+
+.perm-groups-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .perm-groups-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.perm-group-card {
+  background-color: #fbf9f6;
+  border: 1px solid #e7dfd5;
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.625rem;
+}
+
+.perm-group-title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--color-nau-dam, #3c2619);
+  margin-bottom: 0.375rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid #ece6dd;
+}
+
+.perm-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.perm-item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  color: #a8a29e;
+  transition: color 0.15s ease;
+}
+
+.perm-item-row.is-granted {
+  color: var(--color-nau-dam, #3c2619);
+  font-weight: 600;
+}
+
+.perm-dot {
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 3px;
+  border: 1px solid #d6cebf;
+  background-color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #ffffff;
+}
+
+.perm-dot.is-granted {
+  background-color: var(--color-xanh-dam, #2f5d58);
+  border-color: var(--color-xanh-dam, #2f5d58);
+}
+
+.modal-loading-box {
+  padding: 2.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--color-nau-xam, #78716c);
+}
+
+.role-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.role-checkbox-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--color-vien-co, #d8ceba);
+  border-radius: 0.375rem;
+  background-color: #faf8f5;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.role-checkbox-item:hover {
+  background-color: var(--color-be, #ede7de);
+  border-color: var(--color-nau-nhat, #bfaea0);
+}
+
+.role-checkbox-item.is-checked {
+  background-color: rgba(47, 93, 88, 0.06);
+  border-color: var(--color-xanh-dam, #2f5d58);
+}
+
+.item-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  width: 100%;
+}
+
+.role-checkbox {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--color-xanh-dam, #2f5d58);
+  cursor: pointer;
+  margin-top: 0.125rem;
+}
+
+.role-text-content {
+  flex: 1;
+}
+
+.role-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.role-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-nau-dam, #3c2619);
+}
+
+.role-pill-inline {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.0625rem 0.375rem;
+  border-radius: 0.25rem;
+}
+
+.role-desc {
+  font-size: 0.75rem;
+  color: var(--color-nau-xam, #78716c);
+  margin: 0.1875rem 0 0 0;
+  line-height: 1.35;
+}
+
+.role-modal-footer {
+  padding: 0.75rem 1.25rem;
+  background-color: var(--color-be-card, #f7f3ee);
+  border-top: 1px solid var(--color-vien-co, #d8ceba);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-left-note {
+  font-size: 0.75rem;
+  color: var(--color-nau-xam, #78716c);
+}
+
+.footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-cancel {
+  padding: 0.4375rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-nau-dam, #3c2619);
+  background-color: var(--color-trang, #ffffff);
+  border: 1px solid var(--color-vien-co, #d8ceba);
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background-color: var(--color-be, #ede7de);
+}
+
+.btn-save {
+  padding: 0.4375rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-trang, #ffffff);
+  background-color: var(--color-xanh-dam, #2f5d58);
+  border: 1px solid var(--color-xanh-dam, #2f5d58);
+  border-radius: 0.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  transition: all 0.15s ease;
+}
+
+.btn-save:hover:not(:disabled) {
+  background-color: #1f3f3c;
+  border-color: #1f3f3c;
+}
+
+.btn-save:disabled,
+.btn-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-spinner {
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}

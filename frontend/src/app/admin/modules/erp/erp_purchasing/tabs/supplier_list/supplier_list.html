@@ -1,0 +1,113 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box placeholder="Tìm mã, tên NCC..." ariaLabel="Tìm kiếm nhà cung cấp" (searched)="searchQuery.set($event); refreshTab()" />
+    </div>
+    <app-admin-button title="Làm mới" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg><span>Làm mới</span>
+    </app-admin-button>
+  </div>
+  <div class="stripe-right">
+    <span class="count-badge">Tổng NCC: <b>{{ rows().length }}</b></span>
+    <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" (clicked)="exportExcel()">
+      <svg lucideDownload aria-hidden="true"></svg><span>Xuất Excel</span>
+    </app-admin-button>
+    <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" (clicked)="addNewRow()">
+      <svg lucidePlus aria-hidden="true"></svg><span>Thêm NCC</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng nhà cung cấp"
+    [columns]="columns"
+    [rows]="gridRows()"
+    rowKey="_localKey"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [frozenCount]="3"
+    actionsLabel="Xóa"
+    actionsWidth="4.25rem"
+    [cellTemplates]="{
+      supplierCode: codeTpl,
+      supplierName: nameTpl,
+      contactPerson: contactTpl,
+      phone: phoneTpl,
+      address: addrTpl,
+      currentDebt: debtTpl,
+      isActive: activeTpl
+    }"
+  >
+    <ng-template #actions let-row>
+      <button type="button" class="row-action-btn is-danger" title="Xóa NCC" (click)="confirmDelete(row)">
+        <svg lucideTrash2 class="w-3.5 h-3.5" aria-hidden="true"></svg>
+      </button>
+    </ng-template>
+  </app-admin-grid-table>
+</div>
+
+<ng-template #codeTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input type="text" class="ghost-input is-code" placeholder="NCC..." [(ngModel)]="item.supplierCode" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #nameTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input type="text" class="ghost-input is-name" placeholder="Tên nhà cung cấp..." [(ngModel)]="item.supplierName" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #contactTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <input type="text" class="ghost-input" [(ngModel)]="item.contactPerson" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #phoneTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <input type="text" class="ghost-input" [(ngModel)]="item.phone" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #addrTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <input type="text" class="ghost-input" [(ngModel)]="item.address" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #debtTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <input type="number" class="ghost-input is-num" [(ngModel)]="item.currentDebt" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #activeTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-check-wrap" (click)="$event.stopPropagation()">
+    <input type="checkbox" [(ngModel)]="item.isActive" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+
+@if (dirtyCount() > 0) {
+  <div class="hrm-floating-action-bar">
+    <div class="fab-summary">Đang có <strong>{{ dirtyCount() }}</strong> NCC thay đổi chưa lưu</div>
+    <div class="fab-actions">
+      <app-admin-button [disabled]="isSaving()" (clicked)="discardChanges()"><svg lucideX aria-hidden="true"></svg><span>Hủy thay đổi</span></app-admin-button>
+      <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" [disabled]="isSaving()" (clicked)="saveAllChanges()"><svg lucideCheck aria-hidden="true"></svg><span>Lưu thay đổi ({{ dirtyCount() }})</span></app-admin-button>
+    </div>
+  </div>
+}
+
+<app-admin-modal
+  [isOpen]="deleteTarget() !== null"
+  title="Xác nhận xóa Nhà cung cấp"
+  [message]="'Bạn có chắc chắn muốn xóa NCC ' + (deleteTarget()?.supplierName ?? '') + ' không?'"
+  confirmText="Xóa"
+  cancelText="Hủy"
+  variant="danger"
+  (confirm)="executeDelete()"
+  (cancel)="deleteTarget.set(null)"
+/>

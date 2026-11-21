@@ -1,0 +1,83 @@
+<header class="order-header">
+  <div class="header-main-row">
+    <div class="header-container">
+      <!-- Logo -->
+      <div class="brand-block">
+        <a routerLink="/" class="brand-link" aria-label="Trang chủ Cà phê Fiin">
+          <app-brand-logo></app-brand-logo>
+          <span class="brand-name">Cà Phê Fiin</span>
+        </a>
+      </div>
+
+      <!-- Search Bar Dạng Viên Thuốc -->
+      <!-- Search Bar -->
+      <app-search-box class="header-search" (searched)="onSearch($event)"></app-search-box>
+
+      <!-- Actions (Đã xóa chữ GB) -->
+      <div class="header-actions">
+        <!-- Hotline Giao tận nơi -->
+        <app-circle-button class="header-action-item delivery-item" href="tel:19001755" subLabel="Giao tận nơi"
+          label="19001755" ariaLabel="Giao tận nơi qua hotline 1900 1755">
+          <ng-template #icon><svg lucidePhone></svg></ng-template>
+        </app-circle-button>
+
+        <!-- Tài khoản / Đăng nhập -->
+        <app-circle-button class="header-action-item account-item" [link]="accountLink()" subLabel="Tài khoản" [label]="accountLabel()"
+          [boldLabel]="false">
+          <ng-template #icon><svg lucideUser></svg></ng-template>
+        </app-circle-button>
+
+        <!-- Nút Giỏ Hàng Lập Phương 3D -->
+        <app-cart-button [count]="effectiveCartCount()" (clicked)="onToggleCart()"></app-cart-button>
+
+        <!-- Toggle Menu Mobile -->
+        <button type="button" class="mobile-menu-toggle" [attr.aria-expanded]="isMobileMenuOpen()"
+          (click)="toggleMobileMenu()" aria-label="Mở menu">
+          @if (isMobileMenuOpen()) {
+          <svg lucideX class="toggle-icon"></svg>
+          } @else {
+          <svg lucideMenu class="toggle-icon"></svg>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. SUB-HEADER THANH ĐỎ HIGHLANDS SIGNATURE -->
+  <app-widget-header-subbar
+    [isSidebarOpen]="effectiveSidebarOpen()"
+    (toggleSidebar)="onToggleSidebar()"
+    (closeSidebar)="onCloseSidebar()"
+  ></app-widget-header-subbar>
+
+  <!-- Mobile Dropdown Menu -->
+  <nav class="mobile-nav-panel" [attr.aria-hidden]="!isMobileMenuOpen()" aria-label="Menu trên thiết bị di động">
+    <div class="mobile-search-wrap">
+      <app-search-box (searched)="onSearch($event)"></app-search-box>
+    </div>
+
+    <ul class="mobile-nav-list">
+      <li class="mobile-nav-item">
+        <a href="tel:19001755" class="mobile-nav-link" (click)="closeMobileMenu()">
+          <span class="mobile-item-icon-wrap">
+            <svg lucidePhone class="mobile-item-icon"></svg>
+          </span>
+          <span>Giao tận nơi: <strong>19001755</strong></span>
+        </a>
+      </li>
+      <li class="mobile-nav-item">
+        <a [routerLink]="accountLink()" class="mobile-nav-link" (click)="closeMobileMenu()">
+          <span class="mobile-item-icon-wrap">
+            <svg lucideUser class="mobile-item-icon"></svg>
+          </span>
+          <span>{{ accountLabel() }}</span>
+        </a>
+      </li>
+      <li class="mobile-nav-item">
+        <a routerLink="/tin-tuc" class="mobile-nav-link" (click)="closeMobileMenu()">
+          <span>Chuyện phiếm & Tin tức</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</header>

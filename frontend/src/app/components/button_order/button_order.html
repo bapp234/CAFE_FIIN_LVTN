@@ -1,0 +1,14 @@
+@if (type() === 'link') {
+  <a [routerLink]="routerLink()" class="airmail-btn" [attr.aria-label]="ariaLabel() || text()">
+    <span class="label"><span>{{ text() }}</span></span>
+  </a>
+} @else {
+  <button
+    [type]="type()"
+    class="airmail-btn"
+    [disabled]="disabled()"
+    [attr.aria-label]="ariaLabel() || text()"
+  >
+    <span class="label"><span>{{ text() }}</span></span>
+  </button>
+}

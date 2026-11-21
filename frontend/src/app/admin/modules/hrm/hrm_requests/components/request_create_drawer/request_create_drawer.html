@@ -1,0 +1,166 @@
+<app-admin-drawer
+  [isOpen]="isOpen()"
+  [title]="title()"
+  [subtitle]="subtitle()"
+  width="35rem"
+  (close)="close.emit()"
+>
+  <div class="drawer-sections">
+    <!-- PHẦN 1: CHỌN NHÂN SỰ THEO PHÂN CẤP & TỰ ĐỘNG ĐỔ THÔNG TIN -->
+    <section class="drawer-section">
+      <div class="section-head">
+        <div class="section-title-group">
+          <span class="step-num">1</span>
+          <h3 class="section-title">Nhân sự lập đơn</h3>
+        </div>
+        <span class="scope-chip" [class.is-self]="isSelfOnly()">
+          <svg lucideUserCheck aria-hidden="true"></svg>
+          @if (isSelfOnly()) {
+            <span>Cấp nhân viên (Tự lập đơn)</span>
+          } @else {
+            <span>Phạm vi quản lý ({{ employees().length }} NV)</span>
+          }
+        </span>
+      </div>
+
+      <div class="emp-picker-row">
+        <label class="field-label">
+          Chọn nhân sự <span class="req">*</span>
+        </label>
+        <app-admin-combo-box
+          class="drawer-combo"
+          [options]="employeeOptions()"
+          [value]="selectedEmployeeIdStr()"
+          [disabled]="isSelfOnly()"
+          placeholder="Chọn nhân sự lập đơn..."
+          searchPlaceholder="Tìm nhanh mã NV, họ tên..."
+          ariaLabel="Chọn nhân sự lập đơn"
+          (valueChange)="onEmployeeChange($event)"
+        />
+      </div>
+
+      @if (selectedEmployee(); as emp) {
+        <div class="autofill-card" aria-label="Thông tin nhân sự tự động điền">
+          <div class="autofill-grid">
+            <div class="autofill-item">
+              <span class="af-label">Mã nhân viên</span>
+              <span class="af-value is-code">{{ emp.code || emp.employeeCode }}</span>
+            </div>
+            <div class="autofill-item">
+              <span class="af-label">Họ và tên</span>
+              <span class="af-value is-strong">{{ emp.fullName }}</span>
+            </div>
+            <div class="autofill-item">
+              <span class="af-label">Chức vụ</span>
+              <span class="af-value">{{ emp.position || '—' }}</span>
+            </div>
+            <div class="autofill-item">
+              <span class="af-label">Chi nhánh</span>
+              <span class="af-value is-branch">
+                <svg lucideBuilding2 aria-hidden="true"></svg>
+                {{ emp.branchName || '—' }}
+              </span>
+            </div>
+            <div class="autofill-item">
+              <span class="af-label">Phân cấp quyền hạn</span>
+              <span class="af-value">{{ selectedEmployeeLevelLabel() }}</span>
+            </div>
+            <div class="autofill-item">
+              <span class="af-label">Liên hệ</span>
+              <span class="af-value">{{ emp.phone || emp.phoneNumber || emp.email || '—' }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </section>
+
+    <!-- PHẦN 2: CHI TIẾT ĐƠN & LÝ DO (NỘI DUNG RIÊNG TỪNG LOẠI ĐƠN) -->
+    <section class="drawer-section">
+      <div class="section-head">
+        <div class="section-title-group">
+          <span class="step-num">2</span>
+          <h3 class="section-title">Thông tin đề xuất & Lý do</h3>
+        </div>
+      </div>
+
+      <div class="drawer-form-body">
+        <ng-content></ng-content>
+      </div>
+    </section>
+
+    <!-- PHẦN 3: DANH SÁCH NGƯỜI PHÊ DUYỆT (TỰ ĐỘNG TẢI TOÀN BỘ NGƯỜI DUYỆT) -->
+    <section class="drawer-section">
+      <div class="section-head">
+        <div class="section-title-group">
+          <span class="step-num">3</span>
+          <h3 class="section-title">Người phê duyệt đơn</h3>
+        </div>
+        <span class="approver-count-badge">
+          <svg lucideShieldCheck aria-hidden="true"></svg>
+          @if (isLoadingApprovers()) {
+            <span>Đang tải...</span>
+          } @else {
+            <span>{{ approvers().length }} người duyệt</span>
+          }
+        </span>
+      </div>
+
+      @if (isLoadingApprovers()) {
+        <div class="approver-empty">Đang tải danh sách người duyệt theo phân cấp...</div>
+      } @else if (approvers().length === 0) {
+        <div class="approver-empty">
+          Chưa có người duyệt cấu hình riêng cho chi nhánh này. Đơn sau khi gửi sẽ tự động chuyển về Quản trị viên Nhân sự xét duyệt.
+        </div>
+      } @else {
+        <ul class="approver-list" aria-label="Danh sách người duyệt đơn">
+          @for (ap of approvers(); track ap.employeeId) {
+            <li class="approver-card">
+              <div class="approver-level-pill" [attr.data-level]="ap.approvalLevel">
+                Cấp {{ ap.approvalLevel }}
+              </div>
+              <div class="approver-info">
+                <div class="approver-name-row">
+                  <span class="approver-name">{{ ap.fullName }}</span>
+                  <span class="approver-code">{{ ap.employeeCode }}</span>
+                </div>
+                <div class="approver-meta">
+                  {{ ap.position }} • {{ ap.branchName }}
+                </div>
+              </div>
+              <span class="approver-status-pill">
+                {{ ap.isSelfApprover ? 'Tự duyệt' : 'Chờ duyệt' }}
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </div>
+
+  <!-- FOOTER CỦA DRAWER -->
+  <div footer class="drawer-footer-inner">
+    <span class="footer-hint">
+      <svg lucideCheckCircle2 aria-hidden="true"></svg>
+      Đơn gửi xong sẽ ở trạng thái <b>Chờ duyệt</b>
+    </span>
+
+    <div class="footer-actions">
+      <button
+        type="button"
+        class="btn-drawer-cancel"
+        [disabled]="isSubmitting()"
+        (click)="close.emit()"
+      >
+        Hủy
+      </button>
+      <button
+        type="button"
+        class="btn-drawer-submit"
+        [disabled]="isSubmitting() || !selectedEmployee() || submitDisabled()"
+        (click)="submit.emit()"
+      >
+        {{ isSubmitting() ? 'Đang gửi đơn...' : submitLabel() }}
+      </button>
+    </div>
+  </div>
+</app-admin-drawer>

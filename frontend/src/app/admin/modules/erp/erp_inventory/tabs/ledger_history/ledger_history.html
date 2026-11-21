@@ -1,0 +1,35 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <app-admin-combo-box
+      [options]="txOptions"
+      [value]="txTypeFilter()"
+      width="13rem"
+      (valueChange)="txTypeFilter.set($event); refreshTab()"
+      ariaLabel="Lọc theo loại giao dịch"
+    />
+    <app-admin-button title="Làm mới" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+  <div class="stripe-right">
+    <span class="count-badge">Tổng GD: <b>{{ rows().length }}</b></span>
+    <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" (clicked)="exportExcel()">
+      <svg lucideDownload aria-hidden="true"></svg>
+      <span>Xuất Excel</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng sổ cái nhập xuất kho"
+    [columns]="columns"
+    [rows]="rows()"
+    rowKey="transactionId"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [frozenCount]="3"
+  />
+</div>

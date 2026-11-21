@@ -1,0 +1,368 @@
+<div class="rewards-page-wrapper">
+  <!-- 1. HEADER CHÍNH DÙNG CHUNG -->
+  <app-widget-header
+    [cartCount]="0"
+    [isSidebarOpen]="false"
+    (toggleSidebar)="navigateToHome()"
+    (toggleCart)="navigateToHome()"
+  ></app-widget-header>
+
+  <!-- 2. HERO SECTION: THẺ HỘI VIÊN TÂM GIAO & CTA -->
+  <header class="rewards-hero">
+    <div class="rewards-container hero-grid">
+      <!-- Cột trái: Lời chào & Nút tác vụ -->
+      <div class="hero-intro">
+        <div class="hero-stamp-wrap">
+          <span class="vintage-badge">SỔ BẠN TÂM GIAO • CÀ PHÊ FIIN</span>
+        </div>
+        <h1 class="hero-heading">ĐẶC QUYỀN HỘI VIÊN TRỌN VẸN VỊ XƯA</h1>
+        <p class="hero-desc">
+          Mỗi giọt cà phê tí tách là một niềm vui tích lũy. Thưởng thức cà phê phin mộc mạc, tích lũy Hạt Cà Phê và đổi trọn vẹn những ưu đãi ấm áp trên từng đơn hàng.
+        </p>
+
+        <div class="hero-actions">
+          <a routerLink="/login" class="btn-primary-card">
+            <svg lucideCreditCard class="btn-icon"></svg>
+            <span>Đăng Ký / Tra Cứu Hội Viên</span>
+          </a>
+          <button
+            type="button"
+            class="btn-secondary-card"
+            (click)="scrollToSection('thang-hang')"
+          >
+            <svg lucideAward class="btn-icon"></svg>
+            <span>Khám Phá Đặc Quyền</span>
+          </button>
+        </div>
+
+        <div class="hero-quick-stats">
+          <div class="quick-stat-item">
+            <span class="stat-number">4</span>
+            <span class="stat-label">Hạng thẻ thân thiết</span>
+          </div>
+          <div class="stat-separator" aria-hidden="true">•</div>
+          <div class="quick-stat-item">
+            <span class="stat-number">10%</span>
+            <span class="stat-label">Tích hạt cao nhất</span>
+          </div>
+          <div class="stat-separator" aria-hidden="true">•</div>
+          <div class="quick-stat-item">
+            <span class="stat-number">Real-time</span>
+            <span class="stat-label">Đồng bộ Web & POS</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cột phải: Chiếc Thẻ Hội Viên Giấy Xưa Mô Phỏng -->
+      <div class="hero-card-preview" aria-label="Mô phỏng thẻ hội viên ảo Cà Phê Fiin">
+        <div class="vintage-card-object">
+          <div class="card-inner-frame">
+            <div class="card-top-row">
+              <div class="card-brand-tag">
+                <span class="card-brand-title">CÀ PHÊ FIIN</span>
+                <span class="card-brand-sub">Sài Gòn — 2016</span>
+              </div>
+              <div class="card-rank-seal">
+                <span class="seal-text">BẠN TÂM GIAO</span>
+              </div>
+            </div>
+
+            <div class="card-center-body">
+              <span class="card-holder-title">HỘI VIÊN DANH DỰ</span>
+              <strong class="card-holder-name">QUÝ KHÁCH HÀNG</strong>
+              <span class="card-number-id">FIIN-MEMBER • 0908 *** 789</span>
+            </div>
+
+            <div class="card-bottom-row">
+              <div class="card-points-badge">
+                <span class="points-label">HẠT TÍCH LŨY:</span>
+                <span class="points-val">1.250 Hạt</span>
+              </div>
+              <div class="card-barcode-box" title="Mã quét tại quầy máy POS">
+                <div class="barcode-lines" aria-hidden="true"></div>
+                <span class="barcode-hint">Quét tại quầy POS</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 3. BẢNG 4 HẠNG MỨC THÀNH VIÊN (TIERS SECTION) -->
+  <section id="thang-hang" class="section-tiers">
+    <div class="rewards-container">
+      <div class="section-header-center">
+        <span class="section-kicker">CHÍNH SÁCH THĂNG HẠNG</span>
+        <h2 class="section-main-title">4 Bậc Thang Tình Thân Cà Phê</h2>
+        <p class="section-subtitle">
+          Càng gắn bó thân thiết, đặc quyền tích lũy và quà tặng bất ngờ càng đong đầy.
+        </p>
+      </div>
+
+      <div class="tiers-grid">
+        @for (tier of tiers; track tier.id) {
+          <div class="tier-card" [class.tier-card--featured]="tier.isFeatured">
+            @if (tier.isFeatured) {
+              <div class="featured-ribbon">
+                <svg lucideStar class="ribbon-icon"></svg>
+                <span>HẠNG ĐƯỢC YÊU THÍCH NHẤT</span>
+              </div>
+            }
+
+            <div class="tier-badge-label">{{ tier.badgeLabel }}</div>
+            <h3 class="tier-name">{{ tier.name }}</h3>
+            <p class="tier-tagline">{{ tier.tagline }}</p>
+
+            <div class="tier-earn-box">
+              <span class="earn-lead">Tích Lũy:</span>
+              <span class="earn-rate">{{ tier.earnRate }}</span>
+              <span class="earn-unit">giá trị đơn</span>
+            </div>
+
+            <div class="tier-condition">
+              <span class="cond-title">Điều kiện chi tiêu:</span>
+              <strong class="cond-val">{{ tier.spendRequirement }}</strong>
+            </div>
+
+            <div class="tier-benefits-list">
+              <span class="benefits-header">Đặc quyền hội viên:</span>
+              <ul class="styled-benefits">
+                @for (ben of tier.benefits; track ben) {
+                  <li>
+                    <svg lucideCheck class="check-icon"></svg>
+                    <span>{{ ben }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. KHO TEM PHIẾU ƯU ĐÃI & MÃ VOUCHER ĐANG DIỄN RA -->
+  <section id="kho-voucher" class="section-vouchers">
+    <div class="rewards-container">
+      <div class="section-header-center">
+        <span class="section-kicker">KHO TEM PHIẾU</span>
+        <h2 class="section-main-title">Phiếu Quà Tặng & Ưu Đãi Đang Diễn Ra</h2>
+        <p class="section-subtitle">
+          Sao chép mã phiếu và nhập ngay vào giỏ hàng để thưởng thức những ly cà phê ấm lòng với giá tốt nhất.
+        </p>
+      </div>
+
+      <!-- Thanh chọn lọc danh mục tem phiếu -->
+      <nav class="vouchers-filter-nav" aria-label="Bộ lọc tem phiếu ưu đãi">
+        <button
+          type="button"
+          class="filter-pill"
+          [class.is-active]="activeCategory() === 'all'"
+          (click)="selectCategory('all')"
+        >
+          <span>Tất Cả Phiếu ({{ vouchers.length }})</span>
+        </button>
+        <button
+          type="button"
+          class="filter-pill"
+          [class.is-active]="activeCategory() === 'discount'"
+          (click)="selectCategory('discount')"
+        >
+          <span>Giảm Trực Tiếp</span>
+        </button>
+        <button
+          type="button"
+          class="filter-pill"
+          [class.is-active]="activeCategory() === 'shipping'"
+          (click)="selectCategory('shipping')"
+        >
+          <span>Miễn Phí Vận Chuyển</span>
+        </button>
+        <button
+          type="button"
+          class="filter-pill"
+          [class.is-active]="activeCategory() === 'special'"
+          (click)="selectCategory('special')"
+        >
+          <span>Món Ký Ức & Quà Tặng</span>
+        </button>
+      </nav>
+
+      <!-- Danh sách thẻ tem phiếu răng cưa hoài cổ -->
+      <div class="vouchers-cards-grid">
+        @for (voucher of filteredVouchers(); track voucher.id) {
+          <article class="ticket-card">
+            <!-- Cuống vé bên trái -->
+            <div class="ticket-stub">
+              <span class="stub-badge">{{ voucher.stampText }}</span>
+              <strong class="stub-discount">{{ voucher.discountDisplay }}</strong>
+              <div class="stub-punch-hole" aria-hidden="true"></div>
+            </div>
+
+            <!-- Thân vé bên phải -->
+            <div class="ticket-body">
+              <h3 class="ticket-title">{{ voucher.title }}</h3>
+              <p class="ticket-cond">{{ voucher.condition }}</p>
+              <div class="ticket-expiry">
+                <svg lucideClock class="ticket-clock-icon"></svg>
+                <span>{{ voucher.expiry }}</span>
+              </div>
+
+              <div class="ticket-action-row">
+                <div class="ticket-code-wrap">
+                  <span class="code-lbl">MÃ:</span>
+                  <code class="code-val">{{ voucher.code }}</code>
+                </div>
+
+                <button
+                  type="button"
+                  class="btn-copy-code"
+                  [class.is-copied]="copiedCode() === voucher.code"
+                  (click)="copyVoucherCode(voucher.code)"
+                  [attr.aria-label]="'Sao chép mã ' + voucher.code"
+                >
+                  @if (copiedCode() === voucher.code) {
+                    <svg lucideCheck class="copy-icon"></svg>
+                    <span>Đã Chép</span>
+                  } @else {
+                    <svg lucideCopy class="copy-icon"></svg>
+                    <span>Sao Chép</span>
+                  }
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+
+      <!-- Kêu gọi đặt món áp dụng phiếu -->
+      <div class="voucher-cta-bar">
+        <span class="cta-bar-text">Đã có mã ưu đãi trong tay? Ghé thực đơn chọn món ngay thôi!</span>
+        <a routerLink="/home" class="btn-go-menu">
+          <span>Xem Thực Đơn & Áp Dụng Mã</span>
+          <svg lucideArrowRight class="btn-arrow"></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. QUY TRÌNH 3 BƯỚC TÍCH ĐIỂM ĐA KÊNH -->
+  <section class="section-how-it-works">
+    <div class="rewards-container">
+      <div class="section-header-center">
+        <span class="section-kicker">CƠ CHẾ HOẠT ĐỘNG</span>
+        <h2 class="section-main-title">Tích & Tiêu Hạt Thật Dễ Dàng</h2>
+        <p class="section-subtitle">
+          Một tài khoản duy nhất, kết nối liền mạch từ trải nghiệm đặt món online đến ghé thăm góc quán.
+        </p>
+      </div>
+
+      <div class="steps-cards-grid">
+        <div class="how-step-card">
+          <div class="step-badge-number">1</div>
+          <div class="step-icon-wrap">
+            <svg lucideCreditCard class="how-icon"></svg>
+          </div>
+          <h3 class="step-card-title">Cung Cấp Số Điện Thoại</h3>
+          <p class="step-card-desc">
+            Đặt món trên website hoặc đọc SĐT / đưa mã QR hội viên cho bạn thu ngân khi thanh toán tại quầy máy POS của quán.
+          </p>
+        </div>
+
+        <div class="how-step-card">
+          <div class="step-badge-number">2</div>
+          <div class="step-icon-wrap">
+            <svg lucideSparkles class="how-icon"></svg>
+          </div>
+          <h3 class="step-card-title">Tự Động Tích Hạt Cà Phê</h3>
+          <p class="step-card-desc">
+            Hệ thống tự động quy đổi giá trị đơn hàng thành Hạt Cà Phê tích lũy theo tỷ lệ hạng mức (3% đến 10%) ngay khi hoàn tất.
+          </p>
+        </div>
+
+        <div class="how-step-card">
+          <div class="step-badge-number">3</div>
+          <div class="step-icon-wrap">
+            <svg lucideGift class="how-icon"></svg>
+          </div>
+          <h3 class="step-card-title">Đổi Điểm Hoặc Lấy Quà</h3>
+          <p class="step-card-desc">
+            Quy đổi trực tiếp: 100 Hạt = 1.000đ trừ thẳng vào tiền thanh toán, hoặc dùng Hạt đổi những món quà kỷ niệm độc bản.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. CÂU HỎI THƯỜNG GẶP (FAQ ACCORDION) -->
+  <section class="section-faq">
+    <div class="rewards-container faq-container">
+      <div class="section-header-center">
+        <span class="section-kicker">GIẢI ĐÁP THẮC MẮC</span>
+        <h2 class="section-main-title">Những Câu Hỏi Về Điểm Hội Viên</h2>
+      </div>
+
+      <div class="faq-accordion-list">
+        @for (faq of faqs(); track faq.id) {
+          <div class="faq-item" [class.is-open]="faq.isOpen">
+            <button
+              type="button"
+              class="faq-question-btn"
+              (click)="toggleFaq(faq.id)"
+              [attr.aria-expanded]="faq.isOpen"
+            >
+              <span class="faq-question-text">{{ faq.question }}</span>
+              <svg lucideChevronDown class="faq-toggle-icon"></svg>
+            </button>
+
+            @if (faq.isOpen) {
+              <div class="faq-answer-panel">
+                <p class="faq-answer-text">{{ faq.answer }}</p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="faq-support-box">
+        <span>Vẫn còn băn khoăn về quyền lợi?</span>
+        <a href="tel:19001755" class="faq-hotline-link">
+          <svg lucidePhone class="hotline-icon"></svg>
+          <span>Gọi tổng đài hỗ trợ 1900 1755</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. BỘ NÚT TÁC VỤ NỔI (FAB) -->
+  <div class="floating-actions-group">
+    <button
+      type="button"
+      class="fab-btn fab-top"
+      (click)="scrollToTop()"
+      aria-label="Cuộn lên đầu trang"
+    >
+      <svg lucideChevronUp class="fab-icon"></svg>
+    </button>
+    <a
+      href="tel:19001755"
+      class="fab-btn fab-call"
+      aria-label="Gọi hotline hỗ trợ 1900 1755"
+    >
+      <svg lucidePhone class="fab-icon"></svg>
+    </a>
+  </div>
+
+  <!-- 8. TOAST THÔNG BÁO SAO CHÉP MÃ -->
+  @if (toastMessage(); as msg) {
+    <div class="toast-notification" role="status" aria-live="polite">
+      <svg lucideCheck class="toast-icon"></svg>
+      <span>{{ msg }}</span>
+    </div>
+  }
+
+  <!-- 9. FOOTER CHÍNH -->
+  <app-widget-landing-footer></app-widget-landing-footer>
+</div>
+

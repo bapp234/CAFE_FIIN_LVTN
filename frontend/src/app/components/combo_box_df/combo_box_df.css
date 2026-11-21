@@ -1,0 +1,83 @@
+@reference "../../../styles.css";
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.combo-box {
+  position: relative;
+  width: 100%;
+}
+
+.combo-trigger {
+  width: 100%;
+  min-height: 2.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  font-family: var(--font-ui);
+  font-size: 0.925rem;
+  color: var(--color-den);
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-md);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.combo-trigger:hover:not(:disabled),
+.combo-trigger:focus-visible {
+  border-color: var(--color-xanh-dam);
+  outline: none;
+}
+
+.combo-trigger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.combo-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.combo-arrow {
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  color: var(--color-nau-xam);
+}
+
+.combo-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  max-height: 220px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-md);
+}
+
+.combo-item {
+  padding: 0.55rem 0.85rem;
+  font-size: 0.9rem;
+  color: var(--color-den);
+  cursor: pointer;
+}
+
+.combo-item:hover,
+.combo-item.is-selected {
+  background-color: var(--color-be-card);
+  color: var(--color-do);
+  font-weight: 600;
+}

@@ -1,0 +1,35 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box placeholder="Tìm mã đơn, tên khách, SĐT..." ariaLabel="Tìm kiếm lịch sử đơn hàng" (searched)="searchQuery.set($event); refreshTab()" />
+    </div>
+    <app-admin-combo-box [options]="statusOptions" [value]="statusFilter()" width="11rem" (valueChange)="statusFilter.set($event); refreshTab()" ariaLabel="Lọc theo kết quả" />
+    <app-admin-combo-box [options]="sortOptions" [value]="sortOrder()" width="9rem" (valueChange)="sortOrder.set($event); refreshTab()" ariaLabel="Sắp xếp theo thời gian" />
+    <app-admin-button title="Làm mới" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg><span>Làm mới</span>
+    </app-admin-button>
+  </div>
+  <div class="stripe-right">
+    <span class="count-badge">Tổng đơn: <b>{{ rows().length }}</b></span>
+    <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" (clicked)="exportExcel()">
+      <svg lucideDownload aria-hidden="true"></svg><span>Xuất Excel</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng lịch sử đơn hàng"
+    [columns]="columns"
+    [rows]="rows()"
+    rowKey="orderId"
+    [loading]="isLoading()"
+    [loadingMore]="loadingMore()"
+    [hasMore]="hasMore()"
+    loadingMoreText="Đang tải thêm 10 đơn hàng tiếp theo..."
+    [showIndex]="true"
+    indexLabel="STT"
+    [frozenCount]="3"
+    (scrolledToBottom)="loadMore()"
+  />
+</div>

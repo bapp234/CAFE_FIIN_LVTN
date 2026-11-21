@@ -1,0 +1,88 @@
+@if (isOpen()) {
+<div class="cart-drawer-backdrop" (click)="close()">
+  <aside class="cart-drawer-panel" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Giỏ hàng">
+    <!-- Header -->
+    <div class="drawer-header-row">
+      <div class="drawer-title-group">
+        <svg lucideShoppingBag class="drawer-header-icon" aria-hidden="true"></svg>
+        <h3 class="drawer-title-text">Giỏ Hàng Của Bạn ({{ cartCount() }})</h3>
+      </div>
+      <button type="button" class="btn-close-drawer" (click)="close()" aria-label="Đóng giỏ hàng">
+        <svg lucideX class="close-icon" aria-hidden="true"></svg>
+      </button>
+    </div>
+
+    <!-- Scrollable content -->
+    <div class="drawer-items-scroll">
+      @if (!isAuthenticated()) {
+      <div class="guest-cart-notice">
+        <div class="notice-icon-box">
+          <svg lucideCoffee class="empty-coffee-icon" aria-hidden="true"></svg>
+        </div>
+        <h4 class="notice-title">Chào Bạn Yêu Cà Phê!</h4>
+        <p class="notice-desc">Đăng nhập tài khoản để đồng bộ món vào giỏ, tích lũy điểm Fiin và nhận các ưu đãi hấp dẫn.</p>
+        <button type="button" class="btn-login-cta" (click)="goToLogin()">
+          Đăng Nhập Ngay
+        </button>
+      </div>
+      } @else if (cartItems().length === 0) {
+      <div class="empty-cart-state">
+        <div class="empty-icon-box">
+          <svg lucideCoffee class="empty-coffee-icon" aria-hidden="true"></svg>
+        </div>
+        <h4 class="empty-title">Giỏ hàng của bạn đang trống</h4>
+        <p class="empty-desc">Hãy dạo quanh thực đơn và chọn cho mình một món cà phê đậm đà nhé!</p>
+        <button type="button" class="btn-start-select" (click)="goToProducts()">
+          Khám Phá Thực Đơn
+        </button>
+      </div>
+      } @else {
+      @for (item of cartItems(); track item.cartItemId) {
+      <div class="cart-item-card">
+        <img [src]="item.imageUrl" [alt]="item.productName" class="cart-item-thumb" loading="lazy" />
+        <div class="cart-item-info">
+          <div class="cart-item-top">
+            <h4 class="cart-item-name">{{ item.productName }}</h4>
+            <button type="button" class="btn-remove-item" (click)="removeItem(item.cartItemId)" aria-label="Xóa món khỏi giỏ hàng" title="Xóa món">
+              <svg lucideTrash2 class="remove-svg" aria-hidden="true"></svg>
+            </button>
+          </div>
+          <span class="cart-item-size-badge">Size {{ item.sizeName }}</span>
+          @if (item.notes) {
+          <p class="cart-item-note">“{{ item.notes }}”</p>
+          }
+          <div class="cart-item-bottom-meta">
+            <!-- Stepper tăng giảm số lượng -->
+            <div class="cart-qty-stepper" role="group" aria-label="Số lượng món">
+              <button type="button" class="qty-btn btn-dec" (click)="decrement(item)" aria-label="Giảm số lượng">
+                <svg lucideMinus class="qty-icon" aria-hidden="true"></svg>
+              </button>
+              <span class="qty-val">{{ item.quantity }}</span>
+              <button type="button" class="qty-btn btn-inc" (click)="increment(item)" aria-label="Tăng số lượng">
+                <svg lucidePlus class="qty-icon" aria-hidden="true"></svg>
+              </button>
+            </div>
+            <span class="cart-item-price">{{ formatPrice(item.lineTotal) }}</span>
+          </div>
+        </div>
+      </div>
+      }
+      }
+    </div>
+
+    <!-- Footer -->
+    @if (isAuthenticated() && cartItems().length > 0) {
+    <div class="drawer-footer-row">
+      <div class="drawer-total-summary">
+        <span class="total-label">Tạm tính ({{ cartCount() }} món):</span>
+        <strong class="total-number">{{ formatPrice(cartSubtotal()) }}</strong>
+      </div>
+      <button type="button" class="btn-checkout-order" (click)="goToCheckout()">
+        <span>Tiến Hành Đặt Hàng &rarr;</span>
+      </button>
+      <p class="drawer-footer-note">Voucher giảm giá & phí giao hàng sẽ được áp dụng tại bước thanh toán.</p>
+    </div>
+    }
+  </aside>
+</div>
+}

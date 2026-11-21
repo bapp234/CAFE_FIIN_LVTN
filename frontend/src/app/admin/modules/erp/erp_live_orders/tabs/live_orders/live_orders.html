@@ -1,0 +1,43 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box placeholder="Tìm mã đơn, tên khách..." ariaLabel="Tìm kiếm phiên đơn" (searched)="searchQuery.set($event); refreshTab()" />
+    </div>
+    <app-admin-combo-box [options]="statusOptions" [value]="statusFilter()" width="12rem" (valueChange)="statusFilter.set($event); refreshTab()" ariaLabel="Lọc theo bước xử lý" />
+    <app-admin-button title="Làm mới" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg><span>Làm mới</span>
+    </app-admin-button>
+  </div>
+  <div class="stripe-right">
+    <span class="count-badge">Tự làm mới 15s · Tổng: <b>{{ rows().length }}</b></span>
+  </div>
+</div>
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng giám sát phiên đơn hàng real-time"
+    [columns]="columns"
+    [rows]="rows()"
+    rowKey="orderId"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [frozenCount]="3"
+    actionsLabel="Giả lập POS"
+  >
+    <ng-template #actions let-row>
+      @if (getNextPosStatus(row['orderStatus']); as step) {
+      <app-admin-button
+        size="sm"
+        variant="primary"
+        [title]="step.label"
+        [disabled]="advancingOrderId() === row['orderId']"
+        (clicked)="advanceOrderPos(row)">
+        <span>{{ advancingOrderId() === row['orderId'] ? 'Đang xử lý...' : step.label }}</span>
+      </app-admin-button>
+      } @else {
+      <span class="pos-done-text">--</span>
+      }
+    </ng-template>
+  </app-admin-grid-table>
+</div>

@@ -1,0 +1,635 @@
+@reference "../../../../../../../styles.css";
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  font-family: var(--font-ui, "Be Vietnam Pro", sans-serif);
+}
+
+/* ==========================================================================
+   1. THANH CÔNG CỤ SUB-HEADER TRUNG TÂM (ĐỒNG BỘ VỚI DANH SÁCH NHÂN VIÊN)
+   ========================================================================== */
+.sub-header-stripe {
+  background-color: var(--color-be-card, #f7f3ee);
+  border-bottom: 1px solid var(--color-vien-co, #d8ceba);
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 0.625rem;
+}
+
+@media (max-width: 1099px) {
+  .sub-header-stripe {
+    flex-wrap: wrap;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sub-header-stripe {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.stripe-left,
+.stripe-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stripe-left {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.stripe-right {
+  flex: 0 0 auto;
+}
+
+.stripe-left > * {
+  flex-shrink: 0;
+}
+
+.stripe-left > .sub-search-wrap {
+  flex: 1 1 12rem;
+  min-width: 8rem;
+  max-width: 16.5rem;
+}
+
+.combo-branch {
+  --combo-width: 12rem;
+}
+
+.combo-position {
+  --combo-width: 11rem;
+}
+
+.selected-count-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-nau-dam, #3c2619);
+  background-color: var(--color-be, #ede7de);
+  border: 1px solid var(--color-vien-co, #d8ceba);
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.25rem;
+}
+
+.btn-clear-selection {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  margin-right: 0.25rem;
+  cursor: pointer;
+  border: 1px solid var(--color-vien-co, #d8ceba);
+  background-color: var(--color-trang, #ffffff);
+  color: var(--color-nau-xam, #78716c);
+  transition: all 0.15s ease;
+}
+
+.btn-clear-selection:hover {
+  border-color: var(--color-do, #9b2d20) !important;
+  color: var(--color-do, #9b2d20) !important;
+  background-color: rgba(155, 45, 32, 0.08) !important;
+}
+
+/* ==========================================================================
+   2. KHUNG DỮ LIỆU BẢNG LƯỚI TRÀN VIỀN (ĐỒNG BỘ VỚI EMPLOYEE LIST)
+   ========================================================================== */
+.unprovisioned-grid-container {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding: 0;
+  background-color: var(--color-trang, #ffffff);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==========================================================================
+   THANH HÀNH ĐỘNG NỔI Ở ĐÁY BẢNG (FLOATING ACTION BAR)
+   ========================================================================== */
+.floating-action-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.625rem 1.5rem;
+  background-color: var(--color-be-card, #f7f3ee);
+  border-top: 1px solid var(--color-vien-co, #d8ceba);
+  box-shadow: 0 -4px 14px rgba(43, 30, 22, 0.08);
+}
+
+.fab-left,
+.fab-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.fab-count-text {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-nau-dam, #3c2619);
+}
+
+.fab-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 4px;
+  border: 1px solid transparent;
+}
+
+.fab-pill-dirty {
+  color: #92400e;
+  background-color: #fef3c7;
+  border-color: #fde68a;
+}
+
+.btn-select-all-toolbar,
+.btn-fab-secondary {
+  height: 2.125rem;
+  padding: 0 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-nau-dam, #3c2619);
+  background-color: var(--color-trang, #ffffff);
+  border: 1px solid var(--color-vien-co, #d8ceba);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-select-all-toolbar:hover,
+.btn-fab-secondary:hover {
+  background-color: var(--color-be, #ede7de);
+  border-color: var(--color-nau-nhat, #9a7b4f);
+}
+
+/* ==========================================================================
+   CHỈNH SỬA TRỰC TIẾP TRÊN BẢNG KIỂU GHOST INPUT (SẠCH SẼ, NHẸ NHÀNG)
+   ========================================================================== */
+.cell-excel-wrap {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.cell-ghost-input {
+  width: 100%;
+  height: 1.95rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 600;
+  color: var(--color-nau-dam, #3c2619);
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: all 0.15s ease-in-out;
+}
+
+.cell-ghost-input::placeholder {
+  color: #a8a29e;
+  font-weight: 400;
+}
+
+.cell-ghost-input:hover {
+  border-color: var(--color-vien-co, #d8ceba);
+  background-color: #fdfbf8;
+}
+
+.cell-ghost-input:focus {
+  outline: none;
+  border-color: var(--color-xanh-dam, #2f5d58);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(47, 93, 88, 0.15);
+}
+
+/* Ô MẬT KHẨU CÓ ICON BẬT/TẮT XEM */
+.cell-password-wrap {
+  position: relative;
+}
+
+.cell-password-input {
+  padding-right: 1.85rem;
+}
+
+.btn-cell-eye {
+  position: absolute;
+  right: 0.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: #a8a29e;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 3px;
+  transition: color 0.15s ease;
+}
+
+.btn-cell-eye:hover {
+  color: var(--color-nau-dam, #3c2619);
+}
+
+/* DROPDOWN VAI TRÒ GHOST SELECT */
+.cell-ghost-select {
+  width: 100%;
+  height: 1.95rem;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-nau-dam, #3c2619);
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.cell-ghost-select:hover {
+  border-color: var(--color-vien-co, #d8ceba);
+  background-color: #fdfbf8;
+}
+
+.cell-ghost-select:focus {
+  outline: none;
+  border-color: var(--color-xanh-dam, #2f5d58);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(47, 93, 88, 0.15);
+}
+
+/* TRẠNG THÁI Ô ĐÃ CHỈNH SỬA (DIRTY / MODIFIED STATE) */
+.cell-ghost-input.input-modified,
+.cell-ghost-select.input-modified {
+  border-color: #d97706 !important;
+  background-color: #fffdf5 !important;
+  box-shadow: 0 0 0 1px rgba(217, 119, 6, 0.22);
+}
+
+/* CỘT THAO TÁC TRÊN TỪNG DÒNG */
+.cell-actions-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+}
+
+.btn-row-edit,
+.btn-row-provision {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  height: 1.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-row-edit {
+  width: 1.75rem;
+  padding: 0;
+  color: var(--color-nau-dam, #3c2619);
+  background-color: var(--color-be-card, #f7f3ee);
+  border: 1px solid var(--color-vien-co, #d8ceba);
+}
+
+.btn-row-edit:hover {
+  border-color: var(--color-xanh-dam, #2f5d58);
+  color: var(--color-xanh-dam, #2f5d58);
+  background-color: #eef6f4;
+}
+
+.btn-row-provision {
+  padding: 0 0.55rem;
+  color: #ffffff;
+  background-color: var(--color-xanh-dam, #2f5d58);
+  border: 1px solid var(--color-xanh-dam, #2f5d58);
+}
+
+.btn-row-provision:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.btn-row-provision:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* TRẠNG THÁI RỖNG / TẢI */
+.loading-state,
+.empty-state {
+  padding: 3.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #78716c;
+}
+
+.empty-icon-circle {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background-color: #f5f5f4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.empty-icon-circle.success-circle {
+  background-color: #d1fae5;
+}
+
+.empty-title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--color-nau-dam, #3c2619);
+  margin: 0 0 0.375rem 0;
+}
+
+.empty-desc {
+  font-size: 0.8125rem;
+  color: #78716c;
+  max-width: 24rem;
+  margin: 0;
+}
+
+/* ==========================================================================
+   4. DRAWER CẤP TÀI KHOẢN CÁ NHÂN
+   ========================================================================== */
+.drawer-emp-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  background-color: #fcfbf9;
+  border: 1px solid var(--color-vien-co, #d8ceba);
+  border-radius: 4px;
+  margin-bottom: 1.25rem;
+}
+
+.summary-avatar {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background-color: #e6ded3;
+  color: var(--color-nau-dam, #3c2619);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.125rem;
+  border: 1px solid #d8ceba;
+  flex-shrink: 0;
+}
+
+.summary-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.summary-name {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-nau-dam, #3c2619);
+  margin: 0;
+}
+
+.summary-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.25rem 0;
+}
+
+.summary-code {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  background-color: #f0ebe4;
+  padding: 0.0625rem 0.3125rem;
+  border-radius: 2px;
+}
+
+.summary-pos {
+  font-size: 0.75rem;
+  color: #57534e;
+  font-weight: 600;
+}
+
+.summary-branch {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.6875rem;
+  color: #78716c;
+}
+
+.drawer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field-icon {
+  position: absolute;
+  left: 0.75rem;
+  width: 1rem;
+  height: 1rem;
+  color: #a8a29e;
+  pointer-events: none;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5625rem 0.75rem 0.5625rem 2.25rem;
+  font-size: 0.8125rem;
+  color: #1c1917;
+  background-color: #ffffff;
+  border: 1px solid #d6cebf;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-control:focus {
+  border-color: var(--color-xanh-dam, #2f5d58);
+  box-shadow: 0 0 0 2px rgba(47, 93, 88, 0.15);
+}
+
+.form-select {
+  cursor: pointer;
+}
+
+.password-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.btn-toggle-eye {
+  height: 2.25rem;
+  padding: 0 0.625rem;
+  background-color: #f5f5f4;
+  border: 1px solid #d6cebf;
+  border-radius: 4px;
+  color: #78716c;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-toggle-eye:hover {
+  background-color: #e7e5e4;
+  color: #1c1917;
+}
+
+.password-quick-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.375rem;
+}
+
+.btn-quick-pw {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-xanh-dam, #2f5d58);
+  background-color: #eef6f4;
+  border: 1px solid #c7e0dc;
+  padding: 0.1875rem 0.4375rem;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.btn-quick-pw:hover {
+  background-color: #ddede9;
+}
+
+.drawer-role-combo {
+  --combo-width: 100%;
+}
+
+.security-policy-box {
+  background-color: #fbf9f6;
+  border: 1px solid #e7dfd5;
+  border-radius: 4px;
+  padding: 0.875rem 1rem;
+}
+
+.security-policy-header {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-nau-dam, #3c2619);
+  margin-bottom: 0.625rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed #e7dfd5;
+}
+
+.custom-checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  cursor: pointer;
+}
+
+.checkbox-label-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.checkbox-label-text b {
+  font-size: 0.75rem;
+  color: var(--color-nau-dam, #3c2619);
+}
+
+.checkbox-subtext {
+  font-size: 0.6875rem;
+  color: #78716c;
+}
+
+.drawer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.625rem;
+  width: 100%;
+}
+
+.btn-cancel {
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #57534e;
+  background-color: #ffffff;
+  border: 1px solid #d6cebf;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-cancel:hover {
+  background-color: #f5f5f4;
+}
+
+.btn-submit-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1.125rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: var(--color-xanh-dam, #2f5d58);
+  border: 1px solid var(--color-xanh-dam, #2f5d58);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btn-submit-save:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.btn-submit-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+

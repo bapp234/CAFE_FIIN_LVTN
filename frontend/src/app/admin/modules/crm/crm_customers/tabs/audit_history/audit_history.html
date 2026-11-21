@@ -1,0 +1,51 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        placeholder="Tìm tên khách, SĐT, trường thay đổi..."
+        ariaLabel="Tìm kiếm lịch sử chỉnh sửa"
+        (searched)="searchQuery.set($event); refreshTab()"
+      />
+    </div>
+
+    <app-admin-combo-box
+      [options]="sortOptions"
+      [value]="sortOrder()"
+      width="9.5rem"
+      (valueChange)="sortOrder.set($event); refreshTab()"
+      ariaLabel="Sắp xếp theo thời gian"
+    />
+
+    <app-admin-combo-box
+      [options]="actionOptions"
+      [value]="actionFilter()"
+      width="12.5rem"
+      (valueChange)="actionFilter.set($event); refreshTab()"
+      ariaLabel="Lọc theo loại thay đổi"
+    />
+
+    <app-admin-button title="Tải lại lịch sử chỉnh sửa" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+
+  <div class="stripe-right">
+    <span class="count-badge">
+      Tổng bản ghi: <b>{{ rows().length }}</b>
+    </span>
+  </div>
+</div>
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng lịch sử chỉnh sửa thông tin khách hàng (chỉ xem)"
+    [columns]="columns"
+    [rows]="rows()"
+    rowKey="auditId"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [frozenCount]="3"
+  />
+</div>

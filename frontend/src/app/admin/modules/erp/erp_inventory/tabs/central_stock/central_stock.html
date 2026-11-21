@@ -1,0 +1,128 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        placeholder="Tìm mã, tên vật tư..."
+        ariaLabel="Tìm kiếm vật tư kho tổng"
+        (searched)="searchQuery.set($event); refreshTab()"
+      />
+    </div>
+    <app-admin-combo-box
+      [options]="groupOptions"
+      [value]="groupFilter()"
+      width="11rem"
+      (valueChange)="groupFilter.set($event); refreshTab()"
+      ariaLabel="Lọc theo nhóm vật tư"
+    />
+    <app-admin-button title="Làm mới" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+
+  <div class="stripe-right">
+    <span class="count-badge">Tổng VT: <b>{{ rows().length }}</b></span>
+    <input #csvInput type="file" accept=".csv" (change)="onImportCsv($event)" hidden />
+    <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" (clicked)="csvInput.click()">
+      <svg lucideUpload aria-hidden="true"></svg>
+      <span>Nhập</span>
+    </app-admin-button>
+    <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" [disabled]="isExporting()" (clicked)="exportExcel()">
+      <svg lucideDownload aria-hidden="true"></svg>
+      <span>Xuất Excel</span>
+    </app-admin-button>
+    <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" (clicked)="addNewRow()">
+      <svg lucidePlus aria-hidden="true"></svg>
+      <span>Thêm vật tư</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng tồn kho tổng"
+    [columns]="columns"
+    [rows]="gridRows()"
+    rowKey="_localKey"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [frozenCount]="3"
+    [cellTemplates]="{
+      ingredientCode: codeTpl,
+      ingredientName: nameTpl,
+      categoryGroup: groupTpl,
+      unit: unitTpl,
+      currentStock: stockTpl,
+      reorderLevel: reorderTpl,
+      averageCost: costTpl,
+      isActive: activeTpl
+    }"
+  />
+</div>
+
+<ng-template #codeTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input type="text" class="ghost-input is-code" placeholder="NVL..." [(ngModel)]="item.ingredientCode" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #nameTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input type="text" class="ghost-input is-name" placeholder="Tên vật tư..." [(ngModel)]="item.ingredientName" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #groupTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <select class="ghost-select" [(ngModel)]="item.categoryGroup" (ngModelChange)="markDirty(item)">
+      <option value="Nguyên liệu">Nguyên liệu</option>
+      <option value="Bao bì">Bao bì</option>
+    </select>
+  </div>
+</ng-template>
+<ng-template #unitTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <input type="text" class="ghost-input" [(ngModel)]="item.unit" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #stockTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <input type="number" class="ghost-input is-num" [(ngModel)]="item.currentStock" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #reorderTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <input type="number" class="ghost-input is-num" [(ngModel)]="item.reorderLevel" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #costTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <input type="number" class="ghost-input is-num" [(ngModel)]="item.averageCost" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+<ng-template #activeTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-check-wrap" (click)="$event.stopPropagation()">
+    <input type="checkbox" [(ngModel)]="item.isActive" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+
+@if (dirtyCount() > 0) {
+  <div class="hrm-floating-action-bar">
+    <div class="fab-summary">Đang có <strong>{{ dirtyCount() }}</strong> vật tư thay đổi chưa lưu</div>
+    <div class="fab-actions">
+      <app-admin-button [disabled]="isSaving()" (clicked)="discardChanges()">
+        <svg lucideX aria-hidden="true"></svg><span>Hủy thay đổi</span>
+      </app-admin-button>
+      <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" [disabled]="isSaving()" (clicked)="saveAllChanges()">
+        <svg lucideCheck aria-hidden="true"></svg><span>Lưu thay đổi ({{ dirtyCount() }})</span>
+      </app-admin-button>
+    </div>
+  </div>
+}

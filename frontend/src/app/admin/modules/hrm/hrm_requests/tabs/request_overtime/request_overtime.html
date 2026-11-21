@@ -1,0 +1,233 @@
+<!-- THANH CÔNG CỤ -->
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        placeholder="Tìm mã NV, họ tên, mã OT, lý do..."
+        ariaLabel="Tìm kiếm đơn xin tăng ca"
+        (searched)="searchQuery.set($event)"
+      />
+    </div>
+
+    <app-admin-combo-box
+      class="combo-emp"
+      [options]="employeeFilterOptions()"
+      [value]="employeeFilter()"
+      [disabled]="isSelfOnly()"
+      placeholder="Lọc nhân sự..."
+      searchPlaceholder="Tìm mã NV, họ tên..."
+      ariaLabel="Lọc lịch sử đơn theo nhân viên"
+      (valueChange)="employeeFilter.set($event)"
+    />
+
+    <app-admin-combo-box
+      class="combo-month"
+      [options]="monthOptions"
+      [value]="selectedMonth()"
+      (valueChange)="selectedMonth.set($event)"
+    />
+
+    <app-admin-combo-box
+      class="combo-year"
+      [options]="yearOptions"
+      [value]="selectedYear()"
+      (valueChange)="selectedYear.set($event)"
+    />
+
+    <app-admin-combo-box
+      class="combo-status"
+      [options]="statusOptions"
+      [value]="statusFilter()"
+      (valueChange)="statusFilter.set($event)"
+    />
+
+    <app-admin-button title="Tải lại danh sách đơn tăng ca" (clicked)="refresh()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+
+  <div class="stripe-right">
+    <span class="pending-badge">
+      Chờ duyệt: <b>{{ pendingCount() }}</b>
+    </span>
+
+    <app-admin-button
+      [title]="
+        isPeriodLocked()
+          ? 'Bảng công kỳ ' + selectedPeriodMonth() + ' đã khóa, không thể lập đơn tăng ca mới'
+          : 'Tạo đơn xin tăng ca mới theo mã OT'
+      "
+      [disabled]="isPeriodLocked()"
+      bgColor="var(--color-xanh-dam)"
+      textColor="var(--color-trang)"
+      (clicked)="openCreateDrawer()"
+    >
+      <svg lucidePlus aria-hidden="true"></svg>
+      <span>Tạo đơn tăng ca</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<!-- BẢNG DANH SÁCH ĐƠN TĂNG CA (ƯU TIÊN ĐƠN CHỜ DUYỆT) -->
+<div class="request-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng danh sách đơn xin tăng ca"
+    [columns]="columns"
+    [rows]="gridRows()"
+    rowKey="overtimeId"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [stickyActions]="true"
+    [frozenRightCount]="1"
+    actionsLabel="Xét duyệt"
+    actionsWidth="9.75rem"
+    emptyTitle="Không có đơn xin tăng ca nào trong kỳ"
+    emptyDescription="Chọn nhân sự ở bộ lọc để xem lịch sử hoặc nhấn 'Tạo đơn tăng ca' để lập đơn mới."
+  >
+    <ng-template #actions let-row>
+      @if (canApproveRow(row)) {
+        <div class="act-group">
+          <button type="button" class="act-btn is-approve" title="Duyệt đơn" (click)="processRow(row, 'approved')">
+            <svg lucideCheck aria-hidden="true"></svg>
+            <span>Duyệt</span>
+          </button>
+          <button type="button" class="act-btn is-reject" title="Từ chối" (click)="processRow(row, 'rejected')">
+            <svg lucideX aria-hidden="true"></svg>
+          </button>
+        </div>
+      } @else if (canProcessCancelRow(row)) {
+        <div class="act-group">
+          <button type="button" class="act-btn is-approve" title="Đồng ý hủy đơn & hoàn lại giờ hạn mức" (click)="processRow(row, 'approve_cancel')">
+            <svg lucideCheck aria-hidden="true"></svg>
+            <span>Duyệt hủy</span>
+          </button>
+          <button type="button" class="act-btn is-reject" title="Từ chối hủy (giữ đơn đã duyệt)" (click)="processRow(row, 'reject_cancel')">
+            <svg lucideX aria-hidden="true"></svg>
+          </button>
+        </div>
+      } @else if (canRequestCancelRow(row)) {
+        <div class="act-group">
+          <button type="button" class="act-btn is-reject" title="Gửi yêu cầu xin hủy đơn tăng ca đã duyệt lên cấp duyệt" (click)="processRow(row, 'request_cancel')">
+            <svg lucideRotateCcw aria-hidden="true"></svg>
+            <span>Hủy đơn</span>
+          </button>
+        </div>
+      } @else {
+        <span class="act-done">—</span>
+      }
+    </ng-template>
+  </app-admin-grid-table>
+</div>
+
+<!-- DRAWER TẠO ĐƠN TĂNG CA THEO PHÂN CẤP -->
+<app-request-create-drawer
+  [isOpen]="isCreateOpen()"
+  title="Tạo đơn xin tăng ca mới"
+  subtitle="Chọn nhân sự để tự động điền hồ sơ & luồng người duyệt, nhập lý do và gửi chờ duyệt."
+  submitLabel="Gửi đơn tăng ca"
+  [isSubmitting]="isSubmitting()"
+  [submitDisabled]="!!quotaBlockReason()"
+  [employees]="employees()"
+  [selectedEmployeeId]="formEmployeeId()"
+  [isSelfOnly]="isSelfOnly()"
+  [approvers]="selectedApprovers()"
+  [isLoadingApprovers]="isLoadingApprovers()"
+  (employeeSelected)="formEmployeeId.set($event)"
+  (submit)="submitCreate()"
+  (close)="isCreateOpen.set(false)"
+>
+  <div class="drawer-form">
+    @if (selectedEmployeeQuota(); as q) {
+      <div class="quota-box">
+        <div class="quota-box-head">
+          <span class="quota-box-title">Hạn mức tăng ca kỳ {{ selectedPeriodMonth() }}</span>
+          <span class="quota-badge" [class.is-danger]="q.otRemainingHours <= 0">
+            {{ q.otWarningStatus }}
+          </span>
+        </div>
+        <div class="quota-grid-6">
+          <div class="q-cell">
+            <span class="q-lbl">Hạn mức tháng</span>
+            <strong class="q-val">{{ q.otMonthlyLimit | number:'1.2-2' }}h</strong>
+          </div>
+          <div class="q-cell">
+            <span class="q-lbl">Giờ OT đã duyệt</span>
+            <strong class="q-val is-info">{{ q.otApprovedHours | number:'1.2-2' }}h</strong>
+          </div>
+          <div class="q-cell">
+            <span class="q-lbl">Giờ OT chờ duyệt</span>
+            <strong class="q-val is-warn">{{ q.otPendingHours | number:'1.2-2' }}h</strong>
+          </div>
+          <div class="q-cell">
+            <span class="q-lbl">Tổng giờ OT ĐK</span>
+            <strong class="q-val">{{ q.otTotalRegisteredHours | number:'1.2-2' }}h</strong>
+          </div>
+          <div class="q-cell">
+            <span class="q-lbl">Hạn mức còn lại</span>
+            <strong class="q-val is-ok">{{ q.otRemainingHours | number:'1.2-2' }}h</strong>
+          </div>
+          <div class="q-cell">
+            <span class="q-lbl">Đơn đang lập</span>
+            <strong class="q-val" [class.is-err]="requestedHours() > q.otRemainingHours">
+              {{ requestedHours() | number:'1.2-2' }}h
+            </strong>
+          </div>
+        </div>
+        <p class="quota-rule-note">
+          Lưu ý: Đơn ở trạng thái <b>Chờ duyệt</b> chưa trừ hạn mức. Khi 1 đơn được duyệt trước, các đơn chờ duyệt còn lại vượt số giờ còn lại sẽ tự động bị từ chối.
+        </p>
+      </div>
+    }
+
+    @if (quotaBlockReason()) {
+      <div class="quota-block-banner" role="alert">
+        {{ quotaBlockReason() }}
+      </div>
+    }
+    <div class="form-row-2">
+      <app-admin-form-field label="Chọn Mã OT" htmlFor="ot-code" [required]="true">
+        <select id="ot-code" [ngModel]="formOtCode()" (ngModelChange)="formOtCode.set($event)">
+          @for (ot of otCatalog(); track ot.overtimeTypeId) {
+            <option [value]="ot.otCode">{{ ot.otCode }} — {{ ot.otName }}</option>
+          }
+        </select>
+      </app-admin-form-field>
+
+      <app-admin-form-field label="Ngày tăng ca" htmlFor="ot-date" [required]="true">
+        <input id="ot-date" type="date" [ngModel]="formWorkDate()" (ngModelChange)="formWorkDate.set($event)" />
+      </app-admin-form-field>
+    </div>
+
+    @if (selectedOtInfo(); as info) {
+      <div class="catalog-preview">
+        Loại: <b>{{ info.otName }}</b> • Hệ số lương: <b>{{ info.payMultiplier }}%</b>
+        @if (info.nightExtraRate > 0) {
+          <span>(+{{ info.nightExtraRate }}% đêm)</span>
+        }
+        • Tối đa: <b>{{ info.maxHoursPerDay }}h/ngày</b>
+      </div>
+    }
+
+    <div class="form-row-2">
+      <app-admin-form-field label="Giờ bắt đầu" htmlFor="ot-start" [required]="true">
+        <input id="ot-start" type="time" [ngModel]="formStartTime()" (ngModelChange)="formStartTime.set($event)" />
+      </app-admin-form-field>
+
+      <app-admin-form-field label="Giờ kết thúc" htmlFor="ot-end" [required]="true">
+        <input id="ot-end" type="time" [ngModel]="formEndTime()" (ngModelChange)="formEndTime.set($event)" />
+      </app-admin-form-field>
+    </div>
+
+    <app-admin-form-field label="Lý do tăng ca" htmlFor="ot-reason" [required]="true">
+      <textarea
+        id="ot-reason"
+        rows="3"
+        placeholder="VD: Hỗ trợ pha chế ca tối đông khách / Kiểm kê kho cuối tuần..."
+        [ngModel]="formReason()"
+        (ngModelChange)="formReason.set($event)"
+      ></textarea>
+    </app-admin-form-field>
+  </div>
+</app-request-create-drawer>

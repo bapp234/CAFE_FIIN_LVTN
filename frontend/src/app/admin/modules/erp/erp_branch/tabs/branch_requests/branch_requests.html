@@ -1,0 +1,60 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <app-admin-combo-box
+      [options]="branchOptions()"
+      [value]="branchService.selectedBranchId()"
+      width="13rem"
+      (valueChange)="onBranchChange($event)"
+      ariaLabel="Chọn chi nhánh"
+    />
+    <app-admin-button title="Làm mới" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+  <div class="stripe-right">
+    <span class="count-badge">Tổng phiếu: <b>{{ rows().length }}</b></span>
+    <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" (clicked)="isFormOpen.set(!isFormOpen())">
+      <svg lucidePlus aria-hidden="true"></svg>
+      <span>Tạo đơn xin nhập</span>
+    </app-admin-button>
+  </div>
+</div>
+
+@if (isFormOpen()) {
+  <div class="req-form-bar">
+    <select class="req-input" [(ngModel)]="reqIngredientId">
+      @for (ing of ingredients(); track ing.ingredientId) {
+        <option [ngValue]="ing.ingredientId">{{ ing.ingredientName }} ({{ ing.unit }})</option>
+      }
+    </select>
+    <input type="number" class="req-input req-qty" [(ngModel)]="reqQty" placeholder="Số lượng" />
+    <input type="text" class="req-input req-note" [(ngModel)]="reqNotes" placeholder="Ghi chú lý do xin..." />
+    <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" (clicked)="submitRequest()">
+      <span>Gửi yêu cầu</span>
+    </app-admin-button>
+  </div>
+}
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng đơn xin nhập kho chi nhánh"
+    [columns]="columns"
+    [rows]="rows()"
+    rowKey="transferId"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [frozenCount]="3"
+    actionsLabel="Nhận hàng"
+    actionsWidth="6rem"
+  >
+    <ng-template #actions let-row>
+      @if (row['status'] === 'Approved') {
+        <button type="button" class="row-action-btn is-ok" title="Xác nhận đã nhận hàng" (click)="confirmReceived(row)">
+          <svg lucideCheck class="w-3.5 h-3.5" aria-hidden="true"></svg>
+        </button>
+      }
+    </ng-template>
+  </app-admin-grid-table>
+</div>

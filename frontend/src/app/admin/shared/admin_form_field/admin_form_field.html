@@ -1,0 +1,22 @@
+<div class="form-field-group" [class.has-error]="!!error()">
+  @if (label()) {
+    <div class="label-row">
+      <label [attr.for]="htmlFor() || null" class="field-label">
+        {{ label() }}
+        @if (required()) {
+          <span class="required-mark" aria-hidden="true">*</span>
+        }
+      </label>
+    </div>
+  }
+
+  <div class="control-wrap">
+    <ng-content></ng-content>
+  </div>
+
+  @if (error()) {
+    <p class="field-error" role="alert">{{ error() }}</p>
+  } @else if (hint()) {
+    <p class="field-hint">{{ hint() }}</p>
+  }
+</div>

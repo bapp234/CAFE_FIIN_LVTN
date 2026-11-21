@@ -1,0 +1,20 @@
+@reference "../../../../../../../styles.css";
+
+:host { display: flex; flex-direction: column; flex: 1; min-height: 0; width: 100%; position: relative; }
+.sub-header-stripe { flex-shrink: 0; background-color: var(--color-be-card); border-bottom: 1px solid var(--color-vien-co); padding: 0.5rem 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; overflow: visible; gap: 0.5rem; }
+.stripe-left, .stripe-right { display: flex; align-items: center; flex-wrap: wrap; gap: 0.45rem; }
+.sub-search-wrap { width: 11rem; }
+.count-badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem; font-size: 0.75rem; color: var(--color-nau-dam); background-color: var(--color-be); border: 1px solid var(--color-vien-co); border-radius: var(--radius-sm); }
+.employee-grid-container { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.cell-excel-wrap { width: 100%; display: flex; align-items: center; }
+.cell-excel-wrap.is-dirty .ghost-input { background-color: var(--color-be); }
+.cell-excel-wrap.is-new .ghost-input { background-color: var(--color-be-card); }
+.ghost-input, .ghost-select { width: 100%; height: 1.9375rem; padding: 0 0.45rem; font-size: 0.8125rem; color: var(--color-den); background: transparent; border: 1px solid transparent; border-radius: var(--radius-sm); outline: none; }
+.ghost-input:focus, .ghost-select:focus { border-color: var(--color-xanh-dam); background-color: var(--color-trang); }
+.ghost-input.is-code { font-family: ui-monospace, monospace; font-weight: 700; color: var(--color-xanh-dam); text-transform: uppercase; }
+.ghost-input.is-name { font-weight: 600; }
+.ghost-input.is-num { text-align: right; font-variant-numeric: tabular-nums; }
+.cell-check-wrap { display: flex; align-items: center; justify-content: center; }
+.cell-check-wrap input[type='checkbox'] { width: 1rem; height: 1rem; accent-color: var(--color-xanh-dam); cursor: pointer; }
+.fab-summary { font-size: 0.8125rem; color: var(--color-den); }
+.fab-actions { display: flex; align-items: center; gap: 0.5rem; }

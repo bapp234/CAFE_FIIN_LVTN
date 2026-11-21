@@ -1,0 +1,26 @@
+<div class="admin-shell">
+  <app-admin-toast />
+  <app-admin-topbar
+    [modules]="isStaffPortal() ? [] : modules()"
+    [user]="user()"
+    [hasMenu]="!!activeModule()"
+    [menuOpen]="isMenuOpen()"
+    (menuToggle)="toggleMenu()"
+    (signOut)="signOut()"
+  />
+
+  <div class="admin-body">
+    @if (activeModule(); as mod) {
+      <app-admin-sidebar
+        [module]="mod"
+        [isStaffPortal]="isStaffPortal()"
+        [isOpen]="isMenuOpen()"
+        (closed)="closeMenu()"
+      />
+    }
+
+    <main class="admin-main">
+      <router-outlet />
+    </main>
+  </div>
+</div>

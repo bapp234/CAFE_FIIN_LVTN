@@ -1,0 +1,8 @@
+@reference "../../../styles.css";
+
+.brand-logo {
+  width: 4rem;
+  height: auto;
+  display: inline-block;
+}
+

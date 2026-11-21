@@ -1,0 +1,41 @@
+<article class="stat-card" [attr.data-trend]="trend()">
+  <div class="stat-top">
+    <span class="stat-label">{{ label() }}</span>
+    <span class="stat-icon-wrap" aria-hidden="true">
+      @switch (icon()) {
+        @case ('users') {
+          <svg lucideUsers class="stat-icon"></svg>
+        }
+        @case ('clock') {
+          <svg lucideClock class="stat-icon"></svg>
+        }
+        @case ('dollar') {
+          <svg lucideDollarSign class="stat-icon"></svg>
+        }
+        @case ('alert') {
+          <svg lucideAlertTriangle class="stat-icon"></svg>
+        }
+        @default {
+          <svg lucideActivity class="stat-icon"></svg>
+        }
+      }
+    </span>
+  </div>
+
+  <div class="stat-value">{{ value() }}</div>
+
+  @if (diff()) {
+    <div class="stat-bottom">
+      <span class="trend-badge" [class.trend-up]="trend() === 'up'" [class.trend-down]="trend() === 'down'">
+        @if (trend() === 'up') {
+          <svg lucideTrendingUp class="trend-icon" aria-hidden="true"></svg>
+        }
+        @if (trend() === 'down') {
+          <svg lucideTrendingDown class="trend-icon" aria-hidden="true"></svg>
+        }
+        <span>{{ diff() }}</span>
+      </span>
+      <span class="trend-label">{{ trendLabel() }}</span>
+    </div>
+  }
+</article>

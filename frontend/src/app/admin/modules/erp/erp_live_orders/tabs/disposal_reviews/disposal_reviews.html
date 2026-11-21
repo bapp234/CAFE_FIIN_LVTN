@@ -1,0 +1,34 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <app-admin-combo-box [options]="statusOptions" [value]="statusFilter()" width="11rem" (valueChange)="statusFilter.set($event); refreshTab()" ariaLabel="Lọc theo trạng thái duyệt" />
+    <app-admin-button title="Làm mới" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg><span>Làm mới</span>
+    </app-admin-button>
+  </div>
+  <div class="stripe-right">
+    <span class="count-badge">Tổng đơn: <b>{{ rows().length }}</b></span>
+  </div>
+</div>
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng duyệt đơn trả món và hao hụt"
+    [columns]="columns"
+    [rows]="rows()"
+    rowKey="reviewId"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [frozenCount]="3"
+    actionsLabel="Duyệt"
+    actionsWidth="5rem"
+  >
+    <ng-template #actions let-row>
+      @if (row['reviewStatus'] === 'PendingManagerReview') {
+        <button type="button" class="row-action-btn" title="Duyệt ghi nhận hao hụt" (click)="approve(row)">
+          <svg lucideCheck class="w-3.5 h-3.5" aria-hidden="true"></svg>
+        </button>
+      }
+    </ng-template>
+  </app-admin-grid-table>
+</div>

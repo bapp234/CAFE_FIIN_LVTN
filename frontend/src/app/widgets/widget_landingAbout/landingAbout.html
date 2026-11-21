@@ -1,0 +1,238 @@
+<section class="phin-ritual-section" #ritualSection aria-labelledby="about-title">
+  <!-- Lớp nền: ánh đèn vàng + vignette -->
+  <div class="bg-layer" aria-hidden="true"></div>
+
+  <!-- Chữ chìm khổng lồ trôi ngang (parallax lớp xa nhất) -->
+  <div class="watermark" aria-hidden="true">2016 — 2026</div>
+
+  <!-- Hạt cà phê bay lơ lửng nhiều độ sâu -->
+  <div class="beans" aria-hidden="true">
+    @for (b of beans; track $index) {
+    <span class="bean" [style.--x]="b.x" [style.--y]="b.y" [style.--s]="b.s" [style.--r]="b.r" [style.--o]="b.o"
+      [style.--b]="b.b" [attr.data-depth]="b.depth"></span>
+    }
+  </div>
+
+  <!-- DÒNG THỜI GIAN: dọc ở desktop, thanh ngang dính trên cùng ở mobile -->
+  <nav class="timeline" aria-label="Dòng thời gian một thập kỷ">
+    <div class="tl-wrap">
+      <span class="tl-line" aria-hidden="true"></span>
+      <span class="tl-fill" aria-hidden="true"></span>
+      <ol class="tl-list">
+        @for (ch of chapters; track ch.year; let i = $index) {
+        <li>
+          <button type="button" class="tl-item" [class.is-active]="activeIndex() === i"
+            [class.is-past]="activeIndex() > i" [attr.aria-label]="'Năm ' + ch.year"
+            [attr.aria-current]="activeIndex() === i ? 'step' : null" (click)="goTo(i)">
+            <span class="tl-dot"></span>
+            <span class="tl-label">
+              <span class="tl-year">{{ ch.year }}</span>
+              <span class="tl-tag">{{ ch.tagName }}</span>
+            </span>
+          </button>
+        </li>
+        }
+      </ol>
+    </div>
+  </nav>
+
+  <div class="album-stage">
+    <div class="book-shift">
+      <div class="book-shadow" aria-hidden="true"></div>
+      <div class="book-tilt">
+        <div class="book">
+          <!-- Bìa cứng phía sau, mở ra khi lật tờ đầu tiên -->
+          <div class="book-board" aria-hidden="true"></div>
+
+          <!-- Mỗi tờ giấy có mặt trước (trang phải) và mặt sau (trang trái của cặp trang kế) -->
+          @for (leaf of leaves; track leaf.index) {
+          <div class="leaf" [class.leaf-cover]="leaf.index === 0" [class.leaf-end]="leaf.index === chapters.length">
+
+            <!-- MẶT TRƯỚC: bìa (tờ 0) hoặc trang chữ của chương -->
+            <div class="face face-front">
+              @if (leaf.text; as ch) {
+              <div class="page text-page">
+                <div class="page-inner">
+                  <div class="t-head">
+                    <span class="phase-num">{{ ch.phase }}</span>
+                    <span class="t-mini">PHIN XƯA • ALBUM</span>
+                  </div>
+
+                  <p class="year">
+                    <span class="w"><span class="wi">{{ ch.year }}</span></span>
+                  </p>
+
+                  <h3 class="title">
+                    @for (w of ch.titleWords; track $index) {
+                    <span class="w"><span class="wi">{{ w }}</span></span>
+                    }
+                  </h3>
+
+                  <div class="orn" aria-hidden="true"><i></i></div>
+
+                  <p class="text">
+                    @for (w of ch.textWords; track $index) {
+                    <span class="w"><span class="wi">{{ w }}</span></span>
+                    }
+                  </p>
+
+                  <ul class="facts">
+                    @for (f of ch.facts; track f.k) {
+                    <li class="fact"><b>{{ f.v }}</b><span>{{ f.k }}</span></li>
+                    }
+                  </ul>
+
+                  @if (leaf.index === chapters.length) {
+                  <a href="#menu" class="cta">Thưởng thức mẻ phin thập kỷ</a>
+                  }
+
+                  <span class="pg pg-right">{{ leaf.index * 2 + 1 }}</span>
+                </div>
+              </div>
+              } @else {
+              <div class="page cover">
+                <span class="cloth" aria-hidden="true"></span>
+                <span class="spine" aria-hidden="true"></span>
+                <span class="corner c1" aria-hidden="true"></span>
+                <span class="corner c2" aria-hidden="true"></span>
+                <span class="frame" aria-hidden="true"></span>
+                <div class="page-inner cover-inner">
+                  <div class="emblem" aria-hidden="true">
+                    <svg viewBox="0 0 120 120" focusable="false">
+                      <circle class="ring" cx="60" cy="60" r="56" />
+                      <circle class="ring dots" cx="60" cy="60" r="50" />
+                      <g class="steam">
+                        <path d="M49 33c-5-5 4-8-1-14" />
+                        <path d="M60 31c-5-5 4-8-1-14" />
+                        <path d="M71 33c-5-5 4-8-1-14" />
+                      </g>
+                      <circle cx="60" cy="39" r="2.6" />
+                      <path d="M45 46c0-5 6-7 15-7s15 2 15 7Z" />
+                      <path d="M43 48h34l-4 15H47Z" />
+                      <path d="M38 63h44" />
+                      <circle class="drop" cx="60" cy="70" r="1.8" />
+                      <path d="M46 78h28l-3 20q-11 3.5-22 0Z" />
+                      <path d="M48.5 90h23" class="liquid" />
+                    </svg>
+                  </div>
+                  <p class="kicker">NHẬT KÝ PHIN XƯA</p>
+
+                  <div class="label">
+                    <h2 class="cover-title" id="about-title">
+                      <span class="line">
+                        @for (w of coverLine1; track $index) {
+                        <span class="w"><span class="wi">{{ w }}</span></span>
+                        }
+                      </span>
+                      <span class="line em">
+                        @for (w of coverLine2; track $index) {
+                        <span class="w"><span class="wi">{{ w }}</span></span>
+                        }
+                      </span>
+                    </h2>
+                    <div class="seal">THẬP KỶ<br />PHIN XƯA</div>
+                  </div>
+
+                  <p class="years">2016 — 2026</p>
+                  <p class="kicker sub">MỘT THẬP KỶ GÌN GIỮ HỒN CỐT CÀ PHÊ SÀI GÒN</p>
+
+                  <p class="hint">
+                    <span class="h-book">CUỘN ĐỂ LẬT TRANG</span>
+                    <span class="h-swipe">VUỐT NGANG ĐỂ XEM →</span>
+                    <i class="hint-arrow"></i>
+                  </p>
+                  <span class="stain" aria-hidden="true"></span>
+                </div>
+              </div>
+              }
+              <div class="shade" aria-hidden="true"></div>
+              <div class="cast" aria-hidden="true"></div>
+            </div>
+
+            <!-- MẶT SAU: trang ảnh polaroid lơ lửng của chương -->
+            @if (leaf.photos; as ph) {
+            <div class="face face-back">
+              <div class="page photo-page">
+                <span class="ghost" aria-hidden="true">{{ ph.year }}</span>
+                <div class="page-inner">
+                  @for (p of ph.photos; track p.src) {
+                  <figure class="polaroid" [style.--x]="p.x" [style.--y]="p.y" [style.--w]="p.w" [style.--r]="p.r"
+                    [style.--z]="p.z" [attr.data-depth]="p.depth">
+                    <div class="drift">
+                      <div class="float">
+                        <div class="card">
+                          <div class="photo" [class.arch]="p.arch" [style.--ar]="p.ratio" [style.--c1]="p.c1"
+                            [style.--c2]="p.c2">
+                            <div class="photo-inner">
+                              <img [src]="p.src" [alt]="p.alt" loading="lazy" decoding="async"
+                                (error)="hideImg($event)" />
+                            </div>
+                          </div>
+                          <figcaption class="caption">{{ p.caption }}</figcaption>
+                        </div>
+                      </div>
+                    </div>
+                  </figure>
+                  }
+
+                  <figure class="polaroid" [style.--x]="ph.note.x" [style.--y]="ph.note.y" [style.--w]="ph.note.w"
+                    [style.--r]="ph.note.r" [style.--z]="3" [attr.data-depth]="ph.note.depth">
+                    <div class="drift">
+                      <div class="float">
+                        <div class="card note-card">
+                          <p class="note-main">{{ ph.note.main }}</p>
+                          <p class="note-sub">{{ ph.note.sub }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </figure>
+
+                  <span class="pg pg-left">{{ leaf.index * 2 + 2 }}</span>
+                </div>
+              </div>
+              <div class="shade" aria-hidden="true"></div>
+            </div>
+            } @else if (leaf.index === chapters.length) {
+            <!-- BÌA SAU: hiện ra khi lật tờ cuối, sách đóng lại -->
+            <div class="face face-back">
+              <div class="page back-cover">
+                <span class="cloth" aria-hidden="true"></span>
+                <span class="spine" aria-hidden="true"></span>
+                <span class="corner c1" aria-hidden="true"></span>
+                <span class="corner c2" aria-hidden="true"></span>
+                <span class="frame" aria-hidden="true"></span>
+                <div class="page-inner bc-inner">
+                  <div class="emblem bc-item" aria-hidden="true">
+                    <svg viewBox="0 0 120 120" focusable="false">
+                      <circle class="ring" cx="60" cy="60" r="56" />
+                      <circle class="ring dots" cx="60" cy="60" r="50" />
+                      <g class="steam">
+                        <path d="M49 33c-5-5 4-8-1-14" />
+                        <path d="M60 31c-5-5 4-8-1-14" />
+                        <path d="M71 33c-5-5 4-8-1-14" />
+                      </g>
+                      <circle cx="60" cy="39" r="2.6" />
+                      <path d="M45 46c0-5 6-7 15-7s15 2 15 7Z" />
+                      <path d="M43 48h34l-4 15H47Z" />
+                      <path d="M38 63h44" />
+                      <circle class="drop" cx="60" cy="70" r="1.8" />
+                      <path d="M46 78h28l-3 20q-11 3.5-22 0Z" />
+                      <path d="M48.5 90h23" class="liquid" />
+                    </svg>
+                  </div>
+                  <p class="kicker bc-item">HẸN GẶP LẠI</p>
+                  <p class="bc-quote bc-item">Mỗi ly phin là một trang nhật ký mới, chúng tôi viết tiếp cùng bạn.</p>
+                  <a href="#menu" class="cta-end bc-item">Thưởng thức mẻ phin thập kỷ</a>
+                  <p class="bc-foot bc-item">PHIN XƯA COFFEE • SÀI GÒN • 2016</p>
+                </div>
+              </div>
+              <div class="shade" aria-hidden="true"></div>
+            </div>
+            }
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

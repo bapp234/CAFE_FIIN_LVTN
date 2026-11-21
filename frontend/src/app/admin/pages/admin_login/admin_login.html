@@ -1,0 +1,151 @@
+<main class="login-wrapper" [class.is-staff-portal]="isStaffPortal()">
+  <div class="login-container">
+    <!-- Brand Header -->
+    <header class="brand-header">
+      <div class="brand-logo-wrap">
+        <app-brand-logo></app-brand-logo>
+      </div>
+      <div class="brand-meta">
+        <span class="brand-sub">
+          @if (isStaffPortal()) {
+            Cà Phê Fiin · Cổng Tự Phục Vụ Nhân Viên
+          } @else {
+            Cà Phê Fiin · Hệ Thống Quản Trị
+          }
+        </span>
+        <h1 class="brand-title">
+          @if (isStaffPortal()) {
+            Cổng Nhân Viên &amp; Trưởng Ca
+          } @else {
+            Cổng Điều Hành Doanh Nghiệp
+          }
+        </h1>
+      </div>
+    </header>
+
+    <!-- Portal Switch Bar -->
+    <div class="portal-switch-bar">
+      <a routerLink="/admin/login" class="portal-tab" [class.is-active]="!isStaffPortal()">
+        Cổng Quản trị
+      </a>
+      <a routerLink="/staff/login" class="portal-tab" [class.is-active]="isStaffPortal()">
+        Cổng Nhân viên
+      </a>
+    </div>
+
+    <!-- Login Card -->
+    <section class="card login-card" aria-labelledby="login-title">
+      <div class="card-header">
+        <div class="card-title-row">
+          <span class="icon-chip" aria-hidden="true">
+            <svg lucideLock class="icon-chip-svg"></svg>
+          </span>
+          <div>
+            <h2 id="login-title" class="card-heading">
+              {{ isStaffPortal() ? 'Đăng nhập Cổng Nhân viên' : 'Đăng nhập Cổng Quản trị' }}
+            </h2>
+            <p class="card-desc">
+              @if (isStaffPortal()) {
+                Nhập tài khoản nhân sự vận hành để truy cập cổng tự phục vụ.
+              } @else {
+                Nhập thông tin xác thực để truy cập bảng điều khiển quản trị.
+              }
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Alert -->
+      @if (errorMessage(); as err) {
+        <div class="alert-error" role="alert">
+          <svg lucideAlertCircle class="alert-icon" aria-hidden="true"></svg>
+          <div class="alert-content">
+            <span class="alert-text">{{ err }}</span>
+            @if (wrongPortalRedirect()) {
+              <button type="button" class="btn-portal-redirect" (click)="goToSuggestedPortal()">
+                Chuyển sang Cổng Nhân viên →
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Form -->
+      <form class="login-form" (ngSubmit)="onSubmit()" novalidate autocomplete="off">
+        <div class="form-field">
+          <label for="admin-identifier" class="form-label">Tên đăng nhập / Email / Mã NV</label>
+          <div class="input-wrap">
+            <span class="input-icon" aria-hidden="true">
+              <svg lucideMail class="icon-svg"></svg>
+            </span>
+            <input
+              id="admin-identifier"
+              name="admin-identifier"
+              type="text"
+              class="form-input"
+              placeholder="Nhập tên đăng nhập, email hoặc mã NV..."
+              [value]="identifier()"
+              (input)="identifier.set($any($event.target).value)"
+              autocomplete="off"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="admin-password" class="form-label">Mật khẩu</label>
+          <div class="input-wrap">
+            <span class="input-icon" aria-hidden="true">
+              <svg lucideLock class="icon-svg"></svg>
+            </span>
+            <input
+              id="admin-password"
+              name="admin-password"
+              [type]="showPassword() ? 'text' : 'password'"
+              class="form-input"
+              placeholder="Nhập mật khẩu..."
+              [value]="password()"
+              (input)="password.set($any($event.target).value)"
+              autocomplete="new-password"
+              required
+            />
+            <button
+              type="button"
+              class="btn-toggle-pass"
+              (click)="toggleShowPassword()"
+              [attr.aria-label]="showPassword() ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
+            >
+              @if (showPassword()) {
+                <svg lucideEyeOff class="toggle-svg"></svg>
+              } @else {
+                <svg lucideEye class="toggle-svg"></svg>
+              }
+            </button>
+          </div>
+        </div>
+
+        <div class="security-note">
+          <svg lucideShieldCheck class="shield-svg" aria-hidden="true"></svg>
+          <span>Mỗi tài khoản chỉ duy trì <strong>1 phiên đăng nhập</strong> tại cùng một thời điểm.</span>
+        </div>
+
+        <button type="submit" class="btn-submit" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Đang xác thực...</span>
+          } @else {
+            <span>{{ isStaffPortal() ? 'Đăng nhập Cổng Nhân viên' : 'Đăng nhập Cổng Quản trị' }}</span>
+            <svg lucideArrowRight class="btn-arrow" aria-hidden="true"></svg>
+          }
+        </button>
+      </form>
+    </section>
+
+    <!-- Footer Back Link -->
+    <footer class="login-footer">
+      <a routerLink="/" class="back-link">
+        ← Quay lại trang chủ khách hàng Cà Phê Fiin
+      </a>
+    </footer>
+  </div>
+</main>

@@ -1,0 +1,42 @@
+<div class="header-sub-bar">
+  <div class="sub-bar-container">
+    <!-- Nút bật/tắt Danh mục sản phẩm & Dropdown (cho các trang ngoài Home) -->
+    <div class="cat-dropdown-wrapper">
+      <button
+        type="button"
+        class="cat-toggle-btn"
+        [class.is-active]="isSidebarOpen()"
+        [attr.aria-expanded]="isSidebarOpen()"
+        aria-label="Đóng mở danh mục sản phẩm"
+        (click)="onToggleSidebar()"
+      >
+        <svg lucideMenu class="cat-menu-icon"></svg>
+        <span>Danh mục sản phẩm</span>
+      </button>
+
+      @if (isDropdownMode() && isSidebarOpen()) {
+        <!-- Lớp nền bấm ngoài để đóng dropdown -->
+        <div class="dropdown-backdrop" (click)="onCloseDropdown()" aria-hidden="true"></div>
+
+        <!-- Khung dropdown danh mục thả xuống -->
+        <div class="dropdown-panel" role="region" aria-label="Danh mục sản phẩm thả xuống">
+          <app-widget-home-sidebar
+            [categories]="categories()"
+            [isOpen]="true"
+            [isDropdown]="true"
+            (closed)="onCloseDropdown()"
+          />
+        </div>
+      }
+    </div>
+
+    <!-- Các liên kết nhanh -->
+    <nav class="sub-nav-links" aria-label="Liên kết nhanh">
+      @for (link of links(); track link.path) {
+        <a [routerLink]="link.path" class="sub-nav-link">
+          <span>{{ link.label }}</span>
+        </a>
+      }
+    </nav>
+  </div>
+</div>

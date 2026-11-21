@@ -1,0 +1,615 @@
+<div class="profile-page">
+  <!-- TRƯỜNG HỢP 1: BIỂU MẪU TIẾP NHẬN NHÂN VIÊN MỚI (CREATE MODE) -->
+  @if (isCreateMode()) {
+  <div class="create-card">
+    <div class="card-header">
+      <h1 class="card-title">Tiếp nhận nhân sự mới</h1>
+    </div>
+
+    <form class="create-form" [formGroup]="employeeForm" (ngSubmit)="saveEmployee()">
+      <!-- Nhóm 1: Thông tin cá nhân -->
+      <div class="form-group-box">
+        <div class="group-title">
+          <svg lucideUser class="group-icon" aria-hidden="true"></svg>
+          <span>1. Thông tin cá nhân & Liên hệ</span>
+        </div>
+        <div class="grid-2-col">
+          <app-admin-form-field label="Họ và tên nhân viên" htmlFor="emp-fullName" [required]="true"
+            [error]="employeeForm.controls.fullName.touched && employeeForm.controls.fullName.invalid ? 'Họ tên bắt buộc, tối thiểu 3 ký tự' : null">
+            <input id="emp-fullName" type="text" formControlName="fullName" placeholder="Ví dụ: Đặng Quốc Anh" />
+          </app-admin-form-field>
+
+          <app-admin-form-field label="Số điện thoại" htmlFor="emp-phone" [required]="true"
+            [error]="employeeForm.controls.phone.touched && employeeForm.controls.phone.invalid ? 'Số điện thoại không hợp lệ (9-12 chữ số)' : null">
+            <input id="emp-phone" type="tel" formControlName="phone" placeholder="Ví dụ: 0901 234 567" />
+          </app-admin-form-field>
+        </div>
+
+        <div class="grid-3-col">
+          <app-admin-form-field label="Email liên hệ" htmlFor="emp-email">
+            <input id="emp-email" type="email" formControlName="email" placeholder="quocanh@fiin.vn" />
+          </app-admin-form-field>
+
+          <app-admin-form-field label="Ngày sinh" htmlFor="emp-dob">
+            <input id="emp-dob" type="date" formControlName="dateOfBirth" />
+          </app-admin-form-field>
+
+          <app-admin-form-field label="Giới tính" htmlFor="emp-gender">
+            <select id="emp-gender" formControlName="gender">
+              <option value="male">Nam</option>
+              <option value="female">Nữ</option>
+              <option value="other">Khác</option>
+            </select>
+          </app-admin-form-field>
+        </div>
+      </div>
+
+      <!-- Nhóm 2: Tài khoản đăng nhập hệ thống -->
+      <div class="form-group-box">
+        <div class="group-title">
+          <svg lucideLock class="group-icon" aria-hidden="true"></svg>
+          <span>2. Tài khoản đăng nhập hệ thống nội bộ <em class="opt-note">(không bắt buộc)</em></span>
+        </div>
+        <div class="grid-2-col">
+          <app-admin-form-field label="Tên đăng nhập (Username)" htmlFor="emp-username"
+            [error]="employeeForm.controls.username.touched && employeeForm.controls.username.invalid ? 'Username tối thiểu 3 ký tự' : null">
+            <input id="emp-username" type="text" formControlName="username" placeholder="Ví dụ: quocanh.barista" />
+          </app-admin-form-field>
+
+          <app-admin-form-field label="Mật khẩu khởi tạo" htmlFor="emp-password"
+            [error]="employeeForm.controls.password.touched && employeeForm.controls.password.invalid ? 'Mật khẩu tối thiểu 6 ký tự' : null">
+            <div class="password-input-wrap">
+              <input id="emp-password" [type]="showPassword() ? 'text' : 'password'" formControlName="password"
+                placeholder="Để trống nếu tạo tài khoản sau" />
+              <button type="button" class="btn-toggle-pwd" (click)="showPassword.set(!showPassword())"
+                aria-label="Ẩn / hiện mật khẩu">
+                @if (showPassword()) {
+                <svg lucideEyeOff class="pwd-icon" aria-hidden="true"></svg>
+                } @else {
+                <svg lucideEye class="pwd-icon" aria-hidden="true"></svg>
+                }
+              </button>
+            </div>
+          </app-admin-form-field>
+        </div>
+      </div>
+
+      <!-- Nhóm 3: Định danh & Tài khoản ngân hàng -->
+      <div class="form-group-box">
+        <div class="group-title">
+          <svg lucideCreditCard class="group-icon" aria-hidden="true"></svg>
+          <span>3. Định danh & Tài khoản chi trả lương <em class="opt-note">(không bắt buộc)</em></span>
+        </div>
+        <div class="grid-3-col">
+          <app-admin-form-field label="Số CCCD (12 chữ số)" htmlFor="emp-citizenId"
+            [error]="employeeForm.controls.citizenId.touched && employeeForm.controls.citizenId.invalid ? 'CCCD phải đủ 12 chữ số' : null">
+            <input id="emp-citizenId" type="text" maxlength="12" formControlName="citizenId"
+              placeholder="079000012345" />
+          </app-admin-form-field>
+
+          <app-admin-form-field label="Ngân hàng thụ hưởng" htmlFor="emp-bankName">
+            <select id="emp-bankName" formControlName="bankName">
+              <option value="">— Chưa chọn —</option>
+              <option value="Vietcombank">Vietcombank</option>
+              <option value="MB Bank">MB Bank</option>
+              <option value="Techcombank">Techcombank</option>
+              <option value="ACB">ACB</option>
+              <option value="BIDV">BIDV</option>
+              <option value="VietinBank">VietinBank</option>
+              <option value="TPBank">TPBank</option>
+              <option value="VPBank">VPBank</option>
+            </select>
+          </app-admin-form-field>
+
+          <app-admin-form-field label="Số tài khoản ngân hàng" htmlFor="emp-bankAcc">
+            <input id="emp-bankAcc" type="text" formControlName="bankAccountNumber" placeholder="1000987654" />
+          </app-admin-form-field>
+        </div>
+      </div>
+
+      <div class="form-actions-bottom">
+        <button type="button" class="btn-tool" (click)="cancelCreate()" [disabled]="isSubmitting()">
+          Hủy bỏ
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? 'Đang lưu vào CSDL SQL Server...' : 'Xác nhận tạo hồ sơ nhân viên' }}
+        </button>
+      </div>
+    </form>
+  </div>
+  }
+
+  <!-- TRƯỜNG HỢP 2: BỊ CHẶN QUYỀN TRUY CẬP THEO CÂY PHẢ HỆ -->
+  @else if (accessDenied()) {
+  <div class="access-denied-card">
+    <div class="denied-icon-wrap">
+      <svg lucideAlertCircle class="denied-icon" aria-hidden="true"></svg>
+    </div>
+    <h2 class="denied-title">Truy cập bị từ chối · Phân quyền Cây phả hệ</h2>
+    <p class="denied-message">{{ accessDeniedMessage() }}</p>
+    <div class="denied-note">
+      Quy tắc hệ thống: Nhân sự cấp dưới không được quyền tra cứu hoặc can thiệp vào hồ sơ, mức lương và thông tin định
+      danh của các cấp quản lý cao hơn.
+    </div>
+    <div class="denied-actions">
+      <button type="button" class="btn-primary" (click)="viewMyOwnProfile()">
+        Xem hồ sơ của tôi
+      </button>
+    </div>
+  </div>
+  }
+
+  <!-- TRƯỜNG HỢP 3: XEM CHI TIẾT HỒ SƠ NHÂN VIÊN (VIEW PROFILE MODE) -->
+  @else if (employee(); as emp) {
+  <div class="fb-profile">
+    <!-- HÀNG DANH TÍNH: AVATAR ĐÈ LÊN ẢNH BÌA + TÊN + NÚT THAO TÁC -->
+    <header class="fb-header">
+      <!-- THANH TAB: CHỌN NHÂN SỰ (KHI CÓ QUYỀN) + ĐÓNG/MỞ KHỐI -->
+      <nav class="fb-tabbar">
+      @if (canViewOthers()) {
+      <div class="combobox-wrapper">
+        <div class="combobox-trigger" (click)="toggleCombobox()">
+          <div class="cb-current-selected">
+            <span class="cb-code-pill">{{ emp.employeeCode || emp.code }}</span>
+            <span class="cb-name-text">{{ emp.fullName }}</span>
+          </div>
+          @if (isComboboxOpen()) {
+          <svg lucideChevronUp class="cb-chevron" aria-hidden="true"></svg>
+          } @else {
+          <svg lucideChevronDown class="cb-chevron" aria-hidden="true"></svg>
+          }
+        </div>
+
+        <!-- Dropdown danh sách nhân sự -->
+        @if (isComboboxOpen()) {
+        <div class="combobox-backdrop" (click)="closeCombobox()"></div>
+        <div class="combobox-dropdown">
+          <div class="cb-search-input-box" (click)="$event.stopPropagation()">
+            <svg lucideSearch class="cb-input-icon" aria-hidden="true"></svg>
+            <input type="text" class="cb-input" placeholder="Nhập tên, mã NV, CCCD, chức vụ..."
+              [value]="comboboxSearch()" (input)="onComboboxSearchInput($any($event.target).value)" autofocus />
+          </div>
+
+          <!-- Mục chọn về hồ sơ của tôi -->
+          <div class="cb-item cb-item-my-profile" (click)="viewMyOwnProfile()">
+            <svg lucideUserCheck class="cb-my-icon" aria-hidden="true"></svg>
+            <div class="cb-item-info">
+              <span class="cb-item-name">Về hồ sơ của tôi</span>
+              <span class="cb-item-sub">Tài khoản đăng nhập hiện tại ({{ adminSession.user()?.name }})</span>
+            </div>
+          </div>
+
+          <div class="cb-divider"></div>
+
+          <!-- Danh sách nhân sự được phân quyền xem (Hỗ trợ phân trang lười khi cuộn) -->
+          <div class="cb-list-scroll" (scroll)="onComboboxScroll($event)">
+            @for (item of filteredEmployees(); track (item.employeeCode || item.code || item.id)) {
+            <div class="cb-item" [class.active]="(item.employeeCode || item.code) === (emp.employeeCode || emp.code)"
+              (click)="selectEmployee(item)">
+              <span class="cb-item-code">{{ item.employeeCode || item.code }}</span>
+              <div class="cb-item-info">
+                <span class="cb-item-name">{{ item.fullName }}</span>
+                <span class="cb-item-sub">{{ item.position }} · {{ item.branchName }}</span>
+              </div>
+            </div>
+            } @empty {
+            <div class="cb-empty">Không tìm thấy nhân sự nào phù hợp</div>
+            }
+            @if (isComboboxLoadingMore()) {
+            <div class="cb-loading-more">Đang tải thêm 10 nhân sự tiếp theo...</div>
+            }
+            @if (accessibleEmployees().length >= comboboxTotal() && comboboxTotal() > 0) {
+            <div class="cb-end-hint">Đã hiển thị {{ accessibleEmployees().length }} / {{ comboboxTotal() }} nhân sự được phân quyền</div>
+            }
+          </div>
+        </div>
+        }
+      </div>
+      } @else {
+      <div class="cb-current-selected">
+        <span class="cb-code-pill">{{ emp.employeeCode || emp.code }}</span>
+        <span class="cb-name-text">Hồ sơ cá nhân · {{ emp.fullName }}</span>
+      </div>
+      }
+
+        <div class="toolbar-actions">
+          <button type="button" class="btn-toggle-all" (click)="expandAllSections()">Mở rộng tất cả</button>
+          <span class="sep">|</span>
+          <button type="button" class="btn-toggle-all" (click)="collapseAllSections()">Thu gọn tất cả</button>
+        </div>
+      </nav>
+
+      <div class="fb-header-main">
+        <div class="fb-avatar">
+          <span class="avatar-initial">{{ emp.fullName.charAt(0).toUpperCase() }}</span>
+        </div>
+
+        <div class="fb-who">
+          <h1 class="emp-name">{{ emp.fullName }}</h1>
+        </div>
+
+        <div class="fb-actions">
+          @if (isEditing()) {
+          <button type="button" class="btn-cancel-edit" (click)="cancelEdit()" [disabled]="isSubmitting()">
+            <svg lucideX class="btn-icon" aria-hidden="true"></svg>
+            <span>Hủy</span>
+          </button>
+          <button type="button" class="btn-save-edit" (click)="saveEdit()" [disabled]="isSubmitting()">
+            <svg lucideSave class="btn-icon" aria-hidden="true"></svg>
+            <span>{{ isSubmitting() ? 'Đang lưu...' : 'Lưu' }}</span>
+          </button>
+          }
+
+          @if (canCreateEmployee()) {
+          <button type="button" class="btn-primary" (click)="openCreateMode()" [disabled]="isEditing()">
+            <svg lucidePlus class="btn-icon" aria-hidden="true"></svg>
+            <span>Thêm nhân viên mới</span>
+          </button>
+          }
+        </div>
+      </div>
+    </header>
+
+    <!-- THÂN TRANG: CỘT GIỚI THIỆU (TRÁI, DÍNH) + CÁC KHỐI HỒ SƠ (PHẢI) -->
+    <div class="profile-layout">
+      <aside class="identity-column">
+        <div class="identity-card">
+          <h2 class="intro-title">Giới thiệu</h2>
+          <div class="quick-contact-list">
+            <div class="qc-item">
+              <svg lucideUser class="qc-icon" aria-hidden="true"></svg>
+              <span>{{ emp.position }}</span>
+            </div>
+            <div class="qc-item">
+              <svg lucideBuilding class="qc-icon" aria-hidden="true"></svg>
+              <span>Làm việc tại <strong>{{ emp.branchName }}</strong></span>
+            </div>
+            <div class="qc-item">
+              <svg lucidePhone class="qc-icon" aria-hidden="true"></svg>
+              <span>{{ emp.phoneNumber || emp.phone || 'Chưa cập nhật' }}</span>
+            </div>
+            <div class="qc-item">
+              <svg lucideMail class="qc-icon" aria-hidden="true"></svg>
+              <span class="truncate">{{ emp.email || 'Chưa cập nhật' }}</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="dossier-column">
+      <!-- Khối 1: Thông tin lý lịch & Định danh công dân -->
+      <section class="accordion-section" [class.is-collapsed]="!openSections()['info']">
+        <header class="section-toggle-header" (click)="toggleSection('info')">
+          <div class="header-left">
+            <svg lucideUser class="sec-icon" aria-hidden="true"></svg>
+            <h2 class="sec-title">1. Thông tin lý lịch & Định danh công dân</h2>
+          </div>
+          <div class="header-right">
+            @if (isEditing()) {
+            <span class="badge-editing">Đang chỉnh sửa</span>
+            } @else if (canCreateEmployee()) {
+            <button type="button" class="btn-sec-edit" (click)="startEditingSection('info', $event)" title="Chỉnh sửa thông tin phần này">
+              <svg lucidePencil class="btn-sec-edit-icon" aria-hidden="true"></svg>
+              <span>Sửa thông tin</span>
+            </button>
+            }
+
+            @if (!openSections()['info']) {
+            <span class="summary-hint">CCCD: {{ emp.citizenId || '—' }} · {{ emp.gender === 'female' ? 'Nữ' :
+              'Nam' }}</span>
+            <svg lucideChevronDown class="chevron-toggle" aria-hidden="true"></svg>
+            } @else {
+            <svg lucideChevronUp class="chevron-toggle" aria-hidden="true"></svg>
+            }
+          </div>
+        </header>
+
+        @if (openSections()['info']) {
+        <div class="section-content">
+          @if (!isEditing()) {
+          <div class="meta-grid-3">
+            <div class="meta-item">
+              <span class="meta-label">Số CCCD (12 số)</span>
+              <strong class="meta-val font-mono">{{ emp.citizenId || '—' }}</strong>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Ngày sinh</span>
+              <strong class="meta-val">{{ emp.dateOfBirth ? (emp.dateOfBirth | date:'dd/MM/yyyy') : '—' }}</strong>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Giới tính</span>
+              <strong class="meta-val">{{ emp.gender === 'female' ? 'Nữ' : 'Nam' }}</strong>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Số điện thoại cá nhân</span>
+              <strong class="meta-val">{{ emp.phoneNumber || emp.phone || '—' }}</strong>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Email liên hệ</span>
+              <strong class="meta-val">{{ emp.email || '—' }}</strong>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Tình trạng hồ sơ</span>
+              <strong class="meta-val text-green">
+                {{ emp.status === 'active' ? 'Đang làm việc / Hợp lệ' : (emp.status === 'probation' ? 'Đang thử việc' : 'Đã thôi việc') }}
+              </strong>
+            </div>
+          </div>
+          } @else {
+          <div class="edit-grid-3" [formGroup]="editForm">
+            <div class="edit-field">
+              <label class="edit-label" for="edit-emp-name">Họ và tên <span class="req">*</span></label>
+              <input id="edit-emp-name" type="text" class="edit-input" formControlName="fullName" placeholder="Nhập họ và tên..." />
+            </div>
+            <div class="edit-field">
+              <label class="edit-label" for="edit-emp-phone">Số điện thoại <span class="req">*</span></label>
+              <input id="edit-emp-phone" type="tel" class="edit-input" formControlName="phone" placeholder="0901 234 567" />
+            </div>
+            <div class="edit-field">
+              <label class="edit-label" for="edit-emp-email">Email liên hệ</label>
+              <input id="edit-emp-email" type="email" class="edit-input" formControlName="email" placeholder="email@fiin.vn" />
+            </div>
+            <div class="edit-field">
+              <label class="edit-label" for="edit-emp-citizenId">Số CCCD (12 số)</label>
+              <input id="edit-emp-citizenId" type="text" maxlength="12" class="edit-input font-mono" formControlName="citizenId" placeholder="079000012345" />
+            </div>
+            <div class="edit-field">
+              <label class="edit-label" for="edit-emp-dob">Ngày sinh</label>
+              <input id="edit-emp-dob" type="date" class="edit-input" formControlName="dateOfBirth" />
+            </div>
+            <div class="edit-field">
+              <label class="edit-label" for="edit-emp-gender">Giới tính</label>
+              <select id="edit-emp-gender" class="edit-select" formControlName="gender">
+                <option value="male">Nam</option>
+                <option value="female">Nữ</option>
+                <option value="other">Khác</option>
+              </select>
+            </div>
+            <div class="edit-field">
+              <label class="edit-label" for="edit-emp-status">Tình trạng hồ sơ</label>
+              <select id="edit-emp-status" class="edit-select" formControlName="status">
+                <option value="active">Đang làm việc</option>
+                <option value="probation">Đang thử việc</option>
+                <option value="resigned">Đã thôi việc</option>
+              </select>
+            </div>
+            <div class="edit-field">
+              <label class="edit-label" for="edit-emp-position">Chức danh / Vị trí</label>
+              <input id="edit-emp-position" type="text" class="edit-input" formControlName="position" placeholder="VD: Barista Chuyên nghiệp..." />
+            </div>
+            <div class="edit-field">
+              <label class="edit-label" for="edit-emp-branchId">Chi nhánh làm việc</label>
+              <select id="edit-emp-branchId" class="edit-select" formControlName="branchId">
+                <option [ngValue]="0">-- Giữ chi nhánh hiện tại --</option>
+                @for (b of branches(); track b.branchId) {
+                  <option [ngValue]="b.branchId">{{ b.branchName }}</option>
+                }
+              </select>
+            </div>
+          </div>
+          }
+        </div>
+        }
+      </section>
+
+      <!-- Khối 2: Tài khoản Ngân hàng chi trả lương -->
+      <section class="accordion-section" [class.is-collapsed]="!openSections()['bank']">
+        <header class="section-toggle-header" (click)="toggleSection('bank')">
+          <div class="header-left">
+            <svg lucideCreditCard class="sec-icon" aria-hidden="true"></svg>
+            <h2 class="sec-title">2. Tài khoản Ngân hàng chi trả lương</h2>
+          </div>
+          <div class="header-right">
+            @if (isEditing()) {
+            <span class="badge-editing">Đang chỉnh sửa</span>
+            } @else if (canCreateEmployee()) {
+            <button type="button" class="btn-sec-edit" (click)="startEditingSection('bank', $event)" title="Chỉnh sửa thông tin phần này">
+              <svg lucidePencil class="btn-sec-edit-icon" aria-hidden="true"></svg>
+              <span>Sửa thông tin</span>
+            </button>
+            }
+
+            @if (!openSections()['bank']) {
+            <span class="summary-hint">{{ emp.bankName || 'MB Bank' }} - {{ emp.bankAccountNumber || '1000987654'
+              }}</span>
+            <svg lucideChevronDown class="chevron-toggle" aria-hidden="true"></svg>
+            } @else {
+            <svg lucideChevronUp class="chevron-toggle" aria-hidden="true"></svg>
+            }
+          </div>
+        </header>
+
+        @if (openSections()['bank']) {
+        <div class="section-content">
+          @if (!isEditing()) {
+          <div class="meta-grid-3">
+            <div class="meta-item">
+              <span class="meta-label">Ngân hàng thụ hưởng</span>
+              <strong class="meta-val">{{ emp.bankName || '—' }}</strong>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Số tài khoản ngân hàng</span>
+              <strong class="meta-val font-mono">{{ emp.bankAccountNumber || '—' }}</strong>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Tên chủ tài khoản</span>
+              <strong class="meta-val font-uppercase">{{ emp.bankAccountName || emp.fullName || '—' }}</strong>
+            </div>
+          </div>
+          } @else {
+          <div class="edit-grid-3" [formGroup]="editForm">
+            <div class="edit-field">
+              <label class="edit-label" for="edit-emp-bankName">Ngân hàng thụ hưởng</label>
+              <select id="edit-emp-bankName" class="edit-select" formControlName="bankName">
+                <option value="">— Chưa chọn —</option>
+                <option value="Vietcombank">Vietcombank</option>
+                <option value="MB Bank">MB Bank</option>
+                <option value="Techcombank">Techcombank</option>
+                <option value="ACB">ACB</option>
+                <option value="BIDV">BIDV</option>
+                <option value="VietinBank">VietinBank</option>
+                <option value="TPBank">TPBank</option>
+                <option value="VPBank">VPBank</option>
+              </select>
+            </div>
+            <div class="edit-field">
+              <label class="edit-label" for="edit-emp-bankAccount">Số tài khoản ngân hàng</label>
+              <input id="edit-emp-bankAccount" type="text" class="edit-input font-mono" formControlName="bankAccountNumber" placeholder="1000987654" />
+            </div>
+            <div class="edit-field">
+              <label class="edit-label" for="edit-emp-bankAccountName">Tên chủ tài khoản</label>
+              <input id="edit-emp-bankAccountName" type="text" class="edit-input font-uppercase" formControlName="bankAccountName" placeholder="DANG QUOC ANH" />
+            </div>
+          </div>
+          }
+        </div>
+        }
+      </section>
+
+      <!-- Khối 3: Hợp đồng lao động & Mức lương hưởng -->
+      <section class="accordion-section" [class.is-collapsed]="!openSections()['contract']">
+        <header class="section-toggle-header" (click)="toggleSection('contract')">
+          <div class="header-left">
+            <svg lucideFileText class="sec-icon" aria-hidden="true"></svg>
+            <h2 class="sec-title">3. Hợp đồng lao động & Mức lương hưởng</h2>
+          </div>
+          <div class="header-right">
+            @if (isEditing()) {
+            <span class="badge-editing">Đang chỉnh sửa</span>
+            } @else if (canCreateEmployee()) {
+            <button type="button" class="btn-sec-edit" (click)="startEditingSection('contract', $event)" title="Chỉnh sửa thông tin phần này">
+              <svg lucidePencil class="btn-sec-edit-icon" aria-hidden="true"></svg>
+              <span>Sửa thông tin</span>
+            </button>
+            }
+
+            @if (!openSections()['contract']) {
+            <span class="summary-hint">{{ emp.contractName || 'Chưa ký hợp đồng' }} ({{
+              (isMonthlyContract(emp.contractCode, emp.contractName)
+                ? (emp.hourlyRate || 0) * 208
+                : (emp.hourlyRate || 0)
+              ).toLocaleString('vi-VN') }}{{ isMonthlyContract(emp.contractCode, emp.contractName) ? 'đ/tháng' : 'đ/h' }})</span>
+            <svg lucideChevronDown class="chevron-toggle" aria-hidden="true"></svg>
+            } @else {
+            <svg lucideChevronUp class="chevron-toggle" aria-hidden="true"></svg>
+            }
+          </div>
+        </header>
+
+        @if (openSections()['contract']) {
+        <div class="section-content">
+          @if (!isEditing()) {
+          <div class="contract-card-highlight">
+            <div class="c-head">
+              <div class="c-code">{{ emp.contractCode || 'CHƯA CÓ HĐ' }}</div>
+              <h3 class="c-name">{{ emp.contractName || 'Chưa ký hợp đồng' }}</h3>
+            </div>
+            <div class="c-rates">
+              <div class="rate-box">
+                @if (isMonthlyContract(emp.contractCode, emp.contractName)) {
+                  <span class="r-label">Lương tháng định mức:</span>
+                  <span class="r-value">{{ ((emp.hourlyRate || 0) * 208).toLocaleString('vi-VN') }}đ/tháng</span>
+                } @else {
+                  <span class="r-label">Lương tính theo giờ:</span>
+                  <span class="r-value">{{ (emp.hourlyRate || 0).toLocaleString('vi-VN') }}đ/giờ</span>
+                }
+              </div>
+              <div class="rate-box">
+                <span class="r-label">Phụ cấp trách nhiệm / ăn ca:</span>
+                <span class="r-value">{{ (emp.allowance || 0).toLocaleString('vi-VN') }}đ/tháng</span>
+              </div>
+            </div>
+            <p class="c-desc">
+              {{ emp.benefitsDescription || 'Chưa có thông tin phúc lợi hợp đồng.' }}
+            </p>
+          </div>
+          } @else {
+          <div class="edit-grid-3" [formGroup]="editForm">
+            <div class="edit-field">
+              <label class="edit-label" for="edit-emp-contractType">Loại hợp đồng</label>
+              <select
+                id="edit-emp-contractType"
+                class="edit-select"
+                formControlName="contractTypeId"
+                (change)="onEditContractTypeChange()"
+              >
+                <option [ngValue]="0">-- Chưa gán loại hợp đồng --</option>
+                @for (ct of contractTypes(); track ct.contractTypeId) {
+                  <option [ngValue]="ct.contractTypeId">{{ ct.contractName }}</option>
+                }
+              </select>
+            </div>
+            <div class="edit-field">
+              @if (isEditingMonthlyContract()) {
+                <label class="edit-label" for="edit-emp-monthlySalary">Lương tháng định mức (đ/tháng)</label>
+                <input
+                  id="edit-emp-monthlySalary"
+                  type="number"
+                  step="100000"
+                  min="0"
+                  class="edit-input"
+                  [value]="monthlySalaryInput()"
+                  (input)="onMonthlySalaryInput(+$any($event.target).value)"
+                />
+              } @else {
+                <label class="edit-label" for="edit-emp-hourlyRate">Lương tính theo giờ (đ/h)</label>
+                <input id="edit-emp-hourlyRate" type="number" step="1000" min="0" class="edit-input" formControlName="hourlyRate" />
+              }
+            </div>
+            <div class="edit-field">
+              <label class="edit-label" for="edit-emp-allowance">Phụ cấp trách nhiệm / ăn ca (đ/tháng)</label>
+              <input id="edit-emp-allowance" type="number" step="50000" min="0" class="edit-input" formControlName="allowance" />
+            </div>
+          </div>
+          }
+        </div>
+        }
+      </section>
+
+      <!-- Khối 4: Ghi chú chuyên môn & Nhận xét -->
+      <section class="accordion-section" [class.is-collapsed]="!openSections()['note']">
+        <header class="section-toggle-header" (click)="toggleSection('note')">
+          <div class="header-left">
+            <svg lucideAward class="sec-icon" aria-hidden="true"></svg>
+            <h2 class="sec-title">4. Ghi chú chuyên môn & Nhận xét</h2>
+          </div>
+          <div class="header-right">
+            @if (isEditing()) {
+            <span class="badge-editing">Đang chỉnh sửa</span>
+            } @else if (canCreateEmployee()) {
+            <button type="button" class="btn-sec-edit" (click)="startEditingSection('note', $event)" title="Chỉnh sửa thông tin phần này">
+              <svg lucidePencil class="btn-sec-edit-icon" aria-hidden="true"></svg>
+              <span>Sửa thông tin</span>
+            </button>
+            }
+
+            @if (!openSections()['note']) {
+            <span class="summary-hint truncate max-w-xs">{{ emp.note || 'Chứng chỉ Barista Specialty...' }}</span>
+            <svg lucideChevronDown class="chevron-toggle" aria-hidden="true"></svg>
+            } @else {
+            <svg lucideChevronUp class="chevron-toggle" aria-hidden="true"></svg>
+            }
+          </div>
+        </header>
+
+        @if (openSections()['note']) {
+        <div class="section-content">
+          @if (!isEditing()) {
+          <div class="note-box">
+            <p>{{ emp.note || 'Chứng chỉ Barista Specialty, quản lý ca sáng tốt, khả năng đào tạo nhân sự mới đạt tiêu
+              chuẩn chất lượng đồ uống Fiin Coffee.' }}</p>
+          </div>
+          } @else {
+          <div class="edit-field" [formGroup]="editForm">
+            <label class="edit-label" for="edit-emp-note">Ghi chú chuyên môn & Nhận xét</label>
+            <textarea id="edit-emp-note" class="edit-textarea" rows="3" formControlName="note" placeholder="Nhập ghi chú hoặc nhận xét chuyên môn..."></textarea>
+          </div>
+          }
+        </div>
+        }
+      </section>
+      </main>
+    </div>
+  </div>
+  }
+</div>

@@ -1,0 +1,177 @@
+<div class="schedule-grid-container" (click)="closeSlotDropdown()">
+  <!-- 1. Thanh điều hướng tuần & Thống kê ca -->
+  <div class="grid-header-bar">
+    <div class="nav-controls">
+      <button
+        type="button"
+        class="btn-nav"
+        (click)="changeWeek.emit('prev')"
+        title="Xem lịch tuần trước"
+      >
+        <svg lucideChevronLeft class="nav-icon" aria-hidden="true"></svg>
+        <span>Tuần trước</span>
+      </button>
+
+      <button
+        type="button"
+        class="btn-nav-today"
+        (click)="changeWeek.emit('today')"
+        title="Quay về tuần làm việc hiện tại"
+      >
+        <svg lucideCalendar class="today-icon" aria-hidden="true"></svg>
+        <span>Tuần này</span>
+      </button>
+
+      <button
+        type="button"
+        class="btn-nav"
+        (click)="changeWeek.emit('next')"
+        title="Xem lịch tuần sau"
+      >
+        <span>Tuần sau</span>
+        <svg lucideChevronRight class="nav-icon" aria-hidden="true"></svg>
+      </button>
+
+      <div class="week-range-badge">
+        <span class="range-text">{{ weekRangeLabel() }}</span>
+      </div>
+    </div>
+
+    <!-- Cụm bên phải: Thống kê & Chú thích ca -->
+    <div class="header-right-meta">
+      <div class="summary-pill">
+        <span class="sum-label">Tổng tuần:</span>
+        <strong class="sum-val">{{ totalScheduledShifts() }} ca</strong>
+        <span class="sum-sep">/</span>
+        <span class="sum-hours">{{ totalScheduledHours() }}h công</span>
+      </div>
+
+      <div class="legend">
+        <span class="legend-item"><span class="legend-dot dot-morning"></span>Ca Sáng</span>
+        <span class="legend-item"><span class="legend-dot dot-afternoon"></span>Ca Chiều</span>
+        <span class="legend-item"><span class="legend-dot dot-evening"></span>Ca Tối</span>
+        <span class="legend-item"><span class="legend-dot dot-full"></span>Ca Full</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Bảng Ma Trận Lịch Phân Ca 7 Ngày -->
+  <div class="matrix-scroll">
+    <table class="schedule-matrix">
+      <thead>
+        <tr>
+          <th class="col-emp-name">
+            <span class="th-title">Nhân sự / Chức vụ</span>
+          </th>
+          @for (day of daysOfWeek(); track day.fullDate) {
+            <th class="col-day" [class.col-today]="day.isToday">
+              <div class="day-head">
+                <span class="day-name">{{ day.dayName }}</span>
+                <span class="day-date">{{ day.displayDate }}</span>
+                @if (day.isToday) {
+                  <span class="today-tag">Hôm nay</span>
+                }
+              </div>
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (emp of employees(); track emp.id) {
+          <tr>
+            <!-- Cột thông tin nhân viên -->
+            <td class="col-emp-info">
+              <div class="emp-row">
+                <div class="emp-avatar-circle">
+                  <span>{{ emp.fullName.charAt(0).toUpperCase() }}</span>
+                </div>
+                <div class="emp-meta">
+                  <div class="emp-top-line">
+                    <span class="emp-code-badge">{{ emp.code }}</span>
+                    <strong class="emp-name" [title]="emp.fullName">{{ emp.fullName }}</strong>
+                  </div>
+                  <span class="emp-sub" [title]="emp.position">{{ emp.position }} · {{ emp.branchName }}</span>
+                </div>
+              </div>
+            </td>
+
+            <!-- 7 Cột các ngày trong tuần -->
+            @for (day of daysOfWeek(); track day.fullDate) {
+              <td class="col-slot" [class.col-today-slot]="day.isToday">
+                @if (getAssignment(emp.id, day.fullDate); as asg) {
+                  <!-- Thẻ Ca Làm Đã Được Phân Bổ -->
+                  <div
+                    class="asg-card"
+                    [class.asg-morning]="asg.shiftCode === 'CA-SANG'"
+                    [class.asg-afternoon]="asg.shiftCode === 'CA-CHIEU'"
+                    [class.asg-evening]="asg.shiftCode === 'CA-TOI'"
+                    [class.asg-full]="asg.shiftCode === 'CA-FULL'"
+                  >
+                    <div class="asg-content">
+                      <div class="asg-top">
+                        <strong class="asg-code">{{ asg.shiftCode }}</strong>
+                        <button
+                          type="button"
+                          class="btn-asg-del"
+                          title="Hủy ca này"
+                          (click)="onDeleteAssignment(asg.id, $event)"
+                        >
+                          <svg lucideX class="del-icon" aria-hidden="true"></svg>
+                        </button>
+                      </div>
+                      <div class="asg-time-row">
+                        <svg lucideClock class="time-icon" aria-hidden="true"></svg>
+                        <span class="asg-time">{{ asg.startTime }} - {{ asg.endTime }}</span>
+                      </div>
+                    </div>
+                  </div>
+                } @else {
+                  <!-- Ô Trống: Nút Xếp Ca & Dropdown Chọn Nhanh -->
+                  <div class="empty-slot-wrap">
+                    <button
+                      type="button"
+                      class="btn-add-shift"
+                      title="Chọn ca làm việc cho ngày này"
+                      (click)="toggleSlotDropdown(emp.id, day.fullDate, $event)"
+                    >
+                      <svg lucidePlus class="add-icon" aria-hidden="true"></svg>
+                      <span>Xếp ca</span>
+                    </button>
+
+                    <!-- Popover Dropdown Chọn Mẫu Ca -->
+                    @if (activeSlot()?.empId === emp.id && activeSlot()?.date === day.fullDate) {
+                      <div class="shift-popover" (click)="$event.stopPropagation()">
+                        <div class="popover-title">Chọn ca làm việc:</div>
+                        <div class="popover-list">
+                          @for (st of shiftTemplates(); track st.id) {
+                            <button
+                              type="button"
+                              class="popover-item"
+                              (click)="onSelectShift(emp, day.fullDate, st)"
+                            >
+                              <div class="item-left">
+                                <span class="item-code">{{ st.code }}</span>
+                                <span class="item-name">{{ st.name }}</span>
+                              </div>
+                              <span class="item-time">{{ st.startTime }} - {{ st.endTime }}</span>
+                            </button>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="8" class="empty-matrix-row">
+              Không có nhân sự nào đang hoạt động trong chi nhánh này.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

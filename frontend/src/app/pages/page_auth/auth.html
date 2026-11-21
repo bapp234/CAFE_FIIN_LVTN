@@ -1,0 +1,237 @@
+<main class="auth-page">
+  <!-- Cột hình ảnh (ẩn trên mobile) -->
+  <aside class="auth-visual" aria-hidden="true">
+    <img [src]="bgImage" alt="" class="auth-visual-img" decoding="async" draggable="false" />
+    <div class="auth-visual-scrim"></div>
+  </aside>
+
+  <!-- Cột form -->
+  <section class="auth-panel">
+    <a routerLink="/" class="auth-back"> Về trang chủ</a>
+
+    <div class="auth-card">
+      <header class="auth-head">
+        <h1 class="auth-title">{{ title() }}</h1>
+        <p class="auth-subtitle">{{ subtitle() }}</p>
+      </header>
+
+      <!-- Thông báo -->
+      <div class="auth-alerts" aria-live="polite">
+        @if (errorMsg()) {
+        <div class="auth-alert auth-alert--error" role="alert">
+          <p>{{ errorMsg() }}</p>
+          @if (unverifiedEmail()) {
+          <button type="button" class="link" style="margin-top:6px" (click)="onResendVerification()">
+            Gửi lại liên kết xác thực Gmail
+          </button>
+          }
+        </div>
+        }
+        @if (successMsg()) {
+        <div class="auth-alert auth-alert--success" role="status">
+          <p>{{ successMsg() }}</p>
+          @if (devActionLink(); as link) {
+          <p style="margin-top:8px;word-break:break-all;font-size:12px">
+            <strong>Liên kết test (Dev):</strong>
+            <a [href]="link" class="link">{{ link }}</a>
+          </p>
+          }
+        </div>
+        }
+      </div>
+
+      @switch (mode()) {
+      <!-- ================= ĐĂNG NHẬP ================= -->
+      @case ('login') {
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form" novalidate>
+        <app-input-floating
+          id="login-email"
+          label="Email"
+          type="email"
+          formControlName="email"
+          autocomplete="email"
+          [errorMessage]="fieldError(loginForm, 'email')"
+        ></app-input-floating>
+
+        <app-input-floating
+          id="login-password"
+          label="Mật khẩu"
+          type="password"
+          formControlName="password"
+          autocomplete="current-password"
+          [errorMessage]="fieldError(loginForm, 'password')"
+        ></app-input-floating>
+
+        <div class="auth-row">
+          <label class="check">
+            <input type="checkbox" formControlName="remember" />
+            <span>Ghi nhớ đăng nhập</span>
+          </label>
+          <button type="button" class="link" (click)="setMode('forgot')">Quên mật khẩu?</button>
+        </div>
+
+        <app-button-order
+          type="submit"
+          [fullWidth]="true"
+          [text]="loading() ? 'Đang đăng nhập...' : 'Đăng nhập'"
+          [disabled]="loading()"
+        ></app-button-order>
+
+        <p class="auth-switch">
+          Chưa có tài khoản?
+          <button type="button" class="link" (click)="setMode('register')">Đăng ký ngay</button>
+        </p>
+      </form>
+      }
+
+      <!-- ================= ĐĂNG KÝ ================= -->
+      @case ('register') {
+      <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form" novalidate>
+        <app-input-floating
+          id="reg-name"
+          label="Họ và tên"
+          type="text"
+          formControlName="fullName"
+          autocomplete="name"
+          [errorMessage]="fieldError(registerForm, 'fullName')"
+        ></app-input-floating>
+
+        <div class="field-grid">
+          <app-input-floating
+            id="reg-phone"
+            label="Số điện thoại"
+            type="tel"
+            formControlName="phone"
+            autocomplete="tel"
+            [errorMessage]="fieldError(registerForm, 'phone')"
+          ></app-input-floating>
+
+          <app-input-floating
+            id="reg-email"
+            label="Email"
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            [errorMessage]="fieldError(registerForm, 'email')"
+          ></app-input-floating>
+        </div>
+
+        <app-input-floating
+          id="reg-password"
+          label="Mật khẩu"
+          type="password"
+          formControlName="password"
+          autocomplete="new-password"
+          [errorMessage]="fieldError(registerForm, 'password')"
+        ></app-input-floating>
+
+        <app-input-floating
+          id="reg-confirm"
+          label="Nhập lại mật khẩu"
+          type="password"
+          formControlName="confirmPassword"
+          autocomplete="new-password"
+          [errorMessage]="fieldError(registerForm, 'confirmPassword')"
+        ></app-input-floating>
+
+        <div class="field">
+          <label class="check">
+            <input type="checkbox" formControlName="agree" />
+            <span>Tôi đồng ý với điều khoản sử dụng và chính sách bảo mật.</span>
+          </label>
+          @if (fieldError(registerForm, 'agree'); as err) {
+          <small class="field-error">{{ err }}</small>
+          }
+        </div>
+
+        <app-button-order
+          type="submit"
+          [fullWidth]="true"
+          [text]="loading() ? 'Đang tạo tài khoản...' : 'Đăng ký'"
+          [disabled]="loading()"
+        ></app-button-order>
+
+        <p class="auth-switch">
+          Đã có tài khoản?
+          <button type="button" class="link" (click)="setMode('login')">Đăng nhập</button>
+        </p>
+      </form>
+      }
+
+      <!-- ================= QUÊN MẬT KHẨU ================= -->
+      @case ('forgot') {
+      <form [formGroup]="forgotForm" (ngSubmit)="onForgot()" class="auth-form" novalidate>
+        <app-input-floating
+          id="forgot-email"
+          label="Email"
+          type="email"
+          formControlName="email"
+          autocomplete="email"
+          [errorMessage]="fieldError(forgotForm, 'email')"
+        ></app-input-floating>
+
+        <app-button-order
+          type="submit"
+          [fullWidth]="true"
+          [text]="loading() ? 'Đang gửi...' : 'Gửi liên kết đặt lại'"
+          [disabled]="loading()"
+        ></app-button-order>
+
+        <p class="auth-switch">
+          <button type="button" class="link" (click)="setMode('login')">Quay lại đăng nhập</button>
+        </p>
+      </form>
+      }
+
+      <!-- ================= XÁC THỰC EMAIL ================= -->
+      @case ('verify-email') {
+      <div class="auth-form">
+        @if (loading()) {
+        <p class="auth-subtitle">Đang xác thực tài khoản qua liên kết Gmail...</p>
+        }
+        <app-button-order
+          type="button"
+          [fullWidth]="true"
+          text="Đến trang đăng nhập"
+          (click)="setMode('login')"
+        ></app-button-order>
+      </div>
+      }
+
+      <!-- ================= ĐẶT LẠI MẬT KHẨU ================= -->
+      @case ('reset-password') {
+      <form [formGroup]="resetForm" (ngSubmit)="onResetPassword()" class="auth-form" novalidate>
+        <app-input-floating
+          id="reset-password"
+          label="Mật khẩu mới"
+          type="password"
+          formControlName="password"
+          autocomplete="new-password"
+          [errorMessage]="fieldError(resetForm, 'password')"
+        ></app-input-floating>
+
+        <app-input-floating
+          id="reset-confirm"
+          label="Nhập lại mật khẩu mới"
+          type="password"
+          formControlName="confirmPassword"
+          autocomplete="new-password"
+          [errorMessage]="fieldError(resetForm, 'confirmPassword')"
+        ></app-input-floating>
+
+        <app-button-order
+          type="submit"
+          [fullWidth]="true"
+          [text]="loading() ? 'Đang cập nhật...' : 'Cập nhật mật khẩu'"
+          [disabled]="loading()"
+        ></app-button-order>
+
+        <p class="auth-switch">
+          <button type="button" class="link" (click)="setMode('login')">Quay lại đăng nhập</button>
+        </p>
+      </form>
+      }
+      }
+    </div>
+  </section>
+</main>

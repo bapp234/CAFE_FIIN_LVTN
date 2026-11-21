@@ -1,0 +1,51 @@
+<div class="filter-bar">
+  <div class="filter-left">
+    <!-- Search Input -->
+    @if (showSearch()) {
+      <div class="search-input-wrap">
+        <svg lucideSearch class="search-icon" aria-hidden="true"></svg>
+        <input
+          type="search"
+          class="search-input"
+          [placeholder]="placeholder()"
+          [value]="searchValue()"
+          (input)="onSearchInput($event)"
+          aria-label="Tìm kiếm trong danh sách"
+        />
+        @if (searchValue()) {
+          <button
+            type="button"
+            class="btn-clear-search"
+            (click)="onClearSearch()"
+            aria-label="Xóa từ khóa tìm kiếm"
+          >
+            <svg lucideX class="clear-icon" aria-hidden="true"></svg>
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Projected Filters -->
+    <div class="custom-filters">
+      <ng-content select="[filters]"></ng-content>
+    </div>
+
+    <!-- Reset Filter Button -->
+    @if (hasActiveFilters()) {
+      <button
+        type="button"
+        class="btn-reset"
+        (click)="onResetFilters()"
+        title="Đặt lại bộ lọc về mặc định"
+      >
+        <svg lucideRotateCcw class="reset-icon" aria-hidden="true"></svg>
+        <span>Đặt lại</span>
+      </button>
+    }
+  </div>
+
+  <!-- Projected Actions (Export, Refresh, etc.) -->
+  <div class="filter-right">
+    <ng-content select="[actions]"></ng-content>
+  </div>
+</div>

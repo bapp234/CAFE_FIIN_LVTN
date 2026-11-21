@@ -1,0 +1,45 @@
+<aside class="toast-container" aria-live="polite" aria-label="Thông báo hệ thống">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div
+      class="toast-item"
+      [class.toast-success]="toast.type === 'success'"
+      [class.toast-error]="toast.type === 'error'"
+      [class.toast-warning]="toast.type === 'warning'"
+      [class.toast-info]="toast.type === 'info'"
+      role="status"
+    >
+      <div class="toast-icon-wrap" aria-hidden="true">
+        @switch (toast.type) {
+          @case ('success') {
+            <svg lucideCheckCircle class="toast-icon"></svg>
+          }
+          @case ('error') {
+            <svg lucideAlertCircle class="toast-icon"></svg>
+          }
+          @case ('warning') {
+            <svg lucideAlertTriangle class="toast-icon"></svg>
+          }
+          @default {
+            <svg lucideInfo class="toast-icon"></svg>
+          }
+        }
+      </div>
+
+      <div class="toast-content">
+        <strong class="toast-title">{{ toast.title }}</strong>
+        @if (toast.message) {
+          <p class="toast-desc">{{ toast.message }}</p>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="btn-toast-close"
+        (click)="toastService.dismiss(toast.id)"
+        aria-label="Đóng thông báo"
+      >
+        <svg lucideX class="close-icon" aria-hidden="true"></svg>
+      </button>
+    </div>
+  }
+</aside>

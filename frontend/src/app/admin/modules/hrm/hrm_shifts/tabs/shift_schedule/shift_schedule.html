@@ -1,0 +1,354 @@
+<!-- THANH ĐIỀU KHIỂN TRUNG TÂM (SUB-HEADER TOOLBAR GỌN 1 HÀNG) -->
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        [placeholder]="'Tìm mã, tên NV...'"
+        [ariaLabel]="'Tìm kiếm nhân sự trong lịch phân ca'"
+        (searched)="onSearchChange($event)"
+      />
+    </div>
+
+    <app-admin-combo-box class="combo-branch" [options]="branchOptions()" [value]="branchService.selectedBranchId()"
+      (valueChange)="onBranchFilterChange($event)" ariaLabel="Chọn chi nhánh" />
+
+    <input
+      type="month"
+      class="month-picker-compact"
+      [value]="selectedMonthYear()"
+      (change)="onMonthYearInput($any($event.target).value)"
+      title="Chọn tháng / năm"
+      aria-label="Chọn tháng và năm"
+    />
+
+    <div class="week-stepper">
+      <button type="button" class="btn-week-nav" (click)="goToPreviousWeek()" title="Lùi về tuần trước"
+        aria-label="Tuần trước">
+        <svg lucideChevronLeft class="w-4 h-4" aria-hidden="true"></svg>
+      </button>
+
+      <app-admin-combo-box class="combo-week" [options]="weekOptions()" [value]="weekStart()"
+        (valueChange)="onWeekSelectChange($event)" ariaLabel="Chọn tuần làm việc" />
+
+      <button type="button" class="btn-week-nav" (click)="goToNextWeek()" title="Tiến sang tuần sau"
+        aria-label="Tuần sau">
+        <svg lucideChevronRight class="w-4 h-4" aria-hidden="true"></svg>
+      </button>
+    </div>
+
+    <button
+      type="button"
+      class="btn-icon-refresh"
+      title="Làm mới dữ liệu lịch tuần"
+      aria-label="Làm mới dữ liệu lịch tuần"
+      (click)="refreshTab()"
+    >
+      <svg lucideRotateCcw class="w-4 h-4" [class.animate-spin]="isLoading()" aria-hidden="true"></svg>
+    </button>
+
+    <button
+      type="button"
+      class="hrm-fab-btn"
+      [title]="isAllSelected() ? 'Bỏ chọn tất cả nhân sự' : 'Chọn tất cả nhân sự đang hiển thị'"
+      (click)="toggleSelectAll()"
+    >
+      {{ isAllSelected() ? 'Bỏ chọn hết' : 'Chọn tất cả' }}
+    </button>
+  </div>
+
+  <div class="stripe-right">
+    <!-- NÚT CHUYỂN ĐỔI KHÓA / MỞ KHÓA CA TUẦN (CHỈ HIỆN VỚI CẤP QUẢN LÝ >= 3) -->
+    @if (canLockOrUnlockWeek()) {
+      @if (isWeekLocked()) {
+      <app-admin-button
+        [title]="'Lịch ca đã khóa bởi: ' + (weekStatus()?.lockedBy || 'Quản lý') + (weekStatus()?.lockedAt ? ' lúc ' + weekStatus()?.lockedAt : '') + '. Bấm để mở khóa ca.'"
+        [disabled]="isUnlockingWeek()"
+        bgColor="var(--color-do)"
+        textColor="var(--color-trang)"
+        (clicked)="openUnlockWeekConfirm()"
+      >
+        <svg lucideUnlock aria-hidden="true"></svg>
+        <span>Mở khóa</span>
+      </app-admin-button>
+      } @else {
+      <app-admin-button
+        title="Chốt và khóa lịch phân ca tuần (ngăn chặn chỉnh sửa ca làm việc)"
+        [disabled]="isLockingWeek()"
+        bgColor="#8c6b38"
+        textColor="var(--color-trang)"
+        (clicked)="openLockWeekConfirm()"
+      >
+        <svg lucideLock aria-hidden="true"></svg>
+        <span>Khóa ca tuần</span>
+      </app-admin-button>
+      }
+    }
+
+    <!-- NÚT XUẤT DANH SÁCH CA LÀM CỦA TẤT CẢ NHÂN VIÊN -->
+    <app-admin-button title="Xuất bảng danh sách ca làm việc của tất cả nhân viên trong tuần ra tệp Excel (.xlsx)"
+      bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" (clicked)="openExportConfirm()">
+      <svg lucideDownload aria-hidden="true"></svg>
+      <span>Xuất Excel</span>
+    </app-admin-button>
+
+    <!-- NÚT NHẬP LỊCH PHÂN CA TUẦN TỪ EXCEL -->
+    <input #importFileInput type="file" accept=".xlsx, .xls" style="display: none"
+      (change)="onImportFileSelected($event)" />
+    <app-admin-button title="Nhập lịch phân ca tuần từ tệp Excel (.xlsx)"
+      bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)"
+      [disabled]="isWeekLocked() || isImporting()" (clicked)="importFileInput.click()">
+      <svg lucideUpload aria-hidden="true"></svg>
+      <span>{{ isImporting() ? 'Đang đọc...' : 'Nhập Excel' }}</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<!-- BẢNG LƯỚI LỊCH PHÂN CA TUẦN DÙNG ADMIN-GRID-TABLE TRÀN VIỀN -->
+<div class="employee-grid-container">
+  <app-admin-grid-table ariaLabel="Bảng lưới lịch phân ca tuần" [columns]="scheduleColumns()" [rows]="scheduleRows()"
+    rowKey="code" [loading]="isLoading()" [loadingMore]="isLoadingMore()" [hasMore]="hasMoreEmployees()"
+    loadingMoreText="Đang tải thêm 50 nhân sự tiếp theo..." [selectedKeys]="selectedEmployeeCodes()" [sortBy]="sortBy()"
+    [sortOrder]="sortOrder()" [clientSort]="true" [cellTemplates]="scheduleCellTemplates()"
+    loadingText="Đang nạp dữ liệu phân ca tuần từ hệ thống..." emptyTitle="Không tìm thấy nhân sự nào trong lịch tuần"
+    emptyDescription="Vui lòng chọn chi nhánh hoặc kỳ tuần khác." (rowClick)="onRowClick($event)"
+    (sortChange)="onSortChange($event)" (scrolledToBottom)="onScrollToBottom()">
+    <!-- TEMPLATE CHỌN CA TRỰC TIẾP KHI BẤM VÀO Ô THỨ / NGÀY -->
+    <ng-template #dayCellTemplate let-val let-row="row" let-col="col">
+      <button type="button" class="shift-cell-badge-btn" [class]="'shift-btn-' + getShiftColorVariant(val)"
+        [class.is-locked]="isWeekLocked()" (click)="openShiftPicker(row, col, $event)"
+        [title]="isWeekLocked() ? 'Tuần ca đã bị khóa - không thể điều chỉnh' : 'Bấm để chọn ca làm việc ngày này cho nhân viên'">
+        <span class="shift-cell-text">{{ val === 'OFF' ? '— Nghỉ —' : val }}</span>
+        @if (!isWeekLocked()) {
+        <svg lucideClock class="shift-clock-hint" aria-hidden="true"></svg>
+        } @else {
+        <svg lucideLock class="shift-clock-hint text-red-600" aria-hidden="true"></svg>
+        }
+      </button>
+    </ng-template>
+  </app-admin-grid-table>
+
+  @if (selectedEmployeeCodes().length > 0) {
+    <div class="hrm-floating-action-bar" role="region" aria-label="Thanh thao tác phân ca đã chọn">
+      <div class="hrm-fab-left">
+        <span class="hrm-fab-count">
+          Đã chọn <b>{{ selectedEmployeeCodes().length }}</b> nhân sự
+        </span>
+      </div>
+      <div class="hrm-fab-right">
+        @if (!isAllSelected()) {
+          <button type="button" class="hrm-fab-btn" (click)="toggleSelectAll()">
+            Chọn tất cả ({{ scheduleRows().length }})
+          </button>
+        }
+        <button type="button" class="hrm-fab-btn-clear" (click)="clearSelection()">
+          Bỏ chọn
+        </button>
+
+        <app-admin-combo-box
+          class="combo-bulk-day"
+          placement="top"
+          [options]="bulkDayOptions()"
+          [value]="effectiveBulkDayIso()"
+          (valueChange)="bulkDayIso.set($event)"
+          ariaLabel="Chọn ngày xếp ca hàng loạt"
+        />
+
+        <app-admin-combo-box
+          class="combo-bulk-shift"
+          placement="top"
+          [options]="bulkShiftOptions()"
+          [value]="bulkShiftCode()"
+          (valueChange)="bulkShiftCode.set($event)"
+          ariaLabel="Chọn mẫu ca xếp hàng loạt"
+        />
+
+        <app-admin-button
+          [title]="isWeekLocked() ? 'Tuần ca đã khóa' : 'Xếp ca đã chọn cho toàn bộ nhân sự đang tích'"
+          bgColor="var(--color-xanh-dam)"
+          textColor="var(--color-trang)"
+          [disabled]="isWeekLocked() || isBulkAssigning()"
+          (clicked)="applyBulkShiftAssignment()"
+        >
+          <svg lucideCheck [class.animate-spin]="isBulkAssigning()" aria-hidden="true"></svg>
+          <span>{{ isBulkAssigning() ? 'Đang xếp...' : 'Áp dụng ca (' + selectedEmployeeCodes().length + ')' }}</span>
+        </app-admin-button>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- MODAL KHÓA LỊCH CA TUẦN -->
+<app-hrm-lock-modal
+  [isOpen]="isLockWeekConfirmOpen()"
+  mode="lock"
+  title="Khóa lịch phân ca tuần"
+  description="Sau khi khóa, lịch phân ca tuần này sẽ chuyển sang chế độ chỉ đọc và không thể thay đổi cho đến khi được mở khóa."
+  [periodLabel]="'Tuần ' + weekRangeLabel()"
+  [isLoading]="isLockingWeek()"
+  [errorMessage]="lockWeekError()"
+  (confirmed)="executeLockWeek($event)"
+  (cancelled)="isLockWeekConfirmOpen.set(false)"
+/>
+
+<!-- MODAL MỞ KHÓA LỊCH CA TUẦN -->
+<app-hrm-lock-modal
+  [isOpen]="isUnlockWeekConfirmOpen()"
+  mode="unlock"
+  title="Mở khóa lịch phân ca tuần"
+  description="Mở khóa sẽ cho phép chỉnh sửa lại phân ca của tuần này. Lý do mở khóa sẽ được lưu vào nhật ký hệ thống."
+  [periodLabel]="'Tuần ' + weekRangeLabel()"
+  [isLoading]="isUnlockingWeek()"
+  [errorMessage]="unlockWeekError()"
+  (confirmed)="executeUnlockWeek($event)"
+  (cancelled)="isUnlockWeekConfirmOpen.set(false)"
+/>
+
+<!-- MODAL CHỌN CA LÀM VIỆC NHANH CHO Ô NGÀY -->
+@if (isShiftPickerOpen() && pickingEmployee() && pickingDay()) {
+<div class="modal-overlay" (click)="closeShiftPicker()" aria-hidden="true"></div>
+
+<div class="modal-wrapper">
+  <div class="shift-picker-card" role="dialog" aria-modal="true"
+    [attr.aria-label]="'Chọn ca làm việc cho ' + pickingEmployee()?.fullName">
+    <header class="picker-header">
+      <div class="picker-header-title">
+        <div class="picker-icon-wrap">
+          <svg lucideClock class="w-5 h-5 text-amber-900" aria-hidden="true"></svg>
+        </div>
+        <div>
+          <h3 class="picker-title">Chọn ca làm việc</h3>
+          <p class="picker-subtitle">
+            <b>{{ pickingEmployee()?.fullName }}</b> ({{ pickingEmployee()?.code }}) · {{ pickingEmployee()?.position }}
+          </p>
+        </div>
+      </div>
+      <button type="button" class="picker-close-btn" (click)="closeShiftPicker()" title="Đóng">
+        <svg lucideX class="w-4 h-4" aria-hidden="true"></svg>
+      </button>
+    </header>
+
+    <div class="picker-target-banner">
+      <svg lucideCalendar class="w-4 h-4 text-emerald-700 shrink-0" aria-hidden="true"></svg>
+      <span>
+        Ngày làm việc: <b>{{ pickingDay()?.dayName }} ({{ pickingDay()?.displayDate }})</b> · Năm {{ selectedYear() }}
+      </span>
+    </div>
+
+    <div class="picker-options-list">
+      <div class="picker-section-label">Danh sách mẫu ca của chi nhánh:</div>
+
+      @for (tmpl of templates(); track tmpl.id) {
+      <button type="button" class="shift-option-card" [class.is-active]="currentShiftCode() === tmpl.code"
+        (click)="selectShiftForPicking(tmpl.code)">
+        <div class="option-color-bar" [class]="'bar-' + tmpl.color"></div>
+        <div class="option-info">
+          <div class="option-title-row">
+            <span class="option-code">{{ tmpl.code }}</span>
+            <span class="option-name">{{ tmpl.name }}</span>
+            @if (currentShiftCode() === tmpl.code) {
+            <span class="option-current-tag">Đang xếp</span>
+            }
+          </div>
+          <div class="option-time-row">
+            <span class="option-time">{{ tmpl.startTime }} – {{ tmpl.endTime }}</span>
+            <span class="option-hours">({{ tmpl.standardHours }}h tiêu chuẩn)</span>
+          </div>
+        </div>
+        @if (currentShiftCode() === tmpl.code) {
+        <svg lucideCheck class="w-5 h-5 text-emerald-600 shrink-0" aria-hidden="true"></svg>
+        }
+      </button>
+      }
+
+      <!-- TÙY CHỌN NGHỈ / HỦY CA -->
+      <button type="button" class="shift-option-card option-off"
+        [class.is-active]="!currentShiftCode() || currentShiftCode() === 'OFF'" (click)="selectShiftForPicking('OFF')">
+        <div class="option-color-bar bar-gray"></div>
+        <div class="option-info">
+          <div class="option-title-row">
+            <span class="option-code text-gray-600">OFF</span>
+            <span class="option-name">Nghỉ / Không xếp ca</span>
+            @if (!currentShiftCode() || currentShiftCode() === 'OFF') {
+            <span class="option-current-tag bg-gray-200 text-gray-700">Đang nghỉ</span>
+            }
+          </div>
+          <div class="option-time-row">
+            <span class="option-time text-gray-500">Hủy ca làm của nhân sự trong ngày này</span>
+          </div>
+        </div>
+        @if (!currentShiftCode() || currentShiftCode() === 'OFF') {
+        <svg lucideCheck class="w-5 h-5 text-gray-600 shrink-0" aria-hidden="true"></svg>
+        }
+      </button>
+    </div>
+
+    <footer class="picker-footer">
+      <button type="button" class="btn-cancel-picker" (click)="closeShiftPicker()">
+        Đóng
+      </button>
+    </footer>
+  </div>
+</div>
+}
+
+<!-- DRAWER ĐIỀU PHỐI CA TRONG TUẦN CHO 1 NHÂN SỰ -->
+<app-admin-drawer [isOpen]="isAssignDrawerOpen()"
+  [title]="editingEmployee() ? 'Phân ca tuần: ' + editingEmployee()!.fullName : 'Phân ca tuần'"
+  [subtitle]="editingEmployee() ? 'Mã NV: ' + editingEmployee()!.code + ' · Tuần ' + weekRangeLabel() : ''"
+  width="28rem" (close)="isAssignDrawerOpen.set(false)">
+  @if (editingEmployee(); as emp) {
+  <div class="day-assign-list">
+    @for (day of weekDaysMeta(); track day.iso) {
+    <div class="day-assign-card">
+      <div class="day-meta">
+        <span class="day-title">{{ day.dayName }}</span>
+        <span class="day-date">{{ day.displayDate }} ({{ day.iso }})</span>
+      </div>
+
+      <select class="day-select" [value]="getEmployeeShiftCodeOnDate(emp.id, day.iso)"
+        (change)="onSelectShiftForDay(emp, day.iso, $event)">
+        <option value="">— Nghỉ / Chưa xếp ca —</option>
+        @for (tmpl of templates(); track tmpl.id) {
+        <option [value]="tmpl.code">
+          {{ tmpl.code }} · {{ tmpl.name }} ({{ tmpl.startTime }}–{{ tmpl.endTime }})
+        </option>
+        }
+      </select>
+    </div>
+    }
+  </div>
+  }
+
+  <div footer class="flex items-center justify-end gap-2">
+    <button type="button" class="btn-cancel-action px-4 py-2 text-xs font-semibold rounded cursor-pointer"
+      (click)="isAssignDrawerOpen.set(false)">
+      Đóng
+    </button>
+  </div>
+</app-admin-drawer>
+
+<!-- MODAL XÁC NHẬN XUẤT EXCEL -->
+<app-admin-modal
+  [isOpen]="isExportConfirmOpen()"
+  title="Xuất lịch phân ca tuần"
+  [message]="'Hệ thống sẽ xuất lịch phân ca tuần (' + weekRangeLabel() + ') cho ' + scheduleRows().length + ' nhân sự ra tệp Excel (.xlsx) theo mẫu chuẩn Café Sài Gòn Vintage. Bạn có muốn tiếp tục?'"
+  confirmText="Xuất tệp Excel"
+  cancelText="Hủy bỏ"
+  variant="primary"
+  [isLoading]="isExporting()"
+  (confirm)="confirmExportWeeklyScheduleExcel()"
+  (cancel)="isExportConfirmOpen.set(false)"
+/>
+
+<!-- MODAL XÁC NHẬN NHẬP EXCEL LỊCH CA TUẦN -->
+<app-admin-modal
+  [isOpen]="isImportConfirmOpen()"
+  title="Xác nhận nhập lịch phân ca tuần"
+  [message]="'Tìm thấy ' + pendingImportItems().length + ' lượt thay đổi ca làm cho ' + pendingImportEmployeeCount() + ' nhân sự trong tuần (' + weekRangeLabel() + '). Bạn có chắc chắn muốn áp dụng vào lịch ca tuần không?'"
+  confirmText="Áp dụng lịch ca"
+  cancelText="Hủy bỏ"
+  variant="primary"
+  [isLoading]="isImporting()"
+  (confirm)="confirmImportScheduleExcel()"
+  (cancel)="isImportConfirmOpen.set(false)"
+/>

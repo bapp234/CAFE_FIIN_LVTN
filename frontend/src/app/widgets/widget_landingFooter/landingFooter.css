@@ -1,0 +1,245 @@
+@reference "../../../styles.css";
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.footer-vintage {
+  background-color: var(--color-den);
+  color: var(--color-be);
+  font-family: var(--font-body);
+  border-top: 1px solid var(--color-vien-co);
+  position: relative;
+  overflow: hidden;
+
+  /* Hiệu ứng trượt xuất hiện nhẹ nhàng khi load vào viewport */
+  animation: footerFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes footerFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.footer-container {
+  max-width: 1240px;
+  margin-inline: auto;
+  padding: 5rem 1.5rem 3.5rem;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 3.5rem;
+}
+
+/* CỘT THƯƠNG HIỆU */
+.footer-col--brand {
+  padding-right: 1.5rem;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.brand-seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.6rem;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  border-radius: var(--radius-sm);
+  transform: rotate(-3deg);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.35);
+}
+
+.brand-name {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-trang);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.brand-desc {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--color-be);
+  opacity: 0.82;
+  margin-bottom: 1.5rem;
+}
+
+.brand-time {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--color-xanh-nhat);
+}
+
+.time-label {
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--color-nau-dat);
+}
+
+/* CÁC CỘT LIÊN KẾT */
+.footer-heading {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-trang);
+  margin: 0 0 1.25rem 0;
+  position: relative;
+  padding-bottom: 0.6rem;
+}
+
+.footer-heading::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 28px;
+  height: 2px;
+  background-color: var(--color-do);
+}
+
+.footer-links,
+.footer-contact {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.footer-links a,
+.footer-contact a {
+  color: var(--color-be);
+  text-decoration: none;
+  font-size: 0.92rem;
+  opacity: 0.8;
+  transition: color 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
+  display: inline-block;
+}
+
+.footer-links a:hover,
+.footer-contact a:hover {
+  color: var(--color-trang);
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+.footer-contact li {
+  font-size: 0.92rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.contact-lbl {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--color-nau-xam);
+  text-transform: uppercase;
+}
+
+.contact-hl {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-vang-chanh) !important;
+  opacity: 1 !important;
+}
+
+/* DÒNG CUỐI CÙNG */
+.footer-bottom {
+  border-top: 1px solid rgba(107, 97, 87, 0.25);
+  background-color: var(--color-nau-dam);
+  padding: 1.5rem 1.5rem;
+}
+
+.bottom-container {
+  max-width: 1240px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  color: var(--color-nau-xam);
+}
+
+.copyright {
+  margin: 0;
+}
+
+.bottom-tagline {
+  display: flex;
+  gap: 0.6rem;
+  letter-spacing: 0.08em;
+  color: var(--color-be);
+  opacity: 0.6;
+}
+
+.bottom-tagline span {
+  font-weight: 600;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media screen and (max-width: 1024px) {
+  .footer-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3rem;
+    padding-top: 4rem;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    padding: 3.5rem 1.25rem 2.5rem;
+  }
+
+  .footer-col--brand {
+    padding-right: 0;
+  }
+
+  .bottom-container {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-vintage {
+    animation: none !important;
+  }
+
+  .footer-links a:hover,
+  .footer-contact a:hover {
+    transform: none !important;
+  }
+}

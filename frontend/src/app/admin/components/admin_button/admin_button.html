@@ -1,0 +1,15 @@
+<button
+  class="ab"
+  [class.ab-primary]="variant() === 'primary'"
+  [class.ab-danger]="variant() === 'danger'"
+  [attr.type]="type()"
+  [disabled]="disabled()"
+  [attr.aria-label]="ariaLabel() || null"
+  [style.--ab-color]="textColor() || null"
+  [style.--ab-bg]="bgColor() || null"
+  [style.--ab-border]="border() || null"
+  [style.--ab-hover-bg]="hoverBg() || null"
+  (click)="onClick($event)"
+>
+  <ng-content />
+</button>

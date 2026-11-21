@@ -1,0 +1,36 @@
+<div class="combo" [class.is-open]="isOpen()" [class.is-disabled]="disabled()" [class.is-top]="placement() === 'top'" (keydown)="onKeydown($event)">
+    <button #trigger type="button" class="combo-trigger" role="combobox" aria-haspopup="listbox"
+        [attr.aria-expanded]="isOpen()" [attr.aria-controls]="isOpen() ? listId : null"
+        [attr.aria-activedescendant]="activeDescendant()" [attr.aria-label]="ariaLabel() || null"
+        [disabled]="disabled()" (click)="toggle()">
+        <span class="combo-value" [class.is-placeholder]="!selected()">
+            {{ selected()?.label ?? placeholder() }}
+        </span>
+        <svg lucideChevronDown class="combo-caret" aria-hidden="true"></svg>
+    </button>
+
+    @if (isOpen()) {
+    <div class="combo-panel">
+        @if (searchable()) {
+        <input #searchInput type="text" class="combo-search" autocomplete="off" [placeholder]="searchPlaceholder()"
+            [value]="query()" [attr.aria-controls]="listId" [attr.aria-activedescendant]="activeDescendant()"
+            [attr.aria-label]="searchPlaceholder()" (input)="onQueryInput($event)" />
+        }
+        <ul class="combo-list" role="listbox" [id]="listId" [attr.aria-label]="ariaLabel() || null">
+            @for (opt of filtered(); track opt.value; let i = $index) {
+            <li role="option" class="combo-option" [id]="optionId(i)" [class.is-active]="i === activeIndex()"
+                [class.is-selected]="opt.value === value()" [class.is-disabled]="opt.disabled"
+                [attr.aria-selected]="opt.value === value()" [attr.aria-disabled]="opt.disabled || null"
+                (click)="select(opt)" (mouseenter)="!opt.disabled && activeIndex.set(i)">
+                <span class="combo-option-label">{{ opt.label }}</span>
+                @if (opt.value === value()) {
+                <svg lucideCheck class="combo-check" aria-hidden="true"></svg>
+                }
+            </li>
+            } @empty {
+            <li class="combo-empty" role="presentation">{{ emptyText() }}</li>
+            }
+        </ul>
+    </div>
+    }
+</div>

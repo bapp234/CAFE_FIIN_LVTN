@@ -1,0 +1,504 @@
+<div class="profile-page-wrapper">
+  <app-widget-header [cartCount]="cartCount()" [isSidebarOpen]="false" (toggleSidebar)="navigateToHome()"
+    (toggleCart)="setTab('cart')"></app-widget-header>
+
+  <main class="profile-main">
+    <div class="profile-container">
+      <header class="profile-page-head">
+        <div>
+          <h1 class="profile-title">Hồ sơ tài khoản của tôi</h1>
+        </div>
+        <button type="button" class="btn-logout" (click)="onLogout()">
+          <svg lucideLogOut class="btn-icon" aria-hidden="true"></svg>
+          <span>Đăng xuất</span>
+        </button>
+      </header>
+
+      @if (loading()) {
+      <section class="profile-card profile-loading" aria-busy="true">
+        <p>Đang tải thông tin tài khoản...</p>
+      </section>
+      } @else if (profile(); as p) {
+      @if (isFallbackPreview()) {
+
+      }
+
+      <div class="profile-grid">
+        <!-- Sidebar bên trái -->
+        <aside class="profile-card summary-card">
+          <div class="summary-avatar">
+            <svg lucideUser class="avatar-icon" aria-hidden="true"></svg>
+          </div>
+          <h2 class="summary-name">{{ p.fullName || p.username }}</h2>
+
+          <nav class="profile-sidebar-nav" aria-label="Danh mục hồ sơ khách hàng">
+            <button type="button" class="profile-nav-btn" [class.is-active]="activeTab() === 'info'"
+              (click)="setTab('info')">
+              <svg lucideUser class="nav-icon" aria-hidden="true"></svg>
+              <span>Thông tin cá nhân</span>
+            </button>
+            <button type="button" class="profile-nav-btn" [class.is-active]="activeTab() === 'password'"
+              (click)="setTab('password')">
+              <svg lucideKeyRound class="nav-icon" aria-hidden="true"></svg>
+              <span>Đổi mật khẩu</span>
+            </button>
+            <button type="button" class="profile-nav-btn" [class.is-active]="activeTab() === 'vouchers'"
+              (click)="setTab('vouchers')">
+              <svg lucideTicket class="nav-icon" aria-hidden="true"></svg>
+              <span>Điểm Fiin & voucher giảm giá</span>
+            </button>
+            <button type="button" class="profile-nav-btn" [class.is-active]="activeTab() === 'cart'"
+              (click)="setTab('cart')">
+              <svg lucideShoppingBag class="nav-icon" aria-hidden="true"></svg>
+              <span>Giỏ hàng</span>
+            </button>
+            <button type="button" class="profile-nav-btn" [class.is-active]="activeTab() === 'orders'"
+              (click)="setTab('orders')">
+              <svg lucidePackage class="nav-icon" aria-hidden="true"></svg>
+              <span>Lịch sử đặt hàng</span>
+            </button>
+          </nav>
+        </aside>
+
+        <!-- Khu vực nội dung chính theo Tab -->
+        <section class="profile-card content-card">
+
+          @if (errorMsg()) {
+          <p class="profile-alert profile-alert-error" role="alert">{{ errorMsg() }}</p>
+          }
+          @if (successMsg()) {
+          <p class="profile-alert profile-alert-success" role="status">{{ successMsg() }}</p>
+          }
+
+          @switch (activeTab()) {
+          <!-- TAB 1: THÔNG TIN CÁ NHÂN -->
+          @case ('info') {
+          <div class="tab-panel">
+            <h2 class="section-heading">Thông tin cá nhân</h2>
+            <p class="section-desc">Cập nhật thông tin nhận hàng và bảo mật tài khoản của bạn.</p>
+
+            <form [formGroup]="profileForm" (ngSubmit)="onSaveProfile()" class="profile-form" novalidate>
+              <div class="select-field">
+                <label for="profile-fullname" class="select-label">Họ tên người nhận hàng</label>
+                <input id="profile-fullname" type="text" class="select-input" formControlName="fullName"
+                  autocomplete="name" placeholder="Nhập họ tên người nhận" />
+              </div>
+
+              <div class="form-row-2">
+                <div class="select-field">
+                  <label for="profile-phone" class="select-label">Số điện thoại người nhận</label>
+                  <input id="profile-phone" type="tel" class="select-input" formControlName="phoneNumber"
+                    autocomplete="tel" placeholder="Nhập số điện thoại" />
+                </div>
+
+                <div class="select-field">
+                  <span class="select-label">Giới tính</span>
+                  <app-combo-box-df [options]="genderOptions" [value]="profileForm.controls.gender.value"
+                    (valueChange)="onGenderChange($event)"></app-combo-box-df>
+                </div>
+              </div>
+
+              <div class="form-row-2">
+                <div class="select-field">
+                  <span class="select-label">Tỉnh / Thành phố</span>
+                  <app-combo-box-multi [options]="provinceOptions()" [value]="selectedProvinceId()"
+                    searchPlaceholder="Tìm tỉnh / thành phố..."
+                    (valueChange)="onProvinceChange($event)"></app-combo-box-multi>
+                </div>
+
+                <div class="select-field">
+                  <span class="select-label">Phường / Xã</span>
+                  <app-combo-box-multi [options]="wardOptions()" [value]="selectedWardId()"
+                    [disabled]="!selectedProvinceId()" searchPlaceholder="Tìm phường / xã..."
+                    (valueChange)="onWardChange($event)"></app-combo-box-multi>
+                </div>
+              </div>
+
+              <div class="select-field">
+                <label for="profile-address" class="select-label">Số nhà, tên đường</label>
+                <input id="profile-address" type="text" class="select-input" formControlName="defaultAddress"
+                  autocomplete="street-address" placeholder="Ví dụ: 123 Nguyễn Huệ" />
+              </div>
+
+              <div class="form-actions">
+                <app-button-order type="submit" [text]="saving() ? 'Đang lưu...' : 'Lưu thay đổi'"
+                  [disabled]="saving()"></app-button-order>
+              </div>
+            </form>
+          </div>
+          }
+
+          <!-- TAB 2: ĐỔI MẬT KHẨU -->
+          @case ('password') {
+          <div class="tab-panel">
+            <h2 class="section-heading">Đổi mật khẩu</h2>
+            <p class="section-desc">Cập nhật mật khẩu mới để bảo vệ tài khoản của bạn.</p>
+
+            <form [formGroup]="passwordForm" (ngSubmit)="onSubmitChangePassword()" class="profile-form" novalidate>
+              <div class="select-field">
+                <label for="pw-current" class="select-label">Mật khẩu hiện tại</label>
+                <input id="pw-current" type="password" class="select-input" formControlName="currentPassword"
+                  autocomplete="current-password" />
+              </div>
+              <div class="select-field">
+                <label for="pw-new" class="select-label">Mật khẩu mới</label>
+                <input id="pw-new" type="password" class="select-input" formControlName="newPassword"
+                  autocomplete="new-password" />
+              </div>
+              <div class="select-field">
+                <label for="pw-confirm" class="select-label">Xác nhận mật khẩu mới</label>
+                <input id="pw-confirm" type="password" class="select-input" formControlName="confirmPassword"
+                  autocomplete="new-password" />
+              </div>
+              <div class="form-actions">
+                <app-button-order type="submit" text="Cập nhật mật khẩu"></app-button-order>
+              </div>
+            </form>
+          </div>
+          }
+
+          <!-- TAB 3: SỔ ĐỊA CHỈ GIAO HÀNG -->
+          @case ('addresses') {
+          <div class="tab-panel">
+            <div class="panel-head-row">
+              <div>
+                <h2 class="section-heading">Sổ địa chỉ giao hàng</h2>
+                <p class="section-desc">Lưu sẵn địa chỉ nhà riêng hoặc nơi làm việc để đặt hàng nhanh hơn.</p>
+              </div>
+              <button type="button" class="btn-outline" (click)="toggleAddAddress()">
+                <svg lucidePlus class="btn-icon" aria-hidden="true"></svg>
+                <span>{{ isAddingAddress() ? 'Đóng biểu mẫu' : 'Thêm địa chỉ' }}</span>
+              </button>
+            </div>
+
+            @if (isAddingAddress()) {
+            <form [formGroup]="addressForm" (ngSubmit)="onAddDraftAddress()" class="sub-box-form" novalidate>
+              <div class="form-row-2">
+                <app-input-floating id="addr-label" label="Nhãn địa chỉ (Nhà riêng, Công ty...)" type="text"
+                  formControlName="label"></app-input-floating>
+                <app-input-floating id="addr-receiver" label="Người nhận" type="text"
+                  formControlName="receiverName"></app-input-floating>
+              </div>
+              <div class="form-row-2">
+                <app-input-floating id="addr-phone" label="Số điện thoại nhận hàng" type="tel"
+                  formControlName="receiverPhone"></app-input-floating>
+                <app-input-floating id="addr-full" label="Địa chỉ chi tiết" type="text"
+                  formControlName="fullAddress"></app-input-floating>
+              </div>
+              <label class="check-row">
+                <input type="checkbox" formControlName="isDefault" />
+                <span>Đặt làm địa chỉ giao hàng mặc định</span>
+              </label>
+              <div class="form-actions">
+                <app-button-order type="submit" text="Lưu địa chỉ"></app-button-order>
+              </div>
+            </form>
+            }
+
+            @if (addresses().length === 0) {
+            <div class="empty-box">
+              <svg lucideMapPin class="empty-icon" aria-hidden="true"></svg>
+              <p>Bạn chưa lưu địa chỉ giao hàng nào.</p>
+            </div>
+            } @else {
+            <div class="address-list">
+              @for (addr of addresses(); track addr.id) {
+              <article class="address-item">
+                <div class="address-info">
+                  <div class="address-top">
+                    <span class="address-label">{{ addr.label }}</span>
+                    @if (addr.isDefault) {
+                    <span class="default-pill">Mặc định</span>
+                    }
+                  </div>
+                  <p class="address-receiver">{{ addr.receiverName }} · {{ addr.receiverPhone }}</p>
+                  <p class="address-line">{{ addr.fullAddress }}</p>
+                </div>
+                <button type="button" class="btn-icon-danger" aria-label="Xóa địa chỉ"
+                  (click)="onRemoveDraftAddress(addr.id)">
+                  <svg lucideTrash2 class="btn-icon" aria-hidden="true"></svg>
+                </button>
+              </article>
+              }
+            </div>
+            }
+          </div>
+          }
+
+          <!-- TAB 4: ĐIỂM FIIN & VÍ VOUCHER -->
+          @case ('vouchers') {
+          <div class="tab-panel">
+            <h2 class="section-heading">Điểm Fiin & Ví Voucher</h2>
+            <p class="section-desc">Theo dõi số dư Điểm Fiin tích lũy và đổi mã ưu đãi áp dụng khi đặt món.</p>
+
+            <div class="points-banner">
+              <div class="points-banner-left">
+                <svg lucideCoins class="points-icon" aria-hidden="true"></svg>
+                <div>
+                  <span class="points-caption">Số dư Điểm Fiin hiện tại</span>
+                  <strong class="points-total">{{ p.loyaltyPoints | number }} Điểm Fiin</strong>
+                </div>
+              </div>
+              <app-button-order type="button" text="Đặt món tích điểm Fiin"
+                (click)="navigateToMenu()"></app-button-order>
+            </div>
+
+            <div class="commerce-section">
+              <h3 class="subsection-heading">Ví Voucher của bạn ({{ availableCustomerVouchers().length }})</h3>
+              @if (wallet().myVouchers.length === 0) {
+              <div class="empty-box">
+                <svg lucideTicket class="empty-icon" aria-hidden="true"></svg>
+                <p>Chưa có voucher nào trong ví. Hãy đổi bằng Điểm Fiin bên dưới nhé.</p>
+              </div>
+              } @else {
+              <div class="voucher-grid">
+                @for (v of wallet().myVouchers; track v.customerVoucherId) {
+                <article class="voucher-card" [class.is-used]="v.status !== 'Available'">
+                  <div class="voucher-card-top">
+                    <span class="voucher-code-badge">{{ v.voucherCode }}</span>
+                    <span class="voucher-status-pill" [class.is-available]="v.status === 'Available'">
+                      {{ v.status === 'Available' ? 'Sẵn sàng dùng' : v.status === 'Used' ? 'Đã sử dụng' : v.status }}
+                    </span>
+                  </div>
+                  <h4 class="voucher-title">{{ v.voucherName }}</h4>
+                  <p class="voucher-meta">
+                    Giảm
+                    @if (v.discountType === 'Percentage') {
+                    <strong>{{ v.discountValue }}%</strong>
+                    } @else {
+                    <strong>{{ formatCurrency(v.discountValue) }}</strong>
+                    }
+                    · Đơn tối thiểu {{ formatCurrency(v.minOrderAmount) }}
+                  </p>
+                </article>
+                }
+              </div>
+              }
+            </div>
+
+            <div class="commerce-section">
+              <h3 class="subsection-heading">Đổi Điểm Fiin lấy Voucher</h3>
+              @if (wallet().availableVouchers.length === 0) {
+              <div class="empty-box">
+                <p>Hiện chưa có chương trình đổi điểm mới.</p>
+              </div>
+              } @else {
+              <div class="voucher-grid">
+                @for (av of wallet().availableVouchers; track av.voucherId) {
+                <article class="voucher-card">
+                  <div class="voucher-card-top">
+                    <span class="voucher-code-badge">{{ av.voucherCode }}</span>
+                    <span class="voucher-points-pill">{{ av.pointsRequired | number }} Điểm Fiin</span>
+                  </div>
+                  <h4 class="voucher-title">{{ av.voucherName }}</h4>
+                  <p class="voucher-meta">
+                    {{ av.description || ('Đơn tối thiểu ' + formatCurrency(av.minOrderAmount)) }}
+                  </p>
+                  <div class="voucher-card-actions">
+                    <button type="button" class="btn-outline"
+                      [disabled]="redeemingVoucherId() === av.voucherId || p.loyaltyPoints < av.pointsRequired"
+                      (click)="redeemVoucher(av.voucherId)">
+                      @if (redeemingVoucherId() === av.voucherId) {
+                      <span>Đang đổi...</span>
+                      } @else if (p.loyaltyPoints < av.pointsRequired) { <span>Chưa đủ điểm</span>
+                        } @else {
+                        <span>Đổi ngay ({{ av.pointsRequired }}đ)</span>
+                        }
+                    </button>
+                  </div>
+                </article>
+                }
+              </div>
+              }
+            </div>
+          </div>
+          }
+
+          <!-- TAB 5: GIỎ HÀNG -->
+          @case ('cart') {
+          <div class="tab-panel">
+            <div class="panel-head-row">
+              <div>
+                <h2 class="section-heading">Giỏ hàng & Thanh toán</h2>
+                <p class="section-desc">Kiểm tra món đã chọn, áp dụng voucher và đặt đơn trực tuyến.</p>
+              </div>
+              <button type="button" class="btn-outline" (click)="navigateToMenu()">
+                <svg lucidePlus class="btn-icon" aria-hidden="true"></svg>
+                <span>Chọn thêm món</span>
+              </button>
+            </div>
+
+            @if (cartItems().length === 0) {
+            <div class="empty-box">
+              <svg lucideShoppingBag class="empty-icon" aria-hidden="true"></svg>
+              <p>Giỏ hàng của bạn hiện đang trống.</p>
+              <button type="button" class="btn-outline" (click)="navigateToMenu()">
+                <span>Khám phá thực đơn</span>
+              </button>
+            </div>
+            } @else {
+            <div class="cart-list">
+              @for (item of cartItems(); track item.cartItemId) {
+              <article class="cart-row-card">
+                <img [src]="item.imageUrl" [alt]="item.productName" class="cart-row-thumb" />
+                <div class="cart-row-info">
+                  <h4 class="cart-row-title">{{ item.productName }} (Size {{ item.sizeName }})</h4>
+                  <p class="cart-row-sub">
+                    {{ formatCurrency(item.unitPrice) }} × {{ item.quantity }}
+                    @if (item.notes) {
+                    · <em>{{ item.notes }}</em>
+                    }
+                  </p>
+                </div>
+                <strong class="cart-row-total">{{ formatCurrency(item.lineTotal) }}</strong>
+                <button type="button" class="btn-icon-danger" aria-label="Xóa món"
+                  (click)="removeCartItem(item.cartItemId)">
+                  <svg lucideTrash2 class="btn-icon" aria-hidden="true"></svg>
+                </button>
+              </article>
+              }
+            </div>
+
+            <div class="checkout-summary-box">
+              <div class="checkout-controls">
+                <div class="checkout-field">
+                  <label for="order-type-select" class="checkout-label">Hình thức nhận món</label>
+                  <select id="order-type-select" class="checkout-select" [ngModel]="selectedOrderType()"
+                    (ngModelChange)="onOrderTypeChange($event)">
+                    <option value="OnlineDelivery">Giao hàng tận nơi (+15.000đ)</option>
+                    <option value="OnlinePickUp">Tự đến quán lấy (Miễn phí ship)</option>
+                  </select>
+                </div>
+
+                <div class="checkout-field">
+                  <label for="voucher-select" class="checkout-label">Áp dụng Voucher trong ví</label>
+                  <select id="voucher-select" class="checkout-select" [ngModel]="selectedCustomerVoucherId()"
+                    (ngModelChange)="selectedCustomerVoucherId.set($event ? +$event : null)">
+                    <option [ngValue]="null">-- Không dùng voucher --</option>
+                    @for (cv of availableCustomerVouchers(); track cv.customerVoucherId) {
+                    <option [ngValue]="cv.customerVoucherId">
+                      {{ cv.voucherCode }} - {{ cv.voucherName }} (Tối thiểu {{ formatCurrency(cv.minOrderAmount) }})
+                    </option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <div class="checkout-totals">
+                <div class="total-line">
+                  <span>Tạm tính</span>
+                  <span>{{ formatCurrency(cartSubtotal()) }}</span>
+                </div>
+                <div class="total-line">
+                  <span>Giảm giá voucher</span>
+                  <span class="discount-text">-{{ formatCurrency(estimatedDiscount()) }}</span>
+                </div>
+                <div class="total-line">
+                  <span>Phí giao hàng</span>
+                  <span>{{ formatCurrency(estimatedShipping()) }}</span>
+                </div>
+                <div class="total-line total-line-grand">
+                  <span>Tổng thanh toán</span>
+                  <strong>{{ formatCurrency(estimatedTotal()) }}</strong>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <app-button-order type="button" [text]="placingOrder() ? 'Đang gửi đơn...' : 'Đặt hàng ngay'"
+                  (click)="placeOrder()">
+                </app-button-order>
+              </div>
+            </div>
+            }
+          </div>
+          }
+
+          <!-- TAB 6: LỊCH SỬ ĐẶT HÀNG & THEO DÕI REAL-TIME -->
+          @case ('orders') {
+          <div class="tab-panel">
+            <div class="panel-head-row">
+              <div>
+                <h2 class="section-heading">Đơn hàng của tôi</h2>
+                <p class="section-desc">Theo dõi trạng thái Lên món → Làm món → Giao món → Hoàn thành.</p>
+              </div>
+              <button type="button" class="btn-outline" (click)="navigateToMenu()">
+                <svg lucidePlus class="btn-icon" aria-hidden="true"></svg>
+                <span>Đặt đơn mới</span>
+              </button>
+            </div>
+
+            @if (myOrders().length === 0) {
+            <div class="empty-box">
+              <svg lucidePackage class="empty-icon" aria-hidden="true"></svg>
+              <p>Bạn chưa có đơn hàng nào. Hãy chọn món và đặt đơn đầu tiên nhé!</p>
+            </div>
+            } @else {
+            <div class="orders-list">
+              @for (ord of myOrders(); track ord.orderId) {
+              <article class="order-card">
+                <div class="order-card-head">
+                  <div>
+                    <strong class="order-code">{{ ord.orderCode }}</strong>
+                    <span class="order-date">{{ ord.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                  </div>
+                  <span class="order-status-badge"
+                    [class.is-pending]="ord.orderStatus === 'Pending' || ord.orderStatus === 'Confirmed'"
+                    [class.is-processing]="ord.orderStatus === 'Processing' || ord.orderStatus === 'Ready' || ord.orderStatus === 'Delivering'"
+                    [class.is-completed]="ord.orderStatus === 'Completed'"
+                    [class.is-cancelled]="ord.orderStatus === 'Cancelled'">
+                    {{ orderStatusLabel(ord.orderStatus) }}
+                  </span>
+                </div>
+
+                <p class="order-items-summary">{{ ord.itemsSummary || 'Đơn hàng Cà Phê Fiin' }}</p>
+
+                <div class="order-card-foot">
+                  <div class="order-amounts">
+                    <span>Tổng: <strong>{{ formatCurrency(ord.totalAmount) }}</strong></span>
+                    @if (ord.discountAmount > 0) {
+                    <span class="order-discount-tag">Đã giảm {{ formatCurrency(ord.discountAmount) }}</span>
+                    }
+                    <span class="order-payment-tag">
+                      {{ ord.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán' }}
+                    </span>
+                  </div>
+
+                  <div class="order-actions">
+                    @if (canCancelDirectly(ord.orderStatus)) {
+                    <button type="button" class="btn-danger-outline" [disabled]="cancellingOrderId() === ord.orderId"
+                      (click)="cancelOrReturnOrder(ord)">
+                      {{ cancellingOrderId() === ord.orderId ? 'Đang hủy...' : 'Hủy đơn' }}
+                    </button>
+                    } @else if (canRequestReturn(ord.orderStatus)) {
+                    <button type="button" class="btn-warning-outline" [disabled]="cancellingOrderId() === ord.orderId"
+                      (click)="cancelOrReturnOrder(ord)">
+                      {{ cancellingOrderId() === ord.orderId ? 'Đang gửi...' : 'Yêu cầu trả món' }}
+                    </button>
+                    }
+                  </div>
+                </div>
+
+                @if (ord.cancelReason) {
+                <p class="order-cancel-note">Ghi chú hủy/trả: {{ ord.cancelReason }}</p>
+                }
+              </article>
+              }
+            </div>
+            }
+          </div>
+          }
+          }
+        </section>
+      </div>
+      } @else {
+      <section class="profile-card">
+        <p class="profile-alert profile-alert-error" role="alert">
+          {{ errorMsg() || 'Không tải được dữ liệu tài khoản.' }}
+        </p>
+      </section>
+      }
+    </div>
+  </main>
+
+  <app-widget-landing-footer></app-widget-landing-footer>
+</div>

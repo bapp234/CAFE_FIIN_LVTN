@@ -1,0 +1,102 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        placeholder="Tìm tên món, nguyên liệu..."
+        ariaLabel="Tìm kiếm công thức món"
+        (searched)="searchQuery.set($event); refreshTab()"
+      />
+    </div>
+    <app-admin-button title="Làm mới" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+  <div class="stripe-right">
+    <span class="count-badge">Tổng định mức: <b>{{ rows().length }}</b></span>
+    <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" (clicked)="addNewRow()">
+      <svg lucidePlus aria-hidden="true"></svg>
+      <span>Thêm công thức</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng công thức định lượng món (BOM)"
+    [columns]="columns"
+    [rows]="gridRows()"
+    rowKey="_localKey"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [frozenCount]="3"
+    actionsLabel="Xóa"
+    actionsWidth="4.25rem"
+    [cellTemplates]="{
+      variantId: variantTpl,
+      ingredientId: ingredientTpl,
+      quantity: qtyTpl
+    }"
+  >
+    <ng-template #actions let-row>
+      <button type="button" class="row-action-btn is-danger" title="Xóa công thức" (click)="confirmDelete(row)">
+        <svg lucideTrash2 class="w-3.5 h-3.5" aria-hidden="true"></svg>
+      </button>
+    </ng-template>
+  </app-admin-grid-table>
+</div>
+
+<ng-template #variantTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <select class="ghost-select" [(ngModel)]="item.variantId" (ngModelChange)="markDirty(item)">
+      @for (v of variants(); track v.variantId) {
+        <option [ngValue]="v.variantId">{{ v.productName }} ({{ v.sizeName }})</option>
+      }
+    </select>
+  </div>
+</ng-template>
+
+<ng-template #ingredientTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <select class="ghost-select" [(ngModel)]="item.ingredientId" (ngModelChange)="markDirty(item)">
+      @for (ing of ingredients(); track ing.ingredientId) {
+        <option [ngValue]="ing.ingredientId">{{ ing.ingredientName }}</option>
+      }
+    </select>
+  </div>
+</ng-template>
+
+<ng-template #qtyTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input type="number" step="0.001" class="ghost-input is-num" [(ngModel)]="item.quantity" (ngModelChange)="markDirty(item)" />
+  </div>
+</ng-template>
+
+@if (dirtyCount() > 0) {
+  <div class="hrm-floating-action-bar">
+    <div class="fab-summary">Đang có <strong>{{ dirtyCount() }}</strong> công thức thay đổi chưa lưu</div>
+    <div class="fab-actions">
+      <app-admin-button [disabled]="isSaving()" (clicked)="discardChanges()">
+        <svg lucideX aria-hidden="true"></svg><span>Hủy thay đổi</span>
+      </app-admin-button>
+      <app-admin-button bgColor="var(--color-xanh-dam)" textColor="var(--color-trang)" [disabled]="isSaving()" (clicked)="saveAllChanges()">
+        <svg lucideCheck aria-hidden="true"></svg><span>Lưu thay đổi ({{ dirtyCount() }})</span>
+      </app-admin-button>
+    </div>
+  </div>
+}
+
+<app-admin-modal
+  [isOpen]="deleteTarget() !== null"
+  title="Xác nhận xóa công thức"
+  [message]="'Bạn có chắc chắn muốn xóa định lượng nguyên liệu của món ' + (deleteTarget()?.productName ?? '') + ' không?'"
+  confirmText="Xóa"
+  cancelText="Hủy"
+  variant="danger"
+  (confirm)="executeDelete()"
+  (cancel)="deleteTarget.set(null)"
+/>

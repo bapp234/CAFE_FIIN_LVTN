@@ -1,0 +1,523 @@
+<div class="auth-card-wrapper">
+  <!-- Đầu phiếu / Con dấu mộc Sài Gòn xưa -->
+  <div class="card-header-stamp">
+    <div class="stamp-seal">
+      <span class="stamp-text-circle">CÀ PHÊ FIIN</span>
+      <span class="stamp-text-center">CHÍNH HIỆU</span>
+      <span class="stamp-sub">SÀI GÒN 1968</span>
+    </div>
+    <div class="card-title-group">
+      <span class="vintage-sub-title">SỔ GHI DANH & QUẢN TRỊ TÀI KHOẢN</span>
+      <h2 class="vintage-main-title">Khách Quen Phin Quán</h2>
+      <p class="vintage-desc">
+        Kính chào quý bạn tri kỷ. Đăng nhập để nhận quyền lợi thẻ thành viên và lưu dấu hương vị cà phê mộc.
+      </p>
+    </div>
+  </div>
+
+  <!-- Thanh điều hướng Tab cổ điển (Đăng Nhập / Đăng Ký) -->
+  @if (currentMode() !== 'forgot-password') {
+    <nav class="auth-tabs" role="tablist" aria-label="Lựa chọn thao tác tài khoản">
+      <button
+        type="button"
+        role="tab"
+        class="auth-tab-btn"
+        [class.is-active]="currentMode() === 'login'"
+        [attr.aria-selected]="currentMode() === 'login'"
+        (click)="setMode('login')"
+      >
+        <svg lucideUser class="tab-icon"></svg>
+        <span>Đăng Nhập</span>
+      </button>
+
+      <button
+        type="button"
+        role="tab"
+        class="auth-tab-btn"
+        [class.is-active]="currentMode() === 'register'"
+        [attr.aria-selected]="currentMode() === 'register'"
+        (click)="setMode('register')"
+      >
+        <svg lucideShieldCheck class="tab-icon"></svg>
+        <span>Mở Thẻ Mới</span>
+      </button>
+    </nav>
+  }
+
+  <!-- Khung thông báo lỗi / thành công phong cách bưu thiếp -->
+  @if (errorMessage()) {
+    <div class="alert-message error-alert" role="alert">
+      <svg lucideAlertCircle class="alert-icon"></svg>
+      <span class="alert-text">{{ errorMessage() }}</span>
+    </div>
+  }
+
+  @if (successMessage()) {
+    <div class="alert-message success-alert" role="status">
+      <svg lucideCheckCircle2 class="alert-icon"></svg>
+      <span class="alert-text">{{ successMessage() }}</span>
+    </div>
+  }
+
+  <!-- 1. BIỂU MẪU ĐĂNG NHẬP (LOGIN) -->
+  @if (currentMode() === 'login') {
+    <form [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()" class="auth-form" novalidate>
+      <div class="form-group">
+        <label for="login-identifier" class="form-label">
+          <span>Tên đăng nhập hoặc Số điện thoại</span>
+          <span class="required-mark">*</span>
+        </label>
+        <div class="input-wrapper">
+          <input
+            id="login-identifier"
+            type="text"
+            formControlName="identifier"
+            class="form-input"
+            placeholder="Ví dụ: 0901234567 hoặc khachquen01"
+            autocomplete="username"
+          />
+          <svg lucideUser class="input-icon"></svg>
+        </div>
+        @if (loginForm.controls.identifier.touched && loginForm.controls.identifier.invalid) {
+          <span class="field-error">Vui lòng nhập tên đăng nhập hoặc số điện thoại.</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <div class="label-with-link">
+          <label for="login-password" class="form-label">
+            <span>Mật khẩu</span>
+            <span class="required-mark">*</span>
+          </label>
+          <button
+            type="button"
+            class="text-link-action"
+            (click)="setMode('forgot-password')"
+          >
+            Quên mật khẩu?
+          </button>
+        </div>
+        <div class="input-wrapper">
+          <input
+            id="login-password"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            class="form-input"
+            placeholder="Tối thiểu 6 ký tự"
+            autocomplete="current-password"
+          />
+          <button
+            type="button"
+            class="password-toggle-btn"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword() ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'"
+          >
+            @if (showPassword()) {
+              <svg lucideEyeOff class="toggle-icon"></svg>
+            } @else {
+              <svg lucideEye class="toggle-icon"></svg>
+            }
+          </button>
+        </div>
+        @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
+          <span class="field-error">Mật khẩu phải có ít nhất 6 ký tự.</span>
+        }
+      </div>
+
+      <div class="form-row-utility">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            formControlName="rememberMe"
+            class="vintage-checkbox"
+          />
+          <span class="checkbox-custom"></span>
+          <span class="checkbox-text">Ghi nhớ phiên đăng nhập này</span>
+        </label>
+      </div>
+
+      <button
+        type="submit"
+        class="submit-button"
+        [disabled]="isLoading()"
+      >
+        @if (isLoading()) {
+          <span class="btn-spinner"></span>
+          <span>Đang mở sổ đăng nhập...</span>
+        } @else {
+          <svg lucideCoffee class="btn-icon"></svg>
+          <span>Đăng Nhập Thưởng Thức</span>
+        }
+      </button>
+
+      <div class="form-footer-hint">
+        <span class="hint-text">Chưa có sổ danh bạ khách quen?</span>
+        <button
+          type="button"
+          class="switch-mode-btn"
+          (click)="setMode('register')"
+        >
+          Đăng ký mở thẻ ngay
+        </button>
+      </div>
+    </form>
+  }
+
+  <!-- 2. BIỂU MẪU ĐĂNG KÝ (REGISTER) -->
+  @if (currentMode() === 'register') {
+    <form [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()" class="auth-form" novalidate>
+      <div class="form-group">
+        <label for="reg-fullname" class="form-label">
+          <span>Họ và tên quý khách</span>
+          <span class="required-mark">*</span>
+        </label>
+        <div class="input-wrapper">
+          <input
+            id="reg-fullname"
+            type="text"
+            formControlName="fullName"
+            class="form-input"
+            placeholder="Ví dụ: Nguyễn Văn An"
+            autocomplete="name"
+          />
+          <svg lucideUser class="input-icon"></svg>
+        </div>
+        @if (registerForm.controls.fullName.touched && registerForm.controls.fullName.invalid) {
+          <span class="field-error">Vui lòng cung cấp họ và tên đầy đủ.</span>
+        }
+      </div>
+
+      <div class="form-row-two-col">
+        <div class="form-group">
+          <label for="reg-phone" class="form-label">
+            <span>Số điện thoại nhận hàng</span>
+            <span class="required-mark">*</span>
+          </label>
+          <div class="input-wrapper">
+            <input
+              id="reg-phone"
+              type="tel"
+              formControlName="phoneNumber"
+              class="form-input"
+              placeholder="090xxxxxxx"
+              autocomplete="tel"
+            />
+            <svg lucidePhone class="input-icon"></svg>
+          </div>
+          @if (registerForm.controls.phoneNumber.touched && registerForm.controls.phoneNumber.invalid) {
+            <span class="field-error">Số điện thoại không đúng chuẩn Việt Nam.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="reg-email" class="form-label">
+            <span>Hòm thư điện tử (Email)</span>
+          </label>
+          <div class="input-wrapper">
+            <input
+              id="reg-email"
+              type="email"
+              formControlName="email"
+              class="form-input"
+              placeholder="tenban@gmail.com"
+              autocomplete="email"
+            />
+            <svg lucideMail class="input-icon"></svg>
+          </div>
+          @if (registerForm.controls.email.touched && registerForm.controls.email.invalid) {
+            <span class="field-error">Địa chỉ hòm thư không hợp lệ.</span>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="reg-username" class="form-label">
+          <span>Tên tài khoản (Viết liền, không dấu)</span>
+          <span class="required-mark">*</span>
+        </label>
+        <div class="input-wrapper">
+          <input
+            id="reg-username"
+            type="text"
+            formControlName="username"
+            class="form-input"
+            placeholder="khachquen_saigon"
+            autocomplete="username"
+          />
+          <svg lucideUser class="input-icon"></svg>
+        </div>
+        @if (registerForm.controls.username.touched && registerForm.controls.username.invalid) {
+          <span class="field-error">Tên tài khoản tối thiểu 4 ký tự, chỉ gồm chữ cái, số và dấu gạch dưới.</span>
+        }
+      </div>
+
+      <div class="form-row-two-col">
+        <div class="form-group">
+          <label for="reg-password" class="form-label">
+            <span>Mật khẩu bảo mật</span>
+            <span class="required-mark">*</span>
+          </label>
+          <div class="input-wrapper">
+            <input
+              id="reg-password"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              class="form-input"
+              placeholder="Tối thiểu 6 ký tự"
+              autocomplete="new-password"
+            />
+            <button
+              type="button"
+              class="password-toggle-btn"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="showPassword() ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'"
+            >
+              @if (showPassword()) {
+                <svg lucideEyeOff class="toggle-icon"></svg>
+              } @else {
+                <svg lucideEye class="toggle-icon"></svg>
+              }
+            </button>
+          </div>
+          @if (registerForm.controls.password.touched && registerForm.controls.password.invalid) {
+            <span class="field-error">Mật khẩu tối thiểu 6 ký tự.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="reg-confirm-password" class="form-label">
+            <span>Nhập lại mật khẩu</span>
+            <span class="required-mark">*</span>
+          </label>
+          <div class="input-wrapper">
+            <input
+              id="reg-confirm-password"
+              [type]="showConfirmPassword() ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              class="form-input"
+              placeholder="Nhập lại chính xác"
+              autocomplete="new-password"
+            />
+            <button
+              type="button"
+              class="password-toggle-btn"
+              (click)="toggleConfirmPasswordVisibility()"
+              [attr.aria-label]="showConfirmPassword() ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'"
+            >
+              @if (showConfirmPassword()) {
+                <svg lucideEyeOff class="toggle-icon"></svg>
+              } @else {
+                <svg lucideEye class="toggle-icon"></svg>
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row-utility">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            formControlName="acceptTerms"
+            class="vintage-checkbox"
+          />
+          <span class="checkbox-custom"></span>
+          <span class="checkbox-text">
+            Tôi đồng thuận với các điều khoản bảo mật & quy chế đặt hàng của Cà Phê Fiin
+          </span>
+        </label>
+      </div>
+      @if (registerForm.controls.acceptTerms.touched && registerForm.controls.acceptTerms.invalid) {
+        <span class="field-error">Quý khách cần đồng ý với điều khoản dịch vụ để tiếp tục.</span>
+      }
+
+      <button
+        type="submit"
+        class="submit-button"
+        [disabled]="isLoading()"
+      >
+        @if (isLoading()) {
+          <span class="btn-spinner"></span>
+          <span>Đang tạo sổ danh bạ...</span>
+        } @else {
+          <svg lucideShieldCheck class="btn-icon"></svg>
+          <span>Xác Nhận Mở Thẻ Khách Quen</span>
+        }
+      </button>
+
+      <div class="form-footer-hint">
+        <span class="hint-text">Đã có thẻ thành viên quán?</span>
+        <button
+          type="button"
+          class="switch-mode-btn"
+          (click)="setMode('login')"
+        >
+          Trở về Đăng nhập
+        </button>
+      </div>
+    </form>
+  }
+
+  <!-- 3. BIỂU MẪU QUÊN MẬT KHẨU (FORGOT PASSWORD) -->
+  @if (currentMode() === 'forgot-password') {
+    <div class="forgot-container">
+      <div class="forgot-header">
+        <button
+          type="button"
+          class="back-link-btn"
+          (click)="setMode('login')"
+          aria-label="Quay lại đăng nhập"
+        >
+          <svg lucideArrowLeft class="back-icon"></svg>
+          <span>Quay lại trang Đăng nhập</span>
+        </button>
+        <h3 class="forgot-title">Khôi Phục Mật Khẩu Khách Quen</h3>
+        <p class="forgot-desc">
+          Điền địa chỉ hòm thư hoặc số điện thoại đã ghi danh. Chúng tôi sẽ hỗ trợ quý khách cấp lại quyền truy cập ngay tức khắc.
+        </p>
+      </div>
+
+      <!-- BƯỚC 1: YÊU CẦU MÃ XÁC THỰC -->
+      @if (forgotStep() === 1) {
+        <form [formGroup]="forgotRequestForm" (ngSubmit)="onForgotRequestSubmit()" class="auth-form" novalidate>
+          <div class="form-group">
+            <label for="forgot-identifier" class="form-label">
+              <span>Hòm thư điện tử hoặc Số điện thoại</span>
+              <span class="required-mark">*</span>
+            </label>
+            <div class="input-wrapper">
+              <input
+                id="forgot-identifier"
+                type="text"
+                formControlName="identifier"
+                class="form-input"
+                placeholder="Nhập email hoặc SĐT (Ví dụ: vanan@gmail.com)"
+                autocomplete="email"
+              />
+              <svg lucideMail class="input-icon"></svg>
+            </div>
+            @if (forgotRequestForm.controls.identifier.touched && forgotRequestForm.controls.identifier.invalid) {
+              <span class="field-error">Vui lòng cung cấp thông tin liên lạc hợp lệ.</span>
+            }
+          </div>
+
+          <button
+            type="submit"
+            class="submit-button"
+            [disabled]="isLoading()"
+          >
+            @if (isLoading()) {
+              <span class="btn-spinner"></span>
+              <span>Đang gửi thông điệp...</span>
+            } @else {
+              <svg lucideMail class="btn-icon"></svg>
+              <span>Gửi Mã Xác Thực Khôi Phục</span>
+            }
+          </button>
+        </form>
+      }
+
+      <!-- BƯỚC 2: NHẬP OTP VÀ ĐẶT LẠI MẬT KHẨU MỚI -->
+      @if (forgotStep() === 2) {
+        <form [formGroup]="resetPasswordForm" (ngSubmit)="onResetPasswordSubmit()" class="auth-form" novalidate>
+          <div class="form-group">
+            <label for="reset-otp" class="form-label">
+              <span>Mã xác thực 6 chữ số</span>
+              <span class="required-mark">*</span>
+            </label>
+            <div class="input-wrapper">
+              <input
+                id="reset-otp"
+                type="text"
+                formControlName="otpCode"
+                class="form-input otp-input"
+                placeholder="123456"
+                maxlength="6"
+              />
+              <svg lucideShieldCheck class="input-icon"></svg>
+            </div>
+            <span class="field-hint">Mã mẫu thử nghiệm hệ thống là: <strong>123456</strong></span>
+            @if (resetPasswordForm.controls.otpCode.touched && resetPasswordForm.controls.otpCode.invalid) {
+              <span class="field-error">Mã xác thực phải gồm 6 chữ số.</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="reset-new-password" class="form-label">
+              <span>Mật khẩu mới</span>
+              <span class="required-mark">*</span>
+            </label>
+            <div class="input-wrapper">
+              <input
+                id="reset-new-password"
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="newPassword"
+                class="form-input"
+                placeholder="Tối thiểu 6 ký tự"
+                autocomplete="new-password"
+              />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword() ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'"
+              >
+                @if (showPassword()) {
+                  <svg lucideEyeOff class="toggle-icon"></svg>
+                } @else {
+                  <svg lucideEye class="toggle-icon"></svg>
+                }
+              </button>
+            </div>
+            @if (resetPasswordForm.controls.newPassword.touched && resetPasswordForm.controls.newPassword.invalid) {
+              <span class="field-error">Mật khẩu mới phải có ít nhất 6 ký tự.</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="reset-confirm-password" class="form-label">
+              <span>Xác nhận lại mật khẩu mới</span>
+              <span class="required-mark">*</span>
+            </label>
+            <div class="input-wrapper">
+              <input
+                id="reset-confirm-password"
+                [type]="showConfirmPassword() ? 'text' : 'password'"
+                formControlName="confirmNewPassword"
+                class="form-input"
+                placeholder="Nhập lại mật khẩu mới"
+                autocomplete="new-password"
+              />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                (click)="toggleConfirmPasswordVisibility()"
+                [attr.aria-label]="showConfirmPassword() ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'"
+              >
+                @if (showConfirmPassword()) {
+                  <svg lucideEyeOff class="toggle-icon"></svg>
+                } @else {
+                  <svg lucideEye class="toggle-icon"></svg>
+                }
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="submit-button"
+            [disabled]="isLoading()"
+          >
+            @if (isLoading()) {
+              <span class="btn-spinner"></span>
+              <span>Đang thiết lập...</span>
+            } @else {
+              <svg lucideCheckCircle2 class="btn-icon"></svg>
+              <span>Xác Nhận Đổi Mật Khẩu</span>
+            }
+          </button>
+        </form>
+      }
+    </div>
+  }
+</div>

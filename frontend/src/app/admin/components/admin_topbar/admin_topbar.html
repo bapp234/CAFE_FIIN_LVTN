@@ -1,0 +1,32 @@
+<header class="topbar">
+  <div class="tb-left">
+    @if (hasMenu()) {
+      <button
+        type="button"
+        class="tb-menu"
+        aria-controls="admin-sidebar"
+        [attr.aria-expanded]="menuOpen()"
+        aria-label="Mở menu chức năng"
+        (click)="menuToggle.emit()"
+      >
+        @if (menuOpen()) {
+          <svg lucideX class="tb-menu-icon" aria-hidden="true"></svg>
+        } @else {
+          <svg lucideMenu class="tb-menu-icon" aria-hidden="true"></svg>
+        }
+      </button>
+    }
+
+    <a class="tb-brand" [routerLink]="user()?.portal === 'staff' ? '/staff' : '/admin'" aria-label="Trang làm việc Cà Phê Fiin">
+      <app-brand-logo></app-brand-logo>
+      <span class="tb-brand-text">
+        <span class="tb-brand-name">Cà Phê Fiin</span>
+        <span class="tb-brand-tag">{{ user()?.portal === 'staff' ? 'Cổng nhân viên' : 'Quản trị' }}</span>
+      </span>
+    </a>
+  </div>
+
+  <app-admin-module-tabs class="tb-tabs" [modules]="modules()" />
+
+  <app-admin-user-menu class="tb-user" [user]="user()" (signOut)="signOut.emit()" />
+</header>

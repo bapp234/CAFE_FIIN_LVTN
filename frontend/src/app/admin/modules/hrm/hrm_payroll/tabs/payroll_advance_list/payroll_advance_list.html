@@ -1,0 +1,407 @@
+<!-- THANH ĐIỀU KHIỂN TRUNG TÂM (SUB-HEADER TOOLBAR) -->
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        [placeholder]="'Tìm mã phiếu, tên NV, lý do...'"
+        [ariaLabel]="'Tìm kiếm phiếu tạm ứng lương'"
+        (searched)="onSearchChange($event)"
+      />
+    </div>
+
+    <app-admin-combo-box
+      class="combo-branch"
+      [options]="branchOptions()"
+      [value]="branchService.selectedBranchId()"
+      (valueChange)="onBranchFilterChange($event)"
+      ariaLabel="Chọn chi nhánh"
+    />
+
+    <app-admin-combo-box
+      class="combo-period"
+      [options]="periodOptions"
+      [value]="selectedPeriod()"
+      (valueChange)="onPeriodChange($event)"
+      ariaLabel="Chọn kỳ khấu trừ"
+    />
+
+    <app-admin-combo-box
+      class="combo-status"
+      [options]="statusFilterOptions"
+      [value]="statusFilter()"
+      (valueChange)="onStatusFilterChange($event)"
+      ariaLabel="Lọc trạng thái tạm ứng"
+    />
+
+    <app-admin-button title="Làm mới danh sách tạm ứng lương" (clicked)="refreshTab()">
+      <svg lucideRotateCcw [class.animate-spin]="isLoading()" aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+
+  <div class="stripe-right">
+    <app-admin-button
+      title="Xuất danh sách tạm ứng lương ra tệp Excel (.xlsx)"
+      bgColor="var(--color-xanh-dam)"
+      textColor="var(--color-trang)"
+      (clicked)="openExportConfirm()"
+    >
+      <svg lucideDownload aria-hidden="true"></svg>
+      <span>Xuất Excel</span>
+    </app-admin-button>
+
+    <app-admin-button
+      [title]="
+        isAttendanceLocked()
+          ? 'Bảng công kỳ ' + selectedPeriod() + ' đã khóa, không thể lập phiếu tạm ứng mới'
+          : 'Lập phiếu tạm ứng lương mới cho nhân viên'
+      "
+      [disabled]="isAttendanceLocked()"
+      bgColor="var(--color-do)"
+      textColor="var(--color-trang)"
+      (clicked)="openCreateAdvanceDrawer()"
+    >
+      <svg lucidePlus aria-hidden="true"></svg>
+      <span>Tạo phiếu tạm ứng</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<!-- BẢNG LƯỚI DANH SÁCH TẠM ỨNG LƯƠNG TRÀN VIỀN -->
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng danh sách tạm ứng lương nhân viên"
+    [columns]="advanceColumns"
+    [rows]="advanceRows()"
+    rowKey="advanceCode"
+    [loading]="isLoading()"
+    [sortBy]="sortBy()"
+    [sortOrder]="sortOrder()"
+    [clientSort]="true"
+    [showSummary]="true"
+    [summaryLabel]="'Tổng tạm ứng kỳ ' + selectedPeriod()"
+    [stickyActions]="true"
+    [frozenRightCount]="1"
+    actionsLabel="Thao tác"
+    actionsWidth="10rem"
+    loadingText="Đang tải danh sách tạm ứng lương..."
+    emptyTitle="Chưa có phiếu tạm ứng lương nào trong kỳ này"
+    emptyDescription="Nhấn 'Tạo phiếu tạm ứng' để ghi nhận khoản ứng trước cho nhân viên."
+    (sortChange)="onSortChange($event)"
+  >
+    <ng-template #actions let-row>
+      <div class="action-btn-group">
+        @if (row['status'] === 'pending' && canApproveAdvance()) {
+          <button
+            type="button"
+            class="row-action-btn btn-approve"
+            (click)="openProcessModal(row, 'approve')"
+            title="Phê duyệt chi tạm ứng"
+          >
+            <svg lucideCheck class="w-3.5 h-3.5" aria-hidden="true"></svg>
+            <span>Duyệt</span>
+          </button>
+          <button
+            type="button"
+            class="row-action-btn btn-reject"
+            (click)="openProcessModal(row, 'reject')"
+            title="Từ chối phiếu tạm ứng"
+          >
+            <svg lucideX class="w-3.5 h-3.5" aria-hidden="true"></svg>
+            <span>Từ chối</span>
+          </button>
+        } @else if (row['status'] === 'approved' && canRequestCancelAdvance(row)) {
+          <button
+            type="button"
+            class="row-action-btn btn-reject"
+            (click)="openProcessModal(row, 'request_cancel')"
+            title="Gửi yêu cầu xin hủy phiếu tạm ứng đã duyệt lên cấp duyệt"
+          >
+            <svg lucideRotateCcw class="w-3.5 h-3.5" aria-hidden="true"></svg>
+            <span>Hủy đơn</span>
+          </button>
+        } @else if (row['status'] === 'cancel_pending' && canApproveAdvance()) {
+          <button
+            type="button"
+            class="row-action-btn btn-approve"
+            (click)="openProcessModal(row, 'approve_cancel')"
+            title="Đồng ý hủy phiếu tạm ứng theo yêu cầu của nhân sự"
+          >
+            <svg lucideCheck class="w-3.5 h-3.5" aria-hidden="true"></svg>
+            <span>Duyệt hủy</span>
+          </button>
+          <button
+            type="button"
+            class="row-action-btn btn-reject"
+            (click)="openProcessModal(row, 'reject_cancel')"
+            title="Từ chối yêu cầu hủy (giữ nguyên hiệu lực đã duyệt)"
+          >
+            <svg lucideX class="w-3.5 h-3.5" aria-hidden="true"></svg>
+            <span>Giữ đơn</span>
+          </button>
+        } @else {
+          <span
+            class="processed-label"
+            [class.is-rejected]="row['status'] === 'rejected' || row['status'] === 'cancelled'"
+            [title]="getProcessedTooltip(row)"
+          >
+            @if (row['status'] === 'rejected') {
+              Đã từ chối
+            } @else if (row['status'] === 'cancelled') {
+              Đã hủy đơn
+            } @else if (row['status'] === 'cancel_pending') {
+              Chờ duyệt hủy
+            } @else if (row['status'] === 'deducted') {
+              Đã khấu trừ
+            } @else {
+              Đã duyệt
+            }
+          </span>
+        }
+      </div>
+    </ng-template>
+  </app-admin-grid-table>
+</div>
+
+<!-- DRAWER TẠO PHIẾU TẠM ỨNG LƯƠNG MỚI -->
+<app-admin-drawer
+  [isOpen]="isDrawerOpen()"
+  title="Lập phiếu tạm ứng lương"
+  [subtitle]="'Ghi nhận vào sổ tạm ứng kỳ lương ' + selectedPeriod()"
+  width="32rem"
+  (close)="closeCreateDrawer()"
+>
+  <form class="drawer-form" [formGroup]="advanceForm" (ngSubmit)="saveAdvance()">
+    <!-- Banner kỳ khấu trừ -->
+    <div class="drawer-period-banner">
+      <span class="banner-icon" aria-hidden="true">
+        <svg lucideCalendar class="w-4 h-4"></svg>
+      </span>
+      <div class="banner-meta">
+        <span class="banner-caption">Kỳ khấu trừ lương</span>
+        <strong class="banner-value">Tháng {{ selectedPeriod() }}</strong>
+      </div>
+    </div>
+
+    <!-- Chọn nhân sự (Combo box có tìm kiếm, không tràn ngang) -->
+    <div class="adv-field">
+      <label class="adv-label">
+        Nhân sự đề nghị tạm ứng <span class="adv-req">*</span>
+      </label>
+      <app-admin-combo-box
+        class="adv-emp-combo"
+        [options]="employeeComboOptions()"
+        [value]="selectedEmployeeId()"
+        placeholder="Chọn nhân sự đang làm việc..."
+        searchPlaceholder="Tìm nhanh mã NV, họ tên..."
+        ariaLabel="Chọn nhân sự đề nghị tạm ứng"
+        (valueChange)="onEmployeeSelectChange($event)"
+      />
+    </div>
+
+    <!-- Thẻ thông tin nhân sự đang chọn -->
+    @if (selectedEmployee(); as emp) {
+      <div class="emp-preview-card">
+        <div class="emp-preview-row">
+          <svg lucideUser class="w-3.5 h-3.5 shrink-0 text-[var(--color-xanh-dam)]" aria-hidden="true"></svg>
+          <span class="truncate">
+            <strong>{{ emp.fullName }}</strong> · {{ emp.position || 'Nhân viên' }} ({{ emp.branchName || 'Mặc định' }})
+          </span>
+        </div>
+        <div class="emp-preview-row">
+          <svg lucideWallet class="w-3.5 h-3.5 shrink-0 text-[var(--color-nau-dat)]" aria-hidden="true"></svg>
+          <span class="truncate">
+            TK nhận lương: <strong class="font-mono">{{ selectedEmployeeBank() }}</strong>
+          </span>
+        </div>
+      </div>
+    }
+
+    <!-- Ngày ứng + Số tiền -->
+    <div class="form-row-2">
+      <div class="adv-field">
+        <label class="adv-label" for="adv-date">
+          Ngày đề nghị ứng <span class="adv-req">*</span>
+        </label>
+        <input
+          id="adv-date"
+          type="date"
+          class="adv-input"
+          formControlName="requestDate"
+        />
+      </div>
+
+      <div class="adv-field">
+        <label class="adv-label" for="adv-amount">
+          Số tiền tạm ứng (₫) <span class="adv-req">*</span>
+        </label>
+        <input
+          id="adv-amount"
+          type="number"
+          min="100000"
+          step="100000"
+          class="adv-input adv-input-num"
+          formControlName="amount"
+          placeholder="Tối thiểu 100.000"
+        />
+      </div>
+    </div>
+
+    <!-- Mức chọn nhanh -->
+    <div class="quick-amount-row" role="group" aria-label="Chọn nhanh số tiền tạm ứng">
+      @for (preset of quickAmounts; track preset) {
+        <button
+          type="button"
+          class="quick-chip"
+          [class.is-active]="advanceForm.controls.amount.value === preset"
+          [disabled]="isSaving()"
+          (click)="selectQuickAmount(preset)"
+        >
+          {{ (preset / 1000).toLocaleString('vi-VN') }}k
+        </button>
+      }
+    </div>
+
+    <!-- Hình thức chi (segmented buttons gọn gàng) -->
+    <div class="adv-field">
+      <label class="adv-label">Hình thức nhận tạm ứng</label>
+      <div class="method-segment" role="group" aria-label="Hình thức nhận tạm ứng">
+        <button
+          type="button"
+          class="method-btn"
+          [class.is-active]="advanceForm.controls.paymentMethod.value === 'Chuyển khoản'"
+          [disabled]="isSaving()"
+          (click)="selectPaymentMethod('Chuyển khoản')"
+        >
+          Chuyển khoản ngân hàng
+        </button>
+        <button
+          type="button"
+          class="method-btn"
+          [class.is-active]="advanceForm.controls.paymentMethod.value === 'Tiền mặt tại quỹ'"
+          [disabled]="isSaving()"
+          (click)="selectPaymentMethod('Tiền mặt tại quỹ')"
+        >
+          Tiền mặt tại quỹ
+        </button>
+      </div>
+    </div>
+
+    <!-- Lý do -->
+    <div class="adv-field">
+      <label class="adv-label" for="adv-reason">
+        Lý do tạm ứng lương <span class="adv-req">*</span>
+      </label>
+      <textarea
+        id="adv-reason"
+        rows="3"
+        class="adv-textarea"
+        formControlName="reason"
+        placeholder="Nhập lý do xin tạm ứng lương (tối thiểu 3 ký tự)..."
+      ></textarea>
+    </div>
+
+    @if (drawerError()) {
+      <div class="drawer-error" role="alert">
+        <svg lucideAlertTriangle class="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true"></svg>
+        <span>{{ drawerError() }}</span>
+      </div>
+    }
+  </form>
+
+  <div footer class="flex items-center justify-end gap-2">
+    <button
+      type="button"
+      class="btn-cancel-action px-4 py-2 text-xs font-semibold rounded cursor-pointer"
+      [disabled]="isSaving()"
+      (click)="closeCreateDrawer()"
+    >
+      Hủy bỏ
+    </button>
+    <button
+      type="button"
+      class="btn-save"
+      [disabled]="isSaving()"
+      (click)="saveAdvance()"
+    >
+      @if (isSaving()) {
+        Đang lưu...
+      } @else {
+        Lưu phiếu tạm ứng
+      }
+    </button>
+  </div>
+</app-admin-drawer>
+
+<!-- MODAL XÁC NHẬN PHÊ DUYỆT / TỪ CHỐI / XIN HỦY / DUYỆT HỦY PHIẾU TẠM ỨNG -->
+<app-admin-modal
+  [isOpen]="processingAction() !== null && targetAdvance() !== null"
+  [title]="getProcessModalTitle()"
+  [message]="getProcessModalMessage()"
+  [confirmText]="
+    processingAction() === 'approve'
+      ? 'Xác nhận duyệt'
+      : processingAction() === 'request_cancel'
+        ? 'Gửi yêu cầu xin hủy'
+        : processingAction() === 'approve_cancel'
+          ? 'Đồng ý hủy đơn'
+          : 'Xác nhận từ chối'
+  "
+  cancelText="Đóng"
+  [variant]="
+    processingAction() === 'approve' || processingAction() === 'approve_cancel'
+      ? 'primary'
+      : 'danger'
+  "
+  [isLoading]="isProcessing()"
+  (confirm)="confirmProcessAdvance()"
+  (cancel)="closeProcessModal()"
+>
+  <div class="decision-modal-body">
+    <div class="decision-field">
+      <label class="decision-label" for="advDecisionNote">
+        @if (processingAction() === 'reject' || processingAction() === 'request_cancel') {
+          {{ processingAction() === 'request_cancel' ? 'Lý do xin hủy đơn' : 'Lý do từ chối' }}
+          <span class="text-[var(--color-do)]">*</span>
+        } @else {
+          Ghi chú xử lý (không bắt buộc)
+        }
+      </label>
+      <textarea
+        id="advDecisionNote"
+        class="decision-textarea"
+        rows="3"
+        [placeholder]="
+          processingAction() === 'request_cancel'
+            ? 'Nhập lý do xin hủy phiếu tạm ứng đã duyệt (tối thiểu 3 ký tự)...'
+            : processingAction() === 'reject'
+              ? 'Nhập lý do từ chối phiếu tạm ứng (tối thiểu 3 ký tự)...'
+              : 'Nhập ghi chú (nếu có)...'
+        "
+        [ngModel]="decisionNote()"
+        (ngModelChange)="decisionNote.set($event); decisionError.set('')"
+        [disabled]="isProcessing()"
+      ></textarea>
+    </div>
+
+    @if (decisionError()) {
+      <div class="drawer-error" role="alert">
+        <svg lucideAlertTriangle class="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true"></svg>
+        <span>{{ decisionError() }}</span>
+      </div>
+    }
+  </div>
+</app-admin-modal>
+
+<!-- MODAL XÁC NHẬN XUẤT EXCEL -->
+<app-admin-modal
+  [isOpen]="isExportConfirmOpen()"
+  title="Xuất danh sách tạm ứng lương"
+  [message]="'Hệ thống sẽ xuất ' + advanceRows().length + ' phiếu tạm ứng lương kỳ ' + selectedPeriod() + ' ra tệp Excel (.xlsx) theo mẫu chuẩn Café Sài Gòn Vintage. Bạn có muốn tiếp tục?'"
+  confirmText="Xuất tệp Excel"
+  cancelText="Hủy bỏ"
+  variant="primary"
+  [isLoading]="isExporting()"
+  (confirm)="confirmExportAdvancesExcel()"
+  (cancel)="isExportConfirmOpen.set(false)"
+/>

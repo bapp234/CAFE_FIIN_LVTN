@@ -1,0 +1,51 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        placeholder="Tìm tên khách, SĐT, mã Voucher..."
+        ariaLabel="Tìm kiếm lịch sử Voucher"
+        (searched)="searchQuery.set($event); refreshTab()"
+      />
+    </div>
+
+    <app-admin-combo-box
+      [options]="sortOptions"
+      [value]="sortOrder()"
+      width="9.5rem"
+      (valueChange)="sortOrder.set($event); refreshTab()"
+      ariaLabel="Sắp xếp theo thời gian"
+    />
+
+    <app-admin-combo-box
+      [options]="statusOptions"
+      [value]="statusFilter()"
+      width="11.5rem"
+      (valueChange)="statusFilter.set($event); refreshTab()"
+      ariaLabel="Lọc theo trạng thái voucher"
+    />
+
+    <app-admin-button title="Tải lại lịch sử Voucher" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+
+  <div class="stripe-right">
+    <span class="count-badge">
+      Tổng lượt: <b>{{ rows().length }}</b>
+    </span>
+  </div>
+</div>
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng lịch sử Voucher khách hàng (chỉ xem)"
+    [columns]="columns"
+    [rows]="rows()"
+    rowKey="customerVoucherId"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [frozenCount]="3"
+  />
+</div>

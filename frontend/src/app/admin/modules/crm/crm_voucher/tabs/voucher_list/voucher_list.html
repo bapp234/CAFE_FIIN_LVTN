@@ -1,0 +1,213 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        placeholder="Tìm mã voucher, tên chương trình..."
+        ariaLabel="Tìm kiếm voucher"
+        (searched)="searchQuery.set($event)"
+      />
+    </div>
+
+    <app-admin-button title="Tải lại danh sách voucher" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+
+  <div class="stripe-right">
+    <span class="count-badge">
+      Tổng voucher: <b>{{ filteredRows().length }}</b>
+    </span>
+
+    <app-admin-button
+      title="Thêm dòng voucher mới trực tiếp trên bảng"
+      bgColor="var(--color-xanh-dam)"
+      textColor="var(--color-trang)"
+      (clicked)="addNewRow()"
+    >
+      <svg lucidePlus aria-hidden="true"></svg>
+      <span>Thêm voucher</span>
+    </app-admin-button>
+  </div>
+</div>
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng danh sách voucher giảm giá"
+    [columns]="columns"
+    [rows]="filteredRows()"
+    rowKey="_localKey"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [clientSort]="false"
+    actionsLabel="Xóa"
+    actionsWidth="4.25rem"
+    [cellTemplates]="{
+      voucherCode: voucherCodeTpl,
+      voucherName: voucherNameTpl,
+      discountType: discountTypeTpl,
+      discountValue: discountValueTpl,
+      minOrderAmount: minOrderTpl,
+      pointsCost: pointsCostTpl,
+      startAt: startAtTpl,
+      endAt: endAtTpl,
+      isActive: isActiveTpl
+    }"
+  >
+    <ng-template #actions let-row>
+      <button
+        type="button"
+        class="row-action-btn is-danger"
+        title="Xóa voucher"
+        (click)="confirmDelete(row)"
+      >
+        <svg lucideTrash2 class="w-3.5 h-3.5" aria-hidden="true"></svg>
+      </button>
+    </ng-template>
+  </app-admin-grid-table>
+</div>
+
+<ng-template #voucherCodeTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input
+      type="text"
+      class="ghost-input is-code"
+      placeholder="FIIN..."
+      [(ngModel)]="item.voucherCode"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #voucherNameTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input
+      type="text"
+      class="ghost-input is-name"
+      placeholder="Nhập tên voucher..."
+      [(ngModel)]="item.voucherName"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #discountTypeTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" (click)="$event.stopPropagation()">
+    <select class="ghost-select" [(ngModel)]="item.discountType" (ngModelChange)="markDirty(item)">
+      <option value="FixedAmount">Giảm tiền</option>
+      <option value="Percent">Giảm %</option>
+    </select>
+  </div>
+</ng-template>
+
+<ng-template #discountValueTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input
+      type="number"
+      class="ghost-input is-num"
+      [(ngModel)]="item.discountValue"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #minOrderTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input
+      type="number"
+      class="ghost-input is-num"
+      [(ngModel)]="item.minOrderAmount"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #pointsCostTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input
+      type="number"
+      class="ghost-input is-num"
+      [(ngModel)]="item.pointsCost"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #startAtTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input
+      type="date"
+      class="ghost-input"
+      [(ngModel)]="item.startAt"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #endAtTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-excel-wrap" [class.is-dirty]="item._isDirty" [class.is-new]="item._isNew" (click)="$event.stopPropagation()">
+    <input
+      type="date"
+      class="ghost-input"
+      [(ngModel)]="item.endAt"
+      (ngModelChange)="markDirty(item)"
+    />
+  </div>
+</ng-template>
+
+<ng-template #isActiveTpl let-row="row">
+  @let item = getRaw(row);
+  <div class="cell-check-wrap" (click)="$event.stopPropagation()">
+    <input
+      type="checkbox"
+      [(ngModel)]="item.isActive"
+      (ngModelChange)="markDirty(item)"
+      aria-label="Áp dụng voucher"
+    />
+  </div>
+</ng-template>
+
+@if (dirtyCount() > 0) {
+  <div class="hrm-floating-action-bar" role="region" aria-label="Lưu thay đổi voucher">
+    <div class="fab-summary">
+      Đang có <strong>{{ dirtyCount() }}</strong> voucher thay đổi chưa lưu
+    </div>
+    <div class="fab-actions">
+      <app-admin-button [disabled]="isSaving()" (clicked)="discardChanges()">
+        <svg lucideX aria-hidden="true"></svg>
+        <span>Hủy thay đổi</span>
+      </app-admin-button>
+
+      <app-admin-button
+        bgColor="var(--color-xanh-dam)"
+        textColor="var(--color-trang)"
+        [disabled]="isSaving()"
+        (clicked)="saveAllChanges()"
+      >
+        <svg lucideCheck aria-hidden="true"></svg>
+        <span>{{ isSaving() ? 'Đang lưu...' : 'Lưu thay đổi (' + dirtyCount() + ')' }}</span>
+      </app-admin-button>
+    </div>
+  </div>
+}
+
+<app-admin-modal
+  [isOpen]="deleteTarget() !== null"
+  title="Xác nhận xóa Voucher"
+  [message]="'Bạn có chắc chắn muốn xóa Voucher ' + (deleteTarget()?.voucherCode ?? '') + ' (' + (deleteTarget()?.voucherName ?? '') + ') không?'"
+  confirmText="Xóa"
+  cancelText="Hủy"
+  variant="danger"
+  [isLoading]="isSaving()"
+  (confirm)="executeDelete()"
+  (cancel)="deleteTarget.set(null)"
+/>

@@ -1,0 +1,809 @@
+@reference "../../../styles.css";
+
+:host {
+  display: block;
+  background-color: var(--color-be);
+  color: var(--color-den);
+  font-family: var(--font-body);
+}
+
+.news-page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-be);
+}
+
+.news-container {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  box-sizing: border-box;
+}
+
+/* =========================================
+   2. BREADCRUMB
+   ========================================= */
+.news-breadcrumb-bar {
+  padding: 1.25rem 0 0.25rem;
+}
+
+.news-breadcrumb {
+  margin-bottom: 0;
+}
+
+.breadcrumb-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+}
+
+.breadcrumb-link {
+  color: var(--color-nau-xam);
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+
+.breadcrumb-link:hover {
+  color: var(--color-do);
+  text-decoration: underline;
+}
+
+.breadcrumb-separator {
+  color: var(--color-nau-xam);
+  user-select: none;
+}
+
+.breadcrumb-current {
+  color: var(--color-do);
+  font-weight: 600;
+}
+
+/* =========================================
+   3. BÀI VIẾT TIÊU ĐIỂM (FEATURED STORY)
+   ========================================= */
+.news-main-content {
+  flex: 1;
+  padding: 1.25rem 0 5rem;
+}
+
+.featured-story-section {
+  margin-bottom: 3.5rem;
+}
+
+.featured-card {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 2.5rem;
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-md);
+  padding: 1.75rem;
+  box-shadow: 0 4px 16px rgba(35, 31, 28, 0.06);
+}
+
+.image-frame-retro {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background-color: #f7f1e1;
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.featured-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 300ms ease;
+}
+
+.featured-card:hover .featured-photo {
+  transform: scale(1.03);
+}
+
+.frame-tag {
+  position: absolute;
+  top: 0.85rem;
+  left: 0.85rem;
+  padding: 0.25rem 0.65rem;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border-radius: var(--radius-sm);
+}
+
+.frame-stamp {
+  position: absolute;
+  bottom: 0.85rem;
+  right: 0.85rem;
+  color: var(--color-trang);
+  font-size: 1.2rem;
+  opacity: 0.85;
+}
+
+.featured-body-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.story-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.85rem;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--color-nau-xam);
+}
+
+.meta-category-badge {
+  color: var(--color-do);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.meta-dot {
+  color: var(--color-vien-co);
+}
+
+.meta-clock {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.meta-svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  color: var(--color-nau-xam);
+}
+
+.featured-story-title {
+  margin: 0 0 1rem;
+}
+
+.title-link-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-family: var(--font-heading);
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--color-den);
+  text-align: left;
+  line-height: 1.3;
+  cursor: pointer;
+  transition: color 180ms ease;
+}
+
+.title-link-btn:hover {
+  color: var(--color-do);
+}
+
+.featured-story-excerpt {
+  margin: 0 0 1.5rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--color-nau-xam);
+}
+
+.featured-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--color-vien-co);
+}
+
+.author-info {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.author-name {
+  font-weight: 700;
+  color: var(--color-den);
+}
+
+.publish-date {
+  color: var(--color-nau-xam);
+}
+
+.btn-read-story {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 180ms ease;
+}
+
+.btn-read-story:hover {
+  background-color: var(--color-do-hover);
+}
+
+.btn-arrow-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* =========================================
+   LƯỚI BÀI VIẾT TIẾP THEO (STORIES GRID)
+   ========================================= */
+.stories-grid-section {
+  margin-bottom: 4rem;
+}
+
+.stories-grid-layout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.75rem;
+}
+
+.story-grid-card {
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 4px rgba(35, 31, 28, 0.05);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.story-grid-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 14px rgba(35, 31, 28, 0.08);
+}
+
+.story-thumb-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background-color: #f7f1e1;
+  overflow: hidden;
+}
+
+.story-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 250ms ease;
+}
+
+.story-grid-card:hover .story-thumb-img {
+  transform: scale(1.04);
+}
+
+.story-cat-badge {
+  position: absolute;
+  top: 0.65rem;
+  left: 0.65rem;
+  padding: 0.2rem 0.55rem;
+  background-color: rgba(35, 31, 28, 0.85);
+  color: var(--color-trang);
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border-radius: var(--radius-sm);
+}
+
+.story-card-body {
+  padding: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.story-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
+  color: var(--color-nau-xam);
+  margin-bottom: 0.65rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.meta-icon-mini {
+  width: 0.85rem;
+  height: 0.85rem;
+  color: var(--color-do);
+}
+
+.meta-dot-mini {
+  color: var(--color-vien-co);
+}
+
+.story-card-heading {
+  margin: 0 0 0.65rem;
+}
+
+.heading-link-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-den);
+  text-align: left;
+  line-height: 1.35;
+  cursor: pointer;
+  transition: color 180ms ease;
+}
+
+.heading-link-btn:hover {
+  color: var(--color-do);
+}
+
+.story-card-excerpt {
+  margin: 0 0 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--color-nau-xam);
+  flex: 1;
+}
+
+.story-card-action {
+  padding-top: 0.85rem;
+  border-top: 1px dashed var(--color-vien-co);
+}
+
+.btn-read-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--color-do);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 180ms ease;
+}
+
+.btn-read-more:hover {
+  transform: translateX(3px);
+  color: var(--color-do-hover);
+}
+
+.arrow-svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+/* =========================================
+   4. NEWSLETTER RETRO (LÁ THƯ TÂM GIAO)
+   ========================================= */
+.journal-newsletter-section {
+  margin-top: 2rem;
+}
+
+.newsletter-card-retro {
+  background-color: var(--color-be-card);
+  border: 2px solid var(--color-do);
+  border-radius: var(--radius-md);
+  padding: 2.75rem 2rem;
+  text-align: center;
+}
+
+.letter-badge {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-do);
+  margin-bottom: 0.5rem;
+}
+
+.letter-title {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-den);
+}
+
+.letter-desc {
+  margin: 0 auto 1.75rem;
+  max-width: 620px;
+  font-size: 0.98rem;
+  line-height: 1.65;
+  color: var(--color-nau-xam);
+}
+
+.letter-form {
+  display: flex;
+  justify-content: center;
+  max-width: 520px;
+  margin: 0 auto;
+  gap: 0.5rem;
+}
+
+.letter-input {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  color: var(--color-den);
+  outline: none;
+}
+
+.letter-input:focus {
+  border-color: var(--color-do);
+}
+
+.btn-letter-submit {
+  padding: 0.65rem 1.4rem;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 180ms ease;
+  white-space: nowrap;
+}
+
+.btn-letter-submit:hover {
+  background-color: var(--color-do-hover);
+}
+
+/* =========================================
+   5. MODAL ĐỌC CHI TIẾT BÀI VIẾT (READER)
+   ========================================= */
+.article-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(35, 31, 28, 0.75);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.article-reader-panel {
+  width: 100%;
+  max-width: 760px;
+  max-height: 90vh;
+  background-color: var(--color-trang);
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.reader-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background-color: var(--color-be-card);
+  border-bottom: 1px solid var(--color-vien-co);
+}
+
+.reader-cat-tag {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--color-do);
+}
+
+.reader-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-share-article {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: transparent;
+  border: 1px solid var(--color-vien-co);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.65rem;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--color-nau-xam);
+  cursor: pointer;
+}
+
+.btn-share-article:hover {
+  color: var(--color-do);
+  border-color: var(--color-do);
+}
+
+.share-icon {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.btn-close-reader {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-nau-xam);
+  padding: 0.2rem;
+  display: flex;
+  align-items: center;
+}
+
+.btn-close-reader:hover {
+  color: var(--color-do);
+}
+
+.close-reader-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.reader-scrollable-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem 2.25rem 2.5rem;
+}
+
+.reader-article-title {
+  margin: 0 0 0.85rem;
+  font-family: var(--font-heading);
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--color-den);
+  line-height: 1.3;
+}
+
+.reader-byline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  color: var(--color-nau-xam);
+  margin-bottom: 1.5rem;
+}
+
+.byline-dot {
+  color: var(--color-vien-co);
+}
+
+.reader-image-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: #f7f1e1;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-bottom: 1.75rem;
+}
+
+.reader-hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reader-prose-body {
+  margin-bottom: 2rem;
+}
+
+.reader-paragraph {
+  margin: 0 0 1.25rem;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--color-den);
+}
+
+/* Chữ cái đầu to (Drop Cap) phong cách báo chí cổ điển */
+.drop-cap-paragraph::first-letter {
+  font-family: var(--font-display);
+  font-size: 3.2rem;
+  float: left;
+  line-height: 0.85;
+  margin-right: 0.5rem;
+  margin-top: 0.15rem;
+  color: var(--color-do);
+  font-weight: 700;
+}
+
+.reader-end-signature {
+  text-align: center;
+  padding-top: 1.75rem;
+  border-top: 1px dashed var(--color-vien-co);
+}
+
+.signature-line {
+  font-size: 1.1rem;
+  color: var(--color-do);
+  letter-spacing: 0.3em;
+  display: block;
+  margin-bottom: 0.85rem;
+}
+
+.signature-text {
+  margin: 0 auto 1.25rem;
+  max-width: 480px;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--color-nau-xam);
+}
+
+.signature-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.btn-order-from-story {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.4rem;
+  background-color: var(--color-do);
+  color: var(--color-trang);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 180ms ease;
+}
+
+.btn-order-from-story:hover {
+  background-color: var(--color-do-hover);
+}
+
+/* =========================================
+   6. FAB & TOAST
+   ========================================= */
+.news-floating-group {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  z-index: 50;
+}
+
+.fab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(35, 31, 28, 0.2);
+  transition: transform 180ms ease;
+  text-decoration: none;
+}
+
+.fab-btn:hover {
+  transform: translateY(-2px);
+}
+
+.fab-top {
+  background-color: var(--color-xanh-duong);
+  color: var(--color-trang);
+}
+
+.fab-call {
+  background-color: var(--color-do);
+  color: var(--color-trang);
+}
+
+.fab-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.news-toast-box {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background-color: var(--color-den);
+  color: var(--color-trang);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  z-index: 999;
+}
+
+.toast-check-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  color: #86efac;
+}
+
+/* =========================================
+   RESPONSIVE (1024px, 768px, 480px)
+   ========================================= */
+@media (max-width: 1024px) {
+  .featured-card {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .stories-grid-layout {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .stories-grid-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .letter-form {
+    flex-direction: column;
+  }
+
+  .reader-scrollable-content {
+    padding: 1.5rem;
+  }
+
+  .reader-article-title {
+    font-size: 1.45rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .breadcrumb-link,
+  .story-grid-card,
+  .btn-read-more,
+  .btn-read-story,
+  .fab-btn {
+    transition: none;
+  }
+}
+

@@ -1,0 +1,51 @@
+<div class="sub-header-stripe">
+  <div class="stripe-left">
+    <div class="sub-search-wrap">
+      <app-admin-search-box
+        placeholder="Tìm tên khách, SĐT, diễn giải..."
+        ariaLabel="Tìm kiếm lịch sử Điểm Fiin"
+        (searched)="searchQuery.set($event); refreshTab()"
+      />
+    </div>
+
+    <app-admin-combo-box
+      [options]="sortOptions"
+      [value]="sortOrder()"
+      width="9.5rem"
+      (valueChange)="sortOrder.set($event); refreshTab()"
+      ariaLabel="Sắp xếp theo thời gian"
+    />
+
+    <app-admin-combo-box
+      [options]="balanceOptions"
+      [value]="balanceFilter()"
+      width="13.5rem"
+      (valueChange)="balanceFilter.set($event); refreshTab()"
+      ariaLabel="Lọc theo số dư điểm"
+    />
+
+    <app-admin-button title="Tải lại lịch sử Điểm Fiin" (clicked)="refreshTab()">
+      <svg lucideRotateCcw aria-hidden="true"></svg>
+      <span>Làm mới</span>
+    </app-admin-button>
+  </div>
+
+  <div class="stripe-right">
+    <span class="count-badge">
+      Tổng giao dịch: <b>{{ rows().length }}</b>
+    </span>
+  </div>
+</div>
+
+<div class="employee-grid-container">
+  <app-admin-grid-table
+    ariaLabel="Bảng lịch sử Điểm Fiin (chỉ xem)"
+    [columns]="columns"
+    [rows]="rows()"
+    rowKey="pointTxId"
+    [loading]="isLoading()"
+    [showIndex]="true"
+    indexLabel="STT"
+    [frozenCount]="3"
+  />
+</div>

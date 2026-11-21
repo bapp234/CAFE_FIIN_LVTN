@@ -1,0 +1,180 @@
+<div class="erp-dashboard">
+  <div class="sub-header-stripe">
+    <div class="stripe-left">
+      <app-admin-combo-box
+        class="combo-branch"
+        [options]="branchOptions()"
+        [value]="branchService.selectedBranchId()"
+        (valueChange)="onBranchChange($event)"
+        ariaLabel="Chọn chi nhánh xem báo cáo"
+      />
+      <app-admin-combo-box
+        class="combo-month"
+        [options]="monthOptions"
+        [value]="selectedMonthString()"
+        (valueChange)="onMonthChange($event)"
+        ariaLabel="Chọn tháng báo cáo"
+      />
+      <app-admin-combo-box
+        class="combo-year"
+        [options]="yearOptions"
+        [value]="selectedYear()"
+        (valueChange)="onYearChange($event)"
+        ariaLabel="Chọn năm báo cáo"
+      />
+      <app-admin-button title="Làm mới dữ liệu ERP" (clicked)="loadData()">
+        <svg lucideRotateCcw [class.animate-spin]="isLoading()" aria-hidden="true"></svg>
+        <span>Làm mới dữ liệu</span>
+      </app-admin-button>
+    </div>
+
+    <div class="stripe-right">
+      <div class="system-time-tag">
+        <svg lucideClock class="w-3.5 h-3.5" aria-hidden="true"></svg>
+        <span>Kỳ báo cáo: <b>Tháng {{ selectedMonth() }}/{{ selectedYear() }}</b></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 THẺ KPI -->
+  <section class="stat-grid" aria-label="Chỉ số tổng quan ERP">
+    <app-admin-stat-card
+      label="Doanh thu trong tháng"
+      [value]="formatCurrency(stats().monthlyGrossRevenue)"
+      diff="Đơn hàng không hủy"
+      trend="up"
+      trendLabel="dữ liệu thực tế"
+      icon="activity"
+    />
+    <app-admin-stat-card
+      label="Tổng mã nguyên liệu"
+      [value]="stats().totalSkuCount"
+      diff="Đang kinh doanh"
+      trend="neutral"
+      trendLabel="danh mục kho"
+      icon="users"
+    />
+    <app-admin-stat-card
+      label="Cảnh báo thiếu hàng"
+      [value]="stats().lowStockCount + stats().outOfStockCount"
+      [diff]="stats().outOfStockCount + ' mặt hàng hết sạch'"
+      trend="neutral"
+      trendLabel="cần nhập kho"
+      icon="alert"
+    />
+    <app-admin-stat-card
+      label="Giá trị tồn kho"
+      [value]="formatCurrency(stats().totalInventoryValue)"
+      diff="Ước tính tồn hiện tại"
+      trend="neutral"
+      trendLabel="vốn lưu động"
+      icon="activity"
+    />
+  </section>
+
+  <!-- BIỂU ĐỒ XU HƯỚNG & DONUT TỒN KHO -->
+  <section class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-card-head">
+        <div class="chart-title-wrap">
+          <svg lucideTrendingUp class="chart-icon" aria-hidden="true"></svg>
+          <div>
+            <h2 class="chart-title">Xu hướng doanh thu 12 tháng ({{ selectedYear() }})</h2>
+            <p class="chart-sub">Tổng hợp từ đơn hàng thực tế theo từng tháng</p>
+          </div>
+        </div>
+      </div>
+
+      <svg viewBox="0 0 560 175" class="trend-svg" role="img" aria-label="Biểu đồ doanh thu 12 tháng">
+        <defs>
+          <linearGradient id="erpAreaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--color-xanh-dam)" stop-opacity="0.25" />
+            <stop offset="100%" stop-color="var(--color-xanh-dam)" stop-opacity="0.02" />
+          </linearGradient>
+        </defs>
+        <line x1="36" y1="144" x2="544" y2="144" class="axis-line" />
+        @if (areaPath()) {
+          <path [attr.d]="areaPath()" fill="url(#erpAreaGrad)" />
+        }
+        @if (linePath()) {
+          <path [attr.d]="linePath()" fill="none" stroke="var(--color-xanh-dam)" stroke-width="2.5" />
+        }
+        @for (pt of trendPoints(); track pt.month) {
+          <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="4" class="trend-dot">
+            <title>{{ pt.label }}: {{ formatCurrency(pt.revenue) }} ({{ pt.orderCount }} đơn)</title>
+          </circle>
+          <text [attr.x]="pt.x" y="164" text-anchor="middle" class="axis-label">{{ pt.label }}</text>
+        }
+      </svg>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-card-head">
+        <div class="chart-title-wrap">
+          <svg lucidePieChart class="chart-icon" aria-hidden="true"></svg>
+          <div>
+            <h2 class="chart-title">Tình trạng tồn kho nguyên liệu</h2>
+            <p class="chart-sub">Phân bổ theo định mức tồn tối thiểu</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="donut-body">
+        <svg viewBox="0 0 140 140" class="donut-svg" role="img" aria-label="Biểu đồ tình trạng tồn kho">
+          <circle cx="70" cy="70" r="52" fill="none" stroke="var(--color-be)" stroke-width="18" />
+          @for (seg of stockSegments(); track seg.id) {
+            <circle
+              cx="70"
+              cy="70"
+              r="52"
+              fill="none"
+              [attr.stroke]="seg.color"
+              stroke-width="18"
+              [attr.stroke-dasharray]="seg.dashArray"
+              [attr.stroke-dashoffset]="seg.dashOffset"
+              transform="rotate(-90 70 70)"
+            />
+          }
+          <text x="70" y="74" text-anchor="middle" class="donut-total">{{ stats().totalSkuCount }}</text>
+        </svg>
+
+        <ul class="donut-legend">
+          @for (seg of stockSegments(); track seg.id) {
+            <li class="legend-item">
+              <span class="legend-dot" [style.backgroundColor]="seg.color"></span>
+              <span class="legend-label">{{ seg.label }}</span>
+              <strong class="legend-val">{{ seg.count }} ({{ seg.percentage }}%)</strong>
+            </li>
+          } @empty {
+            <li class="legend-empty">Chưa có nguyên vật liệu trong kho</li>
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- DANH SÁCH NGUYÊN VẬT LIỆU CẦN NHẬP -->
+  <section class="chart-card">
+    <div class="chart-card-head">
+      <div class="chart-title-wrap">
+        <svg lucideAlertTriangle class="chart-icon text-warn" aria-hidden="true"></svg>
+        <div>
+          <h2 class="chart-title">Nguyên vật liệu sắp hết / hết hàng</h2>
+          <p class="chart-sub">Các mặt hàng có tồn kho nhỏ hơn hoặc bằng định mức</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-list">
+      @for (item of lowStockItems(); track item.id) {
+        <div class="stock-row">
+          <span class="stock-code">{{ item.code }}</span>
+          <span class="stock-name">{{ item.name }}</span>
+          <span class="stock-qty">{{ item.currentStock }} / {{ item.minStock }} {{ item.unit }}</span>
+        </div>
+      } @empty {
+        <p class="legend-empty">Không có nguyên vật liệu nào dưới định mức tối thiểu.</p>
+      }
+    </div>
+  </section>
+</div>

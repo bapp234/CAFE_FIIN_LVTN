@@ -1,0 +1,18 @@
+<div class="search-box">
+  <input
+    #searchInput
+    type="text"
+    class="search-input"
+    [placeholder]="placeholder()"
+    [attr.aria-label]="ariaLabel()"
+    (keydown.enter)="onSearch(searchInput.value)"
+  />
+  <button
+    type="button"
+    class="search-btn"
+    aria-label="Tìm kiếm"
+    (click)="onSearch(searchInput.value)"
+  >
+    <svg lucideSearch class="search-icon"></svg>
+  </button>
+</div>
